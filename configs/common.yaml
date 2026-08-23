@@ -1,0 +1,43 @@
+project:
+  name: helmet_detection_comparison
+  seed: 42
+
+classes:
+  0: background
+  1: BikeWithRider
+  2: NoHelmet
+  3: Helmet
+
+data:
+  format: coco
+  image_root: data/raw/edgevision/images
+  source_annotations: data/raw/edgevision/annotations.json
+  train_annotations: data/splits/train.json
+  val_annotations: data/splits/val.json
+  test_annotations: data/splits/test.json
+  split_ratio:
+    train: 0.70
+    val: 0.15
+    test: 0.15
+
+image:
+  min_size: 512
+  max_size: 768
+
+augmentation:
+  horizontal_flip_probability: 0.5
+
+evaluation:
+  box_format: xyxy
+  iou_type: bbox
+  report_map_50: true
+  report_map_50_95: true
+  report_per_class: true
+  primary_metric: map_50_95
+  precision_recall_iou_threshold: 0.50
+  confidence_threshold: null
+
+runtime:
+  device: cuda
+  num_workers: 2
+  mixed_precision: true

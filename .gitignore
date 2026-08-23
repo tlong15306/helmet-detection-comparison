@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Dataset and generated artifacts
+data/raw/edgevision/images/
+data/raw/edgevision/*.json
+data/splits/*.json
+data/samples/annotated_examples/*
+data/samples/invalid_examples/*
+!data/samples/annotated_examples/.gitkeep
+!data/samples/invalid_examples/.gitkeep
+
+# Model outputs
+outputs/**/*.pth
+outputs/**/*.pt
+outputs/**/*.ckpt
+outputs/**/*.csv
+outputs/**/*.json
+outputs/**/*.png
+outputs/**/*.jpg
+outputs/**/*.jpeg
+outputs/**/*.log
+
+# Local application assets generated at runtime
+app/assets/generated/

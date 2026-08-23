@@ -1,0 +1,52 @@
+# Helmet Detection Comparison
+
+Dự án fine-tune và so sánh Faster R-CNN với RetinaNet cho bài toán phát hiện người điều khiển xe máy không đội mũ bảo hiểm từ ảnh giao thông.
+
+## Trạng thái
+
+- Đã khởi tạo cấu trúc dự án.
+- Chưa tải dataset.
+- Chưa cài môi trường Python/PyTorch.
+- Chưa huấn luyện hoặc có kết quả thực nghiệm.
+
+## Giả định tạm thời
+
+- Dataset: EdgeVision.
+- Annotation: COCO JSON.
+- Các lớp đối tượng: `BikeWithRider`, `NoHelmet`, `Helmet`.
+- Mô hình: `fasterrcnn_resnet50_fpn_v2` và `retinanet_resnet50_fpn_v2`.
+
+Các giả định phải được xác nhận trước khi triển khai pipeline chính thức.
+
+## Thứ tự thực hiện
+
+1. Kiểm tra môi trường và dung lượng VRAM.
+2. Tải dataset vào `data/raw/edgevision/`.
+3. Kiểm tra annotation và tạo train/validation/test split.
+4. Chạy smoke test một epoch cho từng mô hình.
+5. Fine-tune và lưu checkpoint tốt nhất theo validation mAP@0.5:0.95.
+6. Đánh giá hai mô hình trên cùng tập test.
+7. Tạo bảng, biểu đồ, demo và hoàn thiện báo cáo.
+
+## Lệnh dự kiến
+
+Các lệnh dưới đây là giao diện dự kiến của dự án. Chỉ sử dụng sau khi các mô-đun tương ứng đã được hoàn thiện.
+
+```powershell
+python tools/check_environment.py
+python tools/inspect_dataset.py --annotations data/raw/edgevision/annotations.json
+python tools/create_splits.py --config configs/common.yaml
+python -m src.train --config configs/faster_rcnn.yaml
+python -m src.train --config configs/retinanet.yaml
+python -m src.evaluate --config configs/faster_rcnn.yaml --split test
+python -m src.evaluate --config configs/retinanet.yaml --split test
+python -m src.compare_models
+```
+
+## Quy tắc quan trọng
+
+- Không sửa trực tiếp dữ liệu trong `data/raw/`.
+- Không dùng tập test để chọn hyperparameter.
+- Hai mô hình phải dùng cùng các tệp split và evaluator.
+- Không đưa số liệu chưa được xuất từ log/JSON/CSV vào báo cáo.
+- Không kết luận mô hình nào tốt hơn trước khi có kết quả kiểm thử.
