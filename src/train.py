@@ -9,13 +9,18 @@ from __future__ import annotations
 
 import argparse
 import copy
+import hashlib
 import json
 import math
+import platform
+import subprocess
 from contextlib import nullcontext
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
 import torch
+import torchvision
 from torch import nn
 from torch.optim import Optimizer
 from torch.optim.lr_scheduler import LRScheduler
@@ -42,6 +47,11 @@ def parse_args() -> argparse.Namespace:
         "--smoke-test",
         action="store_true",
         help="Chạy tối đa một batch train và validation để kiểm tra pipeline",
+    )
+    parser.add_argument(
+        "--smoke-output-dir",
+        default=None,
+        help="Thư mục artifact riêng cho smoke test; không dùng checkpoint official.",
     )
     parser.add_argument(
         "--device",
@@ -99,6 +109,20 @@ def choose_device(requested: str, configured: str = "cuda") -> torch.device:
     if preference == "auto":
         return torch.device("cuda" if torch.cuda.is_available() else "cpu")
     return torch.device(preference)
+
+
+def build_detector_from_config(config: dict[str, Any]) -> nn.Module:
+    """Tạo detector, bảo đảm tham số weights trong YAML được sử dụng."""
+    model = config["model"]
+    image = config["image"]
+    return build_model(
+        model["name"],
+        num_classes=int(model["num_classes"]),
+        min_size=int(image.get("min_size", 512)),
+        max_size=int(image.get("max_size", 768)),
+        trainable_backbone_layers=int(model.get("trainable_backbone_layers", 3)),
+        weights=model.get("weights", "DEFAULT"),
+    )
 
 
 def build_loaders(config: dict[str, Any], smoke_test: bool = False) -> tuple[DataLoader, DataLoader]:
@@ -275,6 +299,8 @@ def _checkpoint_payload(
     epoch: int,
     config: dict[str, Any],
     validation: dict[str, Any] | None,
+    *,
+    smoke_test: bool = False,
 ) -> dict[str, Any]:
     return {
         "format_version": CHECKPOINT_FORMAT_VERSION,
@@ -286,6 +312,7 @@ def _checkpoint_payload(
         "num_classes": config["model"]["num_classes"],
         "config": copy.deepcopy(config),
         "validation": validation,
+        "smoke_test": smoke_test,
     }
 
 
@@ -346,25 +373,138 @@ def _read_history(path: Path) -> list[dict[str, Any]]:
     return history
 
 
+def _file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _git_commit() -> str | None:
+    try:
+        completed = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return completed.stdout.strip() or None
+
+
+def _smoke_directory(config: dict[str, Any], override: str | None) -> Path:
+    if override:
+        return resolve_project_path(override)
+    output = config["output"]
+    configured = output.get("smoke_directory")
+    if configured:
+        return resolve_project_path(configured)
+    model_short_name = str(config["model"]["name"]).replace("_resnet50_fpn_v2", "")
+    return resolve_project_path(Path("outputs") / "smoke" / model_short_name)
+
+
+def _write_json(path: Path, value: dict[str, Any] | list[dict[str, Any]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def _smoke_manifest(
+    config: dict[str, Any],
+    device: torch.device,
+    checkpoint: Path,
+    history: list[dict[str, Any]],
+    memory: dict[str, int] | None,
+) -> dict[str, Any]:
+    data = config["data"]
+    tracked_files = {
+        "processed_annotations": data.get("processed_annotations"),
+        "train_annotations": data["train_annotations"],
+        "val_annotations": data["val_annotations"],
+        "frozen_split_manifest": "data/splits/frozen_manifest.json",
+    }
+    hashes: dict[str, str | None] = {}
+    for key, relative_path in tracked_files.items():
+        if not relative_path:
+            hashes[key] = None
+            continue
+        path = resolve_project_path(relative_path)
+        hashes[key] = _file_sha256(path) if path.is_file() else None
+    return {
+        "schema_version": "smoke-run-1.0",
+        "created_at_utc": datetime.now(timezone.utc).isoformat(),
+        "smoke_test": True,
+        "git_commit": _git_commit(),
+        "model": copy.deepcopy(config["model"]),
+        "image": copy.deepcopy(config["image"]),
+        "training": copy.deepcopy(config["training"]),
+        "runtime": {
+            "device": str(device),
+            "amp": bool(config["runtime"].get("mixed_precision", False)) and device.type == "cuda",
+            "python": platform.python_version(),
+            "torch": torch.__version__,
+            "torchvision": torchvision.__version__,
+        },
+        "data_hashes": hashes,
+        "checkpoint": {"path": str(checkpoint), "sha256": _file_sha256(checkpoint)},
+        "history": history,
+        "cuda_memory_bytes": memory,
+    }
+
+
+@torch.inference_mode()
+def _smoke_checkpoint_inference(
+    config: dict[str, Any], checkpoint: Path, loader: DataLoader, device: torch.device
+) -> dict[str, Any]:
+    """Nạp checkpoint smoke vào model mới và kiểm tra schema prediction."""
+    reloaded = build_detector_from_config(
+        {**config, "model": {**config["model"], "weights": "NONE"}}
+    ).to(device)
+    payload = torch.load(checkpoint, map_location=device, weights_only=False)
+    reloaded.load_state_dict(payload["model_state_dict"])
+    reloaded.eval()
+    images, _targets = next(iter(loader))
+    predictions = reloaded([image.to(device, non_blocking=True) for image in images])
+    if not predictions or not {"boxes", "labels", "scores"}.issubset(predictions[0]):
+        raise ValueError("Inference sau reload không trả boxes, labels, scores")
+    first = predictions[0]
+    if not all(torch.isfinite(first[key]).all() for key in ("boxes", "scores")):
+        raise FloatingPointError("Prediction sau reload có tensor không hữu hạn")
+    labels = first["labels"].detach().cpu().tolist()
+    valid_labels = {int(key) for key in config["classes"] if int(key) != 0}
+    if any(int(label) not in valid_labels for label in labels):
+        raise ValueError("Inference sau reload trả label ngoài class mapping")
+    return {"prediction_count": int(first["boxes"].shape[0]), "schema_valid": True}
+
+
 def run_training(
     config: dict[str, Any],
     *,
     resume: str | None = None,
     smoke_test: bool = False,
     requested_device: str = "auto",
+    smoke_output_dir: str | None = None,
 ) -> list[dict[str, Any]]:
     """Điều phối full training; dùng validation, tuyệt đối không gọi test split."""
     validate_config(config)
     set_seed(int(config["project"].get("seed", 42)))
     device = choose_device(requested_device, str(config["runtime"].get("device", "cuda")))
+    smoke_dir: Path | None = None
+    if smoke_test:
+        frozen_manifest = resolve_project_path("data/splits/frozen_manifest.json")
+        if not frozen_manifest.is_file():
+            raise FileNotFoundError(
+                "Thiếu frozen split manifest. Chạy tools/freeze_splits.py trước smoke test."
+            )
+        smoke_dir = _smoke_directory(config, smoke_output_dir)
+        smoke_dir.mkdir(parents=True, exist_ok=True)
     train_loader, val_loader = build_loaders(config, smoke_test=smoke_test)
-    model = build_model(
-        config["model"]["name"],
-        num_classes=int(config["model"]["num_classes"]),
-        min_size=int(config["image"].get("min_size", 512)),
-        max_size=int(config["image"].get("max_size", 768)),
-        trainable_backbone_layers=int(config["model"].get("trainable_backbone_layers", 3)),
-    ).to(device)
+    if device.type == "cuda":
+        torch.cuda.empty_cache()
+        torch.cuda.reset_peak_memory_stats(device)
+    model = build_detector_from_config(config).to(device)
     optimizer = build_optimizer(model, config["training"])
     scheduler = build_scheduler(optimizer, config["training"])
     use_amp = bool(config["runtime"].get("mixed_precision", False)) and device.type == "cuda"
@@ -374,6 +514,10 @@ def run_training(
     best_path = resolve_project_path(output["best_checkpoint"])
     last_path = resolve_project_path(output["last_checkpoint"])
     history_path = resolve_project_path(output["directory"]) / "logs" / "history.json"
+    smoke_checkpoint: Path | None = None
+    if smoke_dir is not None:
+        smoke_checkpoint = smoke_dir / "checkpoint.pth"
+        history_path = smoke_dir / "history.json"
     class_names = {int(key): str(value) for key, value in config["classes"].items()}
     evaluation = config["evaluation"]
     primary_metric = str(evaluation.get("primary_metric", "map_50_95"))
@@ -446,6 +590,42 @@ def run_training(
         )
         print(f"Epoch {epoch}/{stop_epoch}: {loss_text}{metric_text}")
 
+    if smoke_dir is not None and smoke_checkpoint is not None:
+        final_validation = history[-1].get("validation") if history else None
+        save_checkpoint(
+            smoke_checkpoint,
+            _checkpoint_payload(
+                model,
+                optimizer,
+                scheduler,
+                stop_epoch,
+                config,
+                final_validation,
+                smoke_test=True,
+            ),
+        )
+        _write_history(history_path, history)
+        memory = None
+        if device.type == "cuda":
+            memory = {
+                "peak_allocated": int(torch.cuda.max_memory_allocated(device)),
+                "peak_reserved": int(torch.cuda.max_memory_reserved(device)),
+            }
+        inference = _smoke_checkpoint_inference(config, smoke_checkpoint, val_loader, device)
+        manifest = _smoke_manifest(config, device, smoke_checkpoint, history, memory)
+        manifest["checkpoint_reload_inference"] = inference
+        _write_json(smoke_dir / "run_manifest.json", manifest)
+        _write_json(
+            smoke_dir / "environment.json",
+            {
+                "python": platform.python_version(),
+                "torch": torch.__version__,
+                "torchvision": torchvision.__version__,
+                "cuda_available": torch.cuda.is_available(),
+                "gpu_name": torch.cuda.get_device_name(device) if device.type == "cuda" else None,
+            },
+        )
+
     return history
 
 
@@ -457,6 +637,7 @@ def main() -> None:
         resume=args.resume,
         smoke_test=args.smoke_test,
         requested_device=args.device,
+        smoke_output_dir=args.smoke_output_dir,
     )
 
 

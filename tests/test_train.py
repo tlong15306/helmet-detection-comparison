@@ -6,6 +6,7 @@ import torch
 from torch import nn
 
 from src.train import (
+    build_detector_from_config,
     build_optimizer,
     build_scheduler,
     load_resume_checkpoint,
@@ -14,6 +15,7 @@ from src.train import (
     validate_config,
     _checkpoint_payload,
 )
+from src import train as train_module
 
 
 class TinyDetector(nn.Module):
@@ -122,3 +124,22 @@ def test_validate_config_rejects_class_count_mismatch():
         assert "num_classes" in str(error)
     else:
         raise AssertionError("Expected config validation to reject class mismatch")
+
+
+def test_build_detector_uses_weights_from_config(monkeypatch):
+    config = _config()
+    config["image"] = {"min_size": 512, "max_size": 768}
+    config["model"]["weights"] = "NONE"
+    calls = {}
+
+    def fake_build_model(*args, **kwargs):
+        calls["args"] = args
+        calls["kwargs"] = kwargs
+        return TinyDetector()
+
+    monkeypatch.setattr(train_module, "build_model", fake_build_model)
+    model = build_detector_from_config(config)
+
+    assert isinstance(model, TinyDetector)
+    assert calls["kwargs"]["weights"] == "NONE"
+    assert calls["kwargs"]["min_size"] == 512

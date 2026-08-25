@@ -50,6 +50,9 @@ python tools/inspect_dataset.py --annotations data/raw/edgevision/annotations.js
 python tools/prepare_annotations.py --annotations data/raw/edgevision/annotations.json --images data/raw/edgevision/images --apply-exif-orientation --processed-output data/processed/edgevision/annotations.json --changes-output data/processed/edgevision/annotation_changes.json --problems-output outputs/dataset_quality/problem_annotations.json
 python tools/build_groups.py --annotations data/processed/edgevision/annotations.json --images data/raw/edgevision/images --output data/processed/edgevision/image_hashes.json --near-duplicate-output outputs/dataset_quality/near_duplicate_candidates.json
 python tools/create_splits.py --annotations data/processed/edgevision/annotations.json --groups data/processed/edgevision/image_hashes.json --output-dir data/splits --seed 42
+python tools/freeze_splits.py --seed 42
+python -m src.train --config configs/faster_rcnn.yaml --smoke-test
+python -m src.train --config configs/retinanet.yaml --smoke-test
 python -m src.train --config configs/faster_rcnn.yaml
 python -m src.train --config configs/retinanet.yaml
 python -m src.evaluate --config configs/faster_rcnn.yaml --split test
@@ -62,5 +65,6 @@ python -m src.compare_models
 - Không sửa trực tiếp dữ liệu trong `data/raw/`.
 - Không dùng tập test để chọn hyperparameter.
 - Hai mô hình phải dùng cùng các tệp split và evaluator.
+- Chạy `tools/freeze_splits.py` trước smoke test hoặc train chính thức; thay đổi split sau đó làm mất hiệu lực artifact cũ.
 - Không đưa số liệu chưa được xuất từ log/JSON/CSV vào báo cáo.
 - Không kết luận mô hình nào tốt hơn trước khi có kết quả kiểm thử.

@@ -24,6 +24,19 @@ SUPPORTED_MODELS = {
 WeightsOption = Literal["DEFAULT", "NONE"] | None
 
 
+def _resolve_fasterrcnn_weights(
+    weights: WeightsOption | FasterRCNN_ResNet50_FPN_V2_Weights,
+) -> FasterRCNN_ResNet50_FPN_V2_Weights | None:
+    """Chuyển lựa chọn weights Faster R-CNN từ YAML sang enum Torchvision."""
+    if weights is None or weights == "NONE":
+        return None
+    if weights == "DEFAULT":
+        return FasterRCNN_ResNet50_FPN_V2_Weights.DEFAULT
+    if isinstance(weights, FasterRCNN_ResNet50_FPN_V2_Weights):
+        return weights
+    raise ValueError("weights của Faster R-CNN chỉ nhận DEFAULT hoặc NONE.")
+
+
 def _resolve_retinanet_weights(
     weights: WeightsOption | RetinaNet_ResNet50_FPN_V2_Weights,
 ) -> RetinaNet_ResNet50_FPN_V2_Weights | None:
@@ -55,8 +68,10 @@ def build_model(
     background (chỉ số 0); hai kiến trúc phải nhận cùng giá trị từ config chung.
     """
     if name == "fasterrcnn_resnet50_fpn_v2":
+        resolved_weights = _resolve_fasterrcnn_weights(weights)
         model = fasterrcnn_resnet50_fpn_v2(
-            weights=FasterRCNN_ResNet50_FPN_V2_Weights.DEFAULT,
+            weights=resolved_weights,
+            weights_backbone=None,
             min_size=min_size,
             max_size=max_size,
             trainable_backbone_layers=trainable_backbone_layers,

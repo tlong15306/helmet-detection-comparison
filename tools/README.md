@@ -25,7 +25,10 @@ Chứa các công cụ hỗ trợ chuẩn bị và kiểm tra dự án. Các t�
    - Manifest chỉ tự nhóm ảnh trùng chính xác; nhóm cảnh/video cần được người phụ trách duyệt.
 6. `create_splits.py`
    - Tạo split cố định theo `group_id`, seed và tỷ lệ đã xác nhận.
-7. `benchmark_speed.py`
+7. `freeze_splits.py`
+   - Kiểm tra giao nhau, category/bbox và lưu SHA-256 của processed annotation cùng ba split.
+   - Chạy ngay trước smoke test hoặc train chính thức.
+8. `benchmark_speed.py`
    - Chạy sau khi có checkpoint tốt nhất.
    - Đo latency/FPS của hai mô hình theo cùng giao thức.
 

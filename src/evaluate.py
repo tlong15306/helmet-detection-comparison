@@ -111,9 +111,8 @@ def load_checkpoint_into_model(
 def build_evaluation_model(config: Mapping[str, Any], device: torch.device) -> torch.nn.Module:
     """Khởi tạo kiến trúc đúng config trước khi nạp checkpoint.
 
-    ``src.models.build_model`` dùng trọng số COCO mặc định cho fine-tune. Nếu
-    máy chưa có cache trọng số, Torchvision có thể cần tải một lần để tạo kiến
-    trúc này; checkpoint vẫn là trọng số được đánh giá thực tế.
+    Checkpoint sẽ ghi đè toàn bộ tham số, vì vậy không tải pretrained weights
+    lần nữa khi chỉ cần tạo kiến trúc để đánh giá hoặc nạp checkpoint smoke.
     """
     model_config = config["model"]
     image_config = config["image"]
@@ -123,6 +122,7 @@ def build_evaluation_model(config: Mapping[str, Any], device: torch.device) -> t
         min_size=int(image_config["min_size"]),
         max_size=int(image_config["max_size"]),
         trainable_backbone_layers=int(model_config.get("trainable_backbone_layers", 3)),
+        weights="NONE",
     )
     return model.to(device)
 

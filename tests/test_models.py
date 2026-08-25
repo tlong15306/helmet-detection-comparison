@@ -53,3 +53,13 @@ def test_retinanet_none_weight_options_are_offline(value):
 def test_retinanet_rejects_unknown_weight_option():
     with pytest.raises(ValueError, match="DEFAULT hoặc NONE"):
         models._resolve_retinanet_weights("IMAGENET")
+
+
+@pytest.mark.parametrize("value", [None, "NONE"])
+def test_fasterrcnn_none_weight_options_are_offline(value):
+    assert models._resolve_fasterrcnn_weights(value) is None
+
+
+def test_fasterrcnn_rejects_unknown_weight_option():
+    with pytest.raises(ValueError, match="DEFAULT hoặc NONE"):
+        models._resolve_fasterrcnn_weights("IMAGENET")
