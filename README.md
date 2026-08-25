@@ -7,9 +7,10 @@ Dự án fine-tune và so sánh Faster R-CNN với RetinaNet cho bài toán phá
 - Đã khởi tạo cấu trúc dự án.
 - Đã khóa cấu hình môi trường theo vai trò trong `HUONG_DAN_CAI_DAT.md`.
 - Đã tiếp nhận EdgeVision v1 cục bộ và tạo bản annotation processed có nhật ký thay đổi.
-- Đã tạo split tạm thời theo seed 42; cần duyệt thêm nguy cơ ảnh cùng cảnh trước khi đóng băng kết quả thực nghiệm.
+- Đã tạo và đóng băng split theo seed 42 sau khi kiểm tra nguy cơ ảnh cùng cảnh.
+- Đã hoàn thành smoke test CUDA cho Faster R-CNN và RetinaNet; chưa có kết quả thực nghiệm chính thức.
 - Môi trường trên từng máy thành viên cần được cài và xác minh riêng.
-- Chưa huấn luyện hoặc có kết quả thực nghiệm.
+- Chưa huấn luyện baseline chính thức hoặc có kết quả thực nghiệm cuối cùng.
 
 ## Cài đặt
 
@@ -35,10 +36,11 @@ Các giả định phải được xác nhận trước khi triển khai pipelin
 1. Kiểm tra môi trường và dung lượng VRAM.
 2. Tải dataset vào `data/raw/edgevision/`.
 3. Kiểm tra annotation và tạo train/validation/test split.
-4. Chạy smoke test một epoch cho từng mô hình.
-5. Fine-tune và lưu checkpoint tốt nhất theo validation mAP@0.5:0.95.
-6. Đánh giá hai mô hình trên cùng tập test.
-7. Tạo bảng, biểu đồ, demo và hoàn thiện báo cáo.
+4. Chạy smoke test một batch cho từng mô hình.
+5. Chạy pilot 3 epoch trên validation để xác nhận pipeline và ước lượng thời gian.
+6. Fine-tune baseline và lưu checkpoint tốt nhất theo validation mAP@0.5:0.95.
+7. Đánh giá hai mô hình trên cùng tập test đúng một lần sau khi chốt cấu hình.
+8. Tạo bảng, biểu đồ, demo và hoàn thiện báo cáo.
 
 ## Lệnh dự kiến
 
@@ -53,6 +55,9 @@ python tools/create_splits.py --annotations data/processed/edgevision/annotation
 python tools/freeze_splits.py --seed 42
 python -m src.train --config configs/faster_rcnn.yaml --smoke-test
 python -m src.train --config configs/retinanet.yaml --smoke-test
+$env:PYTHONUTF8 = "1"
+python -m src.train --config configs/pilot_faster_rcnn.yaml --device cuda
+python -m src.train --config configs/pilot_retinanet.yaml --device cuda
 python -m src.train --config configs/faster_rcnn.yaml
 python -m src.train --config configs/retinanet.yaml
 python -m src.evaluate --config configs/faster_rcnn.yaml --split test
@@ -66,5 +71,6 @@ python -m src.compare_models
 - Không dùng tập test để chọn hyperparameter.
 - Hai mô hình phải dùng cùng các tệp split và evaluator.
 - Chạy `tools/freeze_splits.py` trước smoke test hoặc train chính thức; thay đổi split sau đó làm mất hiệu lực artifact cũ.
+- Pilot dùng `configs/pilot_*.yaml`, lưu độc lập tại `outputs/pilot/` và không được resume từ checkpoint smoke.
 - Không đưa số liệu chưa được xuất từ log/JSON/CSV vào báo cáo.
 - Không kết luận mô hình nào tốt hơn trước khi có kết quả kiểm thử.

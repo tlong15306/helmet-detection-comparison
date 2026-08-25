@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+import pytest
 import torch
 from torch import nn
 
@@ -16,6 +17,7 @@ from src.train import (
     _checkpoint_payload,
 )
 from src import train as train_module
+from src.utils import load_config
 
 
 class TinyDetector(nn.Module):
@@ -115,6 +117,41 @@ def test_checkpoint_round_trip_restores_optimizer_and_epoch(tmp_path: Path):
     assert resumed_model.scale.item() == model.scale.item()
 
 
+def test_resume_rejects_smoke_checkpoint(tmp_path: Path):
+    config = _config()
+    model = TinyDetector()
+    optimizer = build_optimizer(model, config["training"])
+    scheduler = build_scheduler(optimizer, config["training"])
+    checkpoint = tmp_path / "smoke.pth"
+    save_checkpoint(
+        checkpoint,
+        _checkpoint_payload(
+            model,
+            optimizer,
+            scheduler,
+            1,
+            config,
+            {"map_50_95": 0.0},
+            smoke_test=True,
+            run_type="smoke",
+        ),
+    )
+    resumed_model = TinyDetector()
+    resumed_optimizer = build_optimizer(resumed_model, config["training"])
+    resumed_scheduler = build_scheduler(resumed_optimizer, config["training"])
+
+    with pytest.raises(ValueError, match="smoke test"):
+        load_resume_checkpoint(
+            checkpoint,
+            resumed_model,
+            resumed_optimizer,
+            resumed_scheduler,
+            torch.device("cpu"),
+            "fasterrcnn_resnet50_fpn_v2",
+            expected_run_type="pilot",
+        )
+
+
 def test_validate_config_rejects_class_count_mismatch():
     config = _config()
     config["model"]["num_classes"] = 3
@@ -143,3 +180,19 @@ def test_build_detector_uses_weights_from_config(monkeypatch):
     assert isinstance(model, TinyDetector)
     assert calls["kwargs"]["weights"] == "NONE"
     assert calls["kwargs"]["min_size"] == 512
+
+
+@pytest.mark.parametrize(
+    ("config_path", "model_name", "output_directory"),
+    [
+        ("configs/pilot_faster_rcnn.yaml", "fasterrcnn_resnet50_fpn_v2", "outputs/pilot/faster_rcnn"),
+        ("configs/pilot_retinanet.yaml", "retinanet_resnet50_fpn_v2", "outputs/pilot/retinanet"),
+    ],
+)
+def test_pilot_configs_are_isolated(config_path, model_name, output_directory):
+    config = load_config(config_path)
+
+    assert config["run"]["type"] == "pilot"
+    assert config["training"]["epochs"] == 3
+    assert config["model"]["name"] == model_name
+    assert config["output"]["directory"] == output_directory

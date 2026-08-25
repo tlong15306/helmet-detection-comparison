@@ -14,6 +14,7 @@ import json
 import math
 import platform
 import subprocess
+import time
 from contextlib import nullcontext
 from datetime import datetime, timezone
 from pathlib import Path
@@ -34,6 +35,7 @@ from .utils import load_config, resolve_project_path, set_seed
 
 
 CHECKPOINT_FORMAT_VERSION = 1
+SUPPORTED_RUN_TYPES = {"baseline", "pilot", "smoke"}
 
 
 def parse_args() -> argparse.Namespace:
@@ -96,6 +98,14 @@ def validate_config(config: dict[str, Any]) -> None:
         raise ValueError("runtime.num_workers không được âm")
     if not output.get("best_checkpoint") or not output.get("last_checkpoint"):
         raise ValueError("Cấu hình phải chỉ định best_checkpoint và last_checkpoint")
+    run = config.get("run", {})
+    if run and not isinstance(run, dict):
+        raise ValueError("run phải là mapping nếu được khai báo")
+    run_type = str(run.get("type", "baseline")).lower()
+    if run_type not in {"baseline", "pilot"}:
+        raise ValueError("run.type chỉ có thể là baseline hoặc pilot")
+    if int(run.get("progress_every_batches", 0)) < 0:
+        raise ValueError("run.progress_every_batches không được âm")
 
 
 def choose_device(requested: str, configured: str = "cuda") -> torch.device:
@@ -109,6 +119,13 @@ def choose_device(requested: str, configured: str = "cuda") -> torch.device:
     if preference == "auto":
         return torch.device("cuda" if torch.cuda.is_available() else "cpu")
     return torch.device(preference)
+
+
+def run_type_from_config(config: dict[str, Any], smoke_test: bool = False) -> str:
+    """Xác định loại lần chạy; smoke luôn ghi đè cấu hình YAML."""
+    if smoke_test:
+        return "smoke"
+    return str(config.get("run", {}).get("type", "baseline")).lower()
 
 
 def build_detector_from_config(config: dict[str, Any]) -> nn.Module:
@@ -222,12 +239,18 @@ def train_one_epoch(
     use_amp: bool,
     accumulation_steps: int = 1,
     max_batches: int | None = None,
+    progress_every_batches: int = 0,
 ) -> dict[str, float]:
     """Cập nhật trọng số trên train split và trả average loss có thể ghi log."""
     model.train()
     optimizer.zero_grad(set_to_none=True)
     loss_total = 0.0
     batches = 0
+    epoch_started = time.perf_counter()
+    try:
+        total_batches = len(loader)
+    except TypeError:
+        total_batches = None
 
     for batch_index, (images, targets) in enumerate(loader, start=1):
         images = [image.to(device, non_blocking=True) for image in images]
@@ -248,6 +271,18 @@ def train_one_epoch(
 
         loss_total += float(loss.detach().item())
         batches += 1
+        if progress_every_batches and batches % progress_every_batches == 0:
+            elapsed_seconds = time.perf_counter() - epoch_started
+            average_loss = loss_total / batches
+            memory_text = ""
+            if device.type == "cuda":
+                peak_mib = torch.cuda.max_memory_allocated(device) / (1024**2)
+                memory_text = f", peak_vram={peak_mib:.0f} MiB"
+            total_text = str(total_batches) if total_batches is not None else "?"
+            print(
+                f"Train batch {batches}/{total_text}: loss_avg={average_loss:.5f}, "
+                f"elapsed={elapsed_seconds:.1f}s{memory_text}"
+            )
         if max_batches is not None and batches >= max_batches:
             break
 
@@ -301,6 +336,7 @@ def _checkpoint_payload(
     validation: dict[str, Any] | None,
     *,
     smoke_test: bool = False,
+    run_type: str = "baseline",
 ) -> dict[str, Any]:
     return {
         "format_version": CHECKPOINT_FORMAT_VERSION,
@@ -313,6 +349,7 @@ def _checkpoint_payload(
         "config": copy.deepcopy(config),
         "validation": validation,
         "smoke_test": smoke_test,
+        "run_type": run_type,
     }
 
 
@@ -329,6 +366,7 @@ def load_resume_checkpoint(
     scheduler: LRScheduler | None,
     device: torch.device,
     expected_model_name: str,
+    expected_run_type: str = "baseline",
 ) -> int:
     """Khôi phục checkpoint tương thích và trả epoch kế tiếp cần chạy."""
     checkpoint_path = resolve_project_path(path)
@@ -339,6 +377,14 @@ def load_resume_checkpoint(
         raise ValueError("Checkpoint không đúng định dạng của pipeline hiện tại")
     if payload.get("model_name") != expected_model_name:
         raise ValueError("Checkpoint thuộc kiến trúc khác với config hiện tại")
+    if payload.get("smoke_test"):
+        raise ValueError("Không được resume train từ checkpoint smoke test")
+    checkpoint_run_type = str(payload.get("run_type", "baseline")).lower()
+    if checkpoint_run_type != expected_run_type:
+        raise ValueError(
+            "Checkpoint thuộc loại lần chạy khác: "
+            f"checkpoint={checkpoint_run_type}, expected={expected_run_type}"
+        )
     model.load_state_dict(payload["model_state_dict"])
     optimizer.load_state_dict(payload["optimizer_state_dict"])
     if scheduler is not None and payload.get("scheduler_state_dict") is not None:
@@ -411,13 +457,8 @@ def _write_json(path: Path, value: dict[str, Any] | list[dict[str, Any]]) -> Non
     path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
-def _smoke_manifest(
-    config: dict[str, Any],
-    device: torch.device,
-    checkpoint: Path,
-    history: list[dict[str, Any]],
-    memory: dict[str, int] | None,
-) -> dict[str, Any]:
+def _training_data_hashes(config: dict[str, Any]) -> dict[str, str | None]:
+    """Fingerprint các đầu vào pipeline train/validation, tuyệt đối không đọc test."""
     data = config["data"]
     tracked_files = {
         "processed_annotations": data.get("processed_annotations"),
@@ -432,6 +473,114 @@ def _smoke_manifest(
             continue
         path = resolve_project_path(relative_path)
         hashes[key] = _file_sha256(path) if path.is_file() else None
+    return hashes
+
+
+def _validate_frozen_training_inputs(config: dict[str, Any]) -> None:
+    """Chặn train nếu train/validation/processed khác frozen manifest.
+
+    Hàm này cố ý không đọc test split; frozen manifest đã được tạo bởi công cụ
+    kiểm tra đầy đủ ba split trước thời điểm huấn luyện.
+    """
+    manifest_path = resolve_project_path("data/splits/frozen_manifest.json")
+    if not manifest_path.is_file():
+        raise FileNotFoundError(
+            "Thiếu frozen split manifest. Chạy tools/freeze_splits.py trước khi train."
+        )
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as error:
+        raise ValueError(f"Frozen split manifest không phải JSON hợp lệ: {manifest_path}") from error
+    if manifest.get("schema_version") != "frozen-split-1.0":
+        raise ValueError("Frozen split manifest có schema không được hỗ trợ")
+    files = manifest.get("files")
+    if not isinstance(files, dict):
+        raise ValueError("Frozen split manifest thiếu files")
+    expected = {
+        "processed_annotations": config["data"].get("processed_annotations"),
+        "train": config["data"]["train_annotations"],
+        "val": config["data"]["val_annotations"],
+    }
+    for key, configured_path in expected.items():
+        entry = files.get(key)
+        if not configured_path or not isinstance(entry, dict) or not entry.get("sha256"):
+            raise ValueError(f"Frozen split manifest thiếu fingerprint cho {key}")
+        actual_path = resolve_project_path(configured_path)
+        if not actual_path.is_file():
+            raise FileNotFoundError(f"Không tìm thấy đầu vào train đã đóng băng: {actual_path}")
+        if _file_sha256(actual_path) != entry["sha256"]:
+            raise ValueError(
+                f"{key} đã thay đổi sau khi đóng băng split. "
+                "Tạo lại manifest và hủy artifact train cũ trước khi chạy tiếp."
+            )
+
+
+def _cuda_memory_bytes(device: torch.device) -> dict[str, int] | None:
+    if device.type != "cuda":
+        return None
+    return {
+        "peak_allocated": int(torch.cuda.max_memory_allocated(device)),
+        "peak_reserved": int(torch.cuda.max_memory_reserved(device)),
+    }
+
+
+def _checkpoint_metadata(path: Path) -> dict[str, str] | None:
+    if not path.is_file():
+        return None
+    return {"path": str(path), "sha256": _file_sha256(path)}
+
+
+def _run_manifest(
+    config: dict[str, Any],
+    *,
+    run_type: str,
+    status: str,
+    device: torch.device,
+    started_at_utc: str,
+    duration_seconds: float,
+    history: list[dict[str, Any]],
+    best_checkpoint: Path,
+    last_checkpoint: Path,
+    error: dict[str, str] | None = None,
+) -> dict[str, Any]:
+    """Tạo manifest nhẹ cho một lần train pilot hoặc baseline."""
+    return {
+        "schema_version": "training-run-1.0",
+        "run_type": run_type,
+        "status": status,
+        "started_at_utc": started_at_utc,
+        "finished_at_utc": datetime.now(timezone.utc).isoformat(),
+        "duration_seconds": round(duration_seconds, 3),
+        "git_commit": _git_commit(),
+        "model": copy.deepcopy(config["model"]),
+        "image": copy.deepcopy(config["image"]),
+        "training": copy.deepcopy(config["training"]),
+        "runtime": {
+            "device": str(device),
+            "amp": bool(config["runtime"].get("mixed_precision", False)) and device.type == "cuda",
+            "python": platform.python_version(),
+            "torch": torch.__version__,
+            "torchvision": torchvision.__version__,
+            "gpu_name": torch.cuda.get_device_name(device) if device.type == "cuda" else None,
+        },
+        "data_hashes": _training_data_hashes(config),
+        "checkpoints": {
+            "best": _checkpoint_metadata(best_checkpoint),
+            "last": _checkpoint_metadata(last_checkpoint),
+        },
+        "history": history,
+        "cuda_memory_bytes": _cuda_memory_bytes(device),
+        "error": error,
+    }
+
+
+def _smoke_manifest(
+    config: dict[str, Any],
+    device: torch.device,
+    checkpoint: Path,
+    history: list[dict[str, Any]],
+    memory: dict[str, int] | None,
+) -> dict[str, Any]:
     return {
         "schema_version": "smoke-run-1.0",
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -447,7 +596,7 @@ def _smoke_manifest(
             "torch": torch.__version__,
             "torchvision": torchvision.__version__,
         },
-        "data_hashes": hashes,
+        "data_hashes": _training_data_hashes(config),
         "checkpoint": {"path": str(checkpoint), "sha256": _file_sha256(checkpoint)},
         "history": history,
         "cuda_memory_bytes": memory,
@@ -489,8 +638,14 @@ def run_training(
 ) -> list[dict[str, Any]]:
     """Điều phối full training; dùng validation, tuyệt đối không gọi test split."""
     validate_config(config)
+    run_type = run_type_from_config(config, smoke_test=smoke_test)
+    if run_type not in SUPPORTED_RUN_TYPES:
+        raise ValueError(f"Loại lần chạy không được hỗ trợ: {run_type}")
+    _validate_frozen_training_inputs(config)
     set_seed(int(config["project"].get("seed", 42)))
     device = choose_device(requested_device, str(config["runtime"].get("device", "cuda")))
+    started_at_utc = datetime.now(timezone.utc).isoformat()
+    started_monotonic = time.perf_counter()
     smoke_dir: Path | None = None
     if smoke_test:
         frozen_manifest = resolve_project_path("data/splits/frozen_manifest.json")
@@ -514,6 +669,7 @@ def run_training(
     best_path = resolve_project_path(output["best_checkpoint"])
     last_path = resolve_project_path(output["last_checkpoint"])
     history_path = resolve_project_path(output["directory"]) / "logs" / "history.json"
+    run_directory = resolve_project_path(output["directory"])
     smoke_checkpoint: Path | None = None
     if smoke_dir is not None:
         smoke_checkpoint = smoke_dir / "checkpoint.pth"
@@ -526,7 +682,13 @@ def run_training(
     history: list[dict[str, Any]] = []
     if resume:
         start_epoch = load_resume_checkpoint(
-            resume, model, optimizer, scheduler, device, config["model"]["name"]
+            resume,
+            model,
+            optimizer,
+            scheduler,
+            device,
+            config["model"]["name"],
+            expected_run_type=run_type,
         )
         if not smoke_test:
             best_metric = _read_checkpoint_metric(best_path, primary_metric, device)
@@ -535,9 +697,12 @@ def run_training(
     epochs = 1 if smoke_test else int(config["training"]["epochs"])
     stop_epoch = start_epoch + epochs - 1 if smoke_test else epochs
     validation_every = int(config["training"].get("validate_every_epochs", 1))
+    progress_every_batches = int(config.get("run", {}).get("progress_every_batches", 0))
 
     print(f"Huấn luyện {config['model']['name']} trên {device.type}; AMP={use_amp}")
     for epoch in range(start_epoch, stop_epoch + 1):
+        epoch_started = time.perf_counter()
+        learning_rate = float(optimizer.param_groups[0]["lr"])
         train_summary = train_one_epoch(
             model,
             train_loader,
@@ -547,6 +712,7 @@ def run_training(
             use_amp,
             accumulation_steps=int(config["training"].get("gradient_accumulation_steps", 1)),
             max_batches=1 if smoke_test else None,
+            progress_every_batches=progress_every_batches if not smoke_test else 0,
         )
         validation: dict[str, Any] | None = None
         if epoch % validation_every == 0 or epoch == stop_epoch:
@@ -566,7 +732,15 @@ def run_training(
                 if not smoke_test:
                     save_checkpoint(
                         best_path,
-                        _checkpoint_payload(model, optimizer, scheduler, epoch, config, validation),
+                        _checkpoint_payload(
+                            model,
+                            optimizer,
+                            scheduler,
+                            epoch,
+                            config,
+                            validation,
+                            run_type=run_type,
+                        ),
                     )
 
         # Smoke test chỉ xác nhận forward/backward/validation/checkpoint trong
@@ -576,7 +750,9 @@ def run_training(
             scheduler.step()
         record: dict[str, Any] = {
             "epoch": epoch,
-            "learning_rate": optimizer.param_groups[0]["lr"],
+            "learning_rate": learning_rate,
+            "epoch_seconds": round(time.perf_counter() - epoch_started, 3),
+            "cuda_memory_bytes": _cuda_memory_bytes(device),
             **train_summary,
             "validation": validation,
         }
@@ -584,7 +760,15 @@ def run_training(
         if not smoke_test:
             save_checkpoint(
                 last_path,
-                _checkpoint_payload(model, optimizer, scheduler, epoch, config, validation),
+                _checkpoint_payload(
+                    model,
+                    optimizer,
+                    scheduler,
+                    epoch,
+                    config,
+                    validation,
+                    run_type=run_type,
+                ),
             )
             _write_history(history_path, history)
         loss_text = f"loss={record['train_loss']:.5f}"
@@ -605,6 +789,7 @@ def run_training(
                 config,
                 final_validation,
                 smoke_test=True,
+                run_type="smoke",
             ),
         )
         _write_history(history_path, history)
@@ -626,6 +811,31 @@ def run_training(
                 "torchvision": torchvision.__version__,
                 "cuda_available": torch.cuda.is_available(),
                 "gpu_name": torch.cuda.get_device_name(device) if device.type == "cuda" else None,
+            },
+        )
+
+    if run_type == "pilot":
+        manifest = _run_manifest(
+            config,
+            run_type=run_type,
+            status="completed",
+            device=device,
+            started_at_utc=started_at_utc,
+            duration_seconds=time.perf_counter() - started_monotonic,
+            history=history,
+            best_checkpoint=best_path,
+            last_checkpoint=last_path,
+        )
+        _write_json(run_directory / "run_manifest.json", manifest)
+        _write_json(
+            run_directory / "environment.json",
+            {
+                "python": platform.python_version(),
+                "torch": torch.__version__,
+                "torchvision": torchvision.__version__,
+                "cuda_available": torch.cuda.is_available(),
+                "gpu_name": torch.cuda.get_device_name(device) if device.type == "cuda" else None,
+                "run_type": run_type,
             },
         )
 

@@ -1,0 +1,29 @@
+base_config: configs/common.yaml
+
+run:
+  type: pilot
+  progress_every_batches: 50
+
+model:
+  name: fasterrcnn_resnet50_fpn_v2
+  weights: DEFAULT
+  num_classes: 4
+  trainable_backbone_layers: 3
+
+training:
+  epochs: 3
+  batch_size: 1
+  optimizer: sgd
+  learning_rate: 0.0025
+  momentum: 0.9
+  weight_decay: 0.0005
+  scheduler: step_lr
+  scheduler_step_size: 7
+  scheduler_gamma: 0.1
+  gradient_accumulation_steps: 1
+  validate_every_epochs: 1
+
+output:
+  directory: outputs/pilot/faster_rcnn
+  best_checkpoint: outputs/pilot/faster_rcnn/checkpoints/best_map.pth
+  last_checkpoint: outputs/pilot/faster_rcnn/checkpoints/last.pth
