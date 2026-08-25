@@ -5,9 +5,20 @@ Dự án fine-tune và so sánh Faster R-CNN với RetinaNet cho bài toán phá
 ## Trạng thái
 
 - Đã khởi tạo cấu trúc dự án.
+- Đã khóa cấu hình môi trường theo vai trò trong `HUONG_DAN_CAI_DAT.md`.
 - Chưa tải dataset.
-- Chưa cài môi trường Python/PyTorch.
+- Môi trường trên từng máy thành viên cần được cài và xác minh riêng.
 - Chưa huấn luyện hoặc có kết quả thực nghiệm.
+
+## Cài đặt
+
+Nhóm dùng Python 3.11 và cài theo một trong ba chế độ `gpu`, `cpu` hoặc `data`:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/setup_environment.ps1 -InstallMode gpu
+```
+
+Xem hướng dẫn đầy đủ tại `HUONG_DAN_CAI_DAT.md`. Không chia sẻ `.venv` và không tự nâng phiên bản PyTorch/Torchvision trong thời gian thực nghiệm.
 
 ## Giả định tạm thời
 
