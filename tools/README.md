@@ -17,10 +17,15 @@ Chứa các công cụ hỗ trợ chuẩn bị và kiểm tra dự án. Các t�
 3. `visualize_annotations.py`
    - Vẽ bounding box lên ảnh mẫu.
    - Dùng để phát hiện category mapping hoặc tọa độ sai.
-4. `create_splits.py`
-   - Chỉ hoàn thiện sau khi biết dataset có ảnh liên tiếp từ cùng cảnh/video hay không.
-   - Tạo các split cố định và bản tóm tắt phân bố lớp.
-5. `benchmark_speed.py`
+4. `prepare_annotations.py`
+   - Tạo bản annotation processed và nhật ký thay đổi, không sửa `data/raw/`.
+   - Chỉ clip bbox vượt biên nhỏ; bbox lỗi nghiêm trọng được loại và ghi rõ để xem lại.
+5. `build_groups.py`
+   - Tính SHA-256, tìm ảnh trùng chính xác và xuất ứng viên gần trùng lặp.
+   - Manifest chỉ tự nhóm ảnh trùng chính xác; nhóm cảnh/video cần được người phụ trách duyệt.
+6. `create_splits.py`
+   - Tạo split cố định theo `group_id`, seed và tỷ lệ đã xác nhận.
+7. `benchmark_speed.py`
    - Chạy sau khi có checkpoint tốt nhất.
    - Đo latency/FPS của hai mô hình theo cùng giao thức.
 

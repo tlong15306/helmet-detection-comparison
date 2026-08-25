@@ -35,6 +35,11 @@ def parse_args() -> argparse.Namespace:
         default=20,
         help="Số ví dụ tối đa lưu cho mỗi loại lỗi.",
     )
+    parser.add_argument(
+        "--respect-exif-orientation",
+        action="store_true",
+        help="So sánh kích thước với ảnh sau khi áp dụng EXIF orientation.",
+    )
     return parser.parse_args()
 
 
@@ -204,6 +209,7 @@ def inspect_image_files(
     images_dir: Path,
     coco_images: list[dict[str, Any]],
     sample_limit: int,
+    respect_exif_orientation: bool = False,
 ) -> dict[str, Any]:
     if not images_dir.is_dir():
         raise FileNotFoundError(f"Không tìm thấy thư mục ảnh: {images_dir}")
@@ -244,11 +250,14 @@ def inspect_image_files(
         try:
             with Image.open(image_path) as image:
                 actual_size = image.size
+                orientation = image.getexif().get(274)
                 image.verify()
         except (OSError, UnidentifiedImageError):
             unreadable_files.append(file_name)
             continue
 
+        if respect_exif_orientation and orientation in {5, 6, 7, 8}:
+            actual_size = actual_size[::-1]
         declared_size = (image_record.get("width"), image_record.get("height"))
         if declared_size != actual_size:
             dimension_mismatches.append(
@@ -309,6 +318,7 @@ def main() -> None:
             args.images,
             coco["images"],
             args.max_error_samples,
+            args.respect_exif_orientation,
         )
 
     report["status"] = "completed"

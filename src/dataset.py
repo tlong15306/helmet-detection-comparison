@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 import torch
-from PIL import Image
+from PIL import Image, ImageOps
 from torch.utils.data import Dataset
 
 
@@ -49,7 +49,8 @@ class CocoBoxDataset(Dataset):
         image_info = self.images[index]
         image_id = int(image_info["id"])
         image_path = self.image_root / image_info["file_name"]
-        image = Image.open(image_path).convert("RGB")
+        with Image.open(image_path) as opened:
+            image = ImageOps.exif_transpose(opened).convert("RGB")
 
         boxes: list[list[float]] = []
         labels: list[int] = []

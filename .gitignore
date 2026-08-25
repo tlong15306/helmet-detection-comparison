@@ -16,6 +16,9 @@ Thumbs.db
 data/raw/edgevision/*
 !data/raw/edgevision/.gitkeep
 !data/raw/edgevision/README.md
+data/processed/edgevision/*
+!data/processed/edgevision/.gitkeep
+!data/processed/edgevision/README.md
 data/splits/*.json
 data/samples/annotated_examples/*
 data/samples/invalid_examples/*

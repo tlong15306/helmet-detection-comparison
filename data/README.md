@@ -7,6 +7,7 @@ Quản lý dữ liệu theo từng giai đoạn mà không làm thay đổi bả
 ## Các thư mục con
 
 - `raw/`: dataset tải về ở trạng thái nguyên gốc.
+- `processed/`: annotation đã xử lý, có nhật ký thay đổi, dùng làm đầu vào để chia tập.
 - `splits/`: ba tệp COCO JSON cố định cho train, validation và test.
 - `samples/`: ảnh trực quan hóa phục vụ kiểm tra chất lượng.
 
@@ -14,10 +15,11 @@ Quản lý dữ liệu theo từng giai đoạn mà không làm thay đổi bả
 
 1. Ghi nguồn, giấy phép, phiên bản và ngày tải.
 2. Kiểm tra số ảnh, category ID, tên lớp và bounding box.
-3. Kiểm tra trực quan ảnh đại diện của từng lớp.
-4. Xác định cách tránh rò rỉ giữa các ảnh cùng cảnh/video.
-5. Tạo split đúng một lần và lưu bản tóm tắt.
-6. Không sửa split khi chuyển từ Faster R-CNN sang RetinaNet.
+3. Nếu ảnh có EXIF Orientation, đồng bộ kích thước annotation với ảnh sau khi xoay đúng chiều.
+4. Kiểm tra trực quan ảnh đại diện của từng lớp.
+5. Xác định cách tránh rò rỉ giữa các ảnh cùng cảnh/video.
+6. Tạo split đúng một lần và lưu bản tóm tắt.
+7. Không sửa split khi chuyển từ Faster R-CNN sang RetinaNet.
 
 ## Thông tin phải đưa vào báo cáo
 

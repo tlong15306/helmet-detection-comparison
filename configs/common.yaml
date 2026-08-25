@@ -12,6 +12,7 @@ data:
   format: coco
   image_root: data/raw/edgevision/images
   source_annotations: data/raw/edgevision/annotations.json
+  processed_annotations: data/processed/edgevision/annotations.json
   train_annotations: data/splits/train.json
   val_annotations: data/splits/val.json
   test_annotations: data/splits/test.json
