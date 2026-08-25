@@ -12,8 +12,10 @@ venv/
 Thumbs.db
 
 # Dataset and generated artifacts
-data/raw/edgevision/images/
-data/raw/edgevision/*.json
+# Giữ tài liệu cấu trúc trong Git, bỏ qua toàn bộ dataset/tệp nén cục bộ.
+data/raw/edgevision/*
+!data/raw/edgevision/.gitkeep
+!data/raw/edgevision/README.md
 data/splits/*.json
 data/samples/annotated_examples/*
 data/samples/invalid_examples/*
