@@ -10,8 +10,10 @@ Chứa các công cụ hỗ trợ chuẩn bị và kiểm tra dự án. Các t�
    - Chạy trước tiên.
    - Ghi phiên bản Python/PyTorch/Torchvision, CUDA, GPU và VRAM.
 2. `inspect_dataset.py`
-   - Chạy sau khi tải annotation COCO.
-   - Kiểm tra số ảnh, số nhãn từng lớp và bounding box không hợp lệ.
+   - Chạy sau khi có ảnh và annotation COCO.
+   - Kiểm tra cấu trúc COCO, ID, category, bounding box, ảnh thiếu/hỏng,
+     kích thước ảnh và các tệp ảnh không được annotation tham chiếu.
+   - Lưu báo cáo bằng tùy chọn `--output outputs/dataset_report.json`.
 3. `visualize_annotations.py`
    - Vẽ bounding box lên ảnh mẫu.
    - Dùng để phát hiện category mapping hoặc tọa độ sai.

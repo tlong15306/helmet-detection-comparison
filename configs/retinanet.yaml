@@ -2,6 +2,7 @@ base_config: configs/common.yaml
 
 model:
   name: retinanet_resnet50_fpn_v2
+  # Baseline dự kiến, chưa kiểm chứng. Đổi thành NONE cho smoke test ngoại tuyến.
   weights: DEFAULT
   num_classes: 4
   trainable_backbone_layers: 3

@@ -45,7 +45,7 @@ Các lệnh dưới đây là giao diện dự kiến của dự án. Chỉ sử
 
 ```powershell
 python tools/check_environment.py
-python tools/inspect_dataset.py --annotations data/raw/edgevision/annotations.json
+python tools/inspect_dataset.py --annotations data/raw/edgevision/annotations.json --images data/raw/edgevision/images --output outputs/dataset_report.json
 python tools/create_splits.py --config configs/common.yaml
 python -m src.train --config configs/faster_rcnn.yaml
 python -m src.train --config configs/retinanet.yaml

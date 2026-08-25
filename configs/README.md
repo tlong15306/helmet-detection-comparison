@@ -24,3 +24,6 @@ Lưu toàn bộ tham số điều khiển thí nghiệm. Đây là nguồn thôn
 - Không chỉnh cấu hình dựa trên kết quả của tập test.
 - Mọi khác biệt giữa hai mô hình phải có lý do và được nêu trong báo cáo.
 - Giá trị hiện tại chỉ là baseline dự kiến, chưa phải cấu hình đã được kiểm chứng.
+- Với RetinaNet, `model.weights: DEFAULT` dùng COCO-pretrained weights; đặt
+  `NONE` chỉ cho smoke test ngoại tuyến, không tải COCO hoặc ImageNet backbone
+  weights. Không dùng kết quả smoke test để so sánh mô hình.
