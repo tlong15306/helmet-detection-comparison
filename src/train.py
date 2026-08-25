@@ -569,7 +569,10 @@ def run_training(
                         _checkpoint_payload(model, optimizer, scheduler, epoch, config, validation),
                     )
 
-        if scheduler is not None:
+        # Smoke test chỉ xác nhận forward/backward/validation/checkpoint trong
+        # một batch. AMP có thể bỏ qua optimizer step đầu tiên khi tự điều chỉnh
+        # loss scale, nên không step scheduler để tránh ghi nhận một lịch LR sai.
+        if scheduler is not None and not smoke_test:
             scheduler.step()
         record: dict[str, Any] = {
             "epoch": epoch,
