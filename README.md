@@ -62,6 +62,8 @@ python -m src.train --config configs/faster_rcnn.yaml
 python -m src.train --config configs/retinanet.yaml
 python -m src.evaluate --config configs/faster_rcnn.yaml --split test
 python -m src.evaluate --config configs/retinanet.yaml --split test
+python -m tools.benchmark_inference --config configs/faster_rcnn.yaml --checkpoint outputs/faster_rcnn/checkpoints/best_map.pth --output outputs/faster_rcnn/metrics/latency_validation.json --device cuda
+python -m tools.benchmark_inference --config configs/retinanet.yaml --checkpoint outputs/retinanet/checkpoints/best_map.pth --output outputs/retinanet/metrics/latency_validation.json --device cuda
 python -m src.compare_models
 ```
 
@@ -72,5 +74,6 @@ python -m src.compare_models
 - Hai mô hình phải dùng cùng các tệp split và evaluator.
 - Chạy `tools/freeze_splits.py` trước smoke test hoặc train chính thức; thay đổi split sau đó làm mất hiệu lực artifact cũ.
 - Pilot dùng `configs/pilot_*.yaml`, lưu độc lập tại `outputs/pilot/` và không được resume từ checkpoint smoke.
+- Benchmark latency/FPS dùng 20 ảnh warm-up và 100 ảnh validation, batch size 1; thời gian bao gồm chuyển tensor lên GPU, inference và NMS, không gồm đọc ảnh/render giao diện.
 - Không đưa số liệu chưa được xuất từ log/JSON/CSV vào báo cáo.
 - Không kết luận mô hình nào tốt hơn trước khi có kết quả kiểm thử.

@@ -38,3 +38,12 @@ Chứa các công cụ hỗ trợ chuẩn bị và kiểm tra dự án. Các t�
 - Mọi tệp tạo ra phải có đường dẫn đầu ra rõ ràng.
 - Nếu phát hiện lỗi dữ liệu, lưu minh chứng vào `data/samples/invalid_examples/`.
 - Benchmark phải ghi phần cứng, kích thước ảnh, warm-up, số lượt đo và phạm vi thời gian được tính.
+# Benchmark tốc độ suy luận
+
+`benchmark_inference.py` đo latency/FPS công bằng cho hai checkpoint tốt nhất.
+Nó luôn dùng ảnh validation, 20 ảnh warm-up và 100 ảnh đo mặc định; test split
+không được dùng để điều chỉnh tốc độ hoặc ngưỡng confidence.
+
+```powershell
+python -m tools.benchmark_inference --config configs/faster_rcnn.yaml --checkpoint outputs/faster_rcnn/checkpoints/best_map.pth --output outputs/faster_rcnn/metrics/latency_validation.json --device cuda
+```
