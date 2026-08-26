@@ -814,7 +814,7 @@ def run_training(
             },
         )
 
-    if run_type == "pilot":
+    if run_type in {"pilot", "baseline"}:
         manifest = _run_manifest(
             config,
             run_type=run_type,
