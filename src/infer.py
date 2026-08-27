@@ -125,17 +125,18 @@ def prediction_records(
 ) -> list[dict[str, Any]]:
     """Chuyển prediction thành JSON metadata an toàn cho frontend."""
     records: list[dict[str, Any]] = []
-    for box, label, score in zip(
+    for index, (box, label, score) in enumerate(zip(
         prediction["boxes"].tolist(),
         prediction["labels"].tolist(),
         prediction["scores"].tolist(),
         strict=True,
-    ):
+    ), start=1):
         class_id = int(label)
         if class_id not in class_names:
             raise ValueError(f"Prediction có nhãn không xác định: {class_id}")
         records.append(
             {
+                "detection_id": f"detection_{index}",
                 "class_id": class_id,
                 "class_name": str(class_names[class_id]),
                 "confidence": round(float(score), 6),

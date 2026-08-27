@@ -23,10 +23,52 @@ export interface ModelMetadata {
 }
 
 export interface DetectionRecord {
+  detection_id: string
   class_id: number
   class_name: string
   confidence: number
   box: [number, number, number, number]
+}
+
+export interface RiderHeadAssociation {
+  head_detection_id: string
+  helmet_status: 'helmet' | 'no_helmet'
+  head_box: [number, number, number, number]
+  association_score?: number
+}
+
+export interface RiderGroup {
+  group_id: string
+  bike_detection_id: string
+  bike_box: [number, number, number, number]
+  association_status: 'associated' | 'no_associated_head'
+  heads: RiderHeadAssociation[]
+  driver: {
+    head_detection_id: string
+    helmet_status: 'helmet' | 'no_helmet'
+    role: 'driver_candidate'
+    status: 'candidate_only'
+    reason: string
+  } | null
+}
+
+export interface RiderAnalysis {
+  version: 'association_baseline_v1'
+  role_inference_status: 'candidate_only'
+  rider_groups: RiderGroup[]
+  unassigned_heads: Array<{ head_detection_id: string; helmet_status: string; reason: string }>
+  ambiguous_heads: Array<{ head_detection_id: string; helmet_status: string; reason: string }>
+  summary: {
+    vehicles: number
+    heads: number
+    associated_heads: number
+    unassigned_heads: number
+    ambiguous_heads: number
+    driver_candidates: number
+    driver_candidate_no_helmet: number
+    confirmed_driver_no_helmet: number
+  }
+  limitations: string[]
 }
 
 export interface InferenceResponse {
@@ -38,6 +80,7 @@ export interface InferenceResponse {
   latency_ms: number
   summary: Record<string, number>
   detections: DetectionRecord[]
+  rider_analysis: RiderAnalysis
   result_image: string
 }
 

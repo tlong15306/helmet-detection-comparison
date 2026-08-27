@@ -3,10 +3,18 @@
 ## 1. Trạng thái và phạm vi
 
 - **Mục tiêu:** xác định box `NoHelmet`/`Helmet` nào thuộc tài xế, box nào thuộc người ngồi sau, từ đó chỉ cảnh báo đúng trường hợp tài xế không đội mũ.
-- **Trạng thái:** bản kế hoạch chờ Long duyệt; chưa sửa code, chưa tạo nhãn vai trò và chưa train lại.
+- **Trạng thái:** Pha 0 và baseline Pha 1 cho ảnh đã hoàn thành; chưa có nhãn vai trò, chưa xác nhận tài xế/người ngồi sau và chưa train lại.
 - **Phạm vi hiện tại:** bổ sung tầng hậu xử lý quan hệ người–xe–mũ cho kết quả của Faster R-CNN và RetinaNet.
 - **Không thay đổi:** ba lớp gốc `BikeWithRider`, `NoHelmet`, `Helmet`, checkpoint hiện tại, split EdgeVision và giao thức so sánh hai mô hình.
 - **Nguyên tắc:** không gọi một người là tài xế nếu quan hệ chưa đủ chắc chắn; khi mơ hồ phải trả về `unknown` thay vì tạo cảnh báo sai.
+
+## Cập nhật thực hiện — 28/08
+
+- Đã hoàn thành Pha 0 và baseline Pha 1 cho luồng **ảnh**: `src/rider_association.py`, audit annotation và API trả `rider_analysis`.
+- Baseline chỉ ghép đầu–xe theo hình học. Một vùng xe có đúng một đầu được gọi `driver_candidate`; đó **không** là kết luận tài xế và `confirmed_driver_no_helmet` luôn bằng 0.
+- Audit trên ground truth validation EdgeVision: 633/670 box đầu (94,48%) ghép được duy nhất, 28/670 (4,18%) mơ hồ và 9/670 (1,34%) chưa ghép. Đây là coverage hình học, không phải accuracy tài xế/người ngồi sau.
+- Báo cáo audit cục bộ: `outputs/role_association/edgevision_val_geometry_audit.json`; tái tạo bằng `python -m tools.audit_rider_association`.
+- Đã thêm unit/API test. Chưa triển khai video role analysis, chưa tạo `role_dev` và chưa đổi/huấn luyện lại detector.
 
 ## 2. Vấn đề cần giải quyết
 

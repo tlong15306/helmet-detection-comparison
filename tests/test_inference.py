@@ -65,6 +65,7 @@ def test_summary_records_and_drawing_use_class_mapping() -> None:
         "Helmet": 1,
     }
     records = prediction_records(prediction, classes)
+    assert records[0]["detection_id"] == "detection_1"
     assert records[0]["class_name"] == "NoHelmet"
     assert records[1]["class_name"] == "Helmet"
     rendered = draw_detections(Image.new("RGB", (40, 40), "white"), prediction, classes)

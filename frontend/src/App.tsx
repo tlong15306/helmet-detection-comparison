@@ -639,6 +639,54 @@ function App() {
           ))}
         </Box>
 
+        {mode !== 'video' && result && (
+          <Paper className="role-analysis-card" elevation={0}>
+            <Box className="card-heading compact">
+              <Box>
+                <Typography variant="h6">Liên kết người–xe</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Phân tích bổ sung để chuẩn bị phân biệt tài xế và người ngồi sau.
+                </Typography>
+              </Box>
+              <Chip label="Baseline · chưa xác nhận vai trò" size="small" color="warning" variant="outlined" />
+            </Box>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mt: 1.5, mb: 1.5 }}>
+              <Chip label={`${result.rider_analysis.summary.associated_heads} đầu đã ghép xe`} size="small" />
+              <Chip label={`${result.rider_analysis.summary.driver_candidates} ứng viên tài xế`} size="small" />
+              <Chip label={`${result.rider_analysis.summary.ambiguous_heads} trường hợp mơ hồ`} size="small" />
+              <Chip label={`${result.rider_analysis.summary.unassigned_heads} đầu chưa ghép`} size="small" />
+            </Stack>
+            <Alert severity="info" icon={false} className="role-analysis-note">
+              {result.rider_analysis.summary.driver_candidate_no_helmet > 0
+                ? `${result.rider_analysis.summary.driver_candidate_no_helmet} đầu không mũ là ứng viên tài xế, nhưng chưa được tính là vi phạm tài xế.`
+                : 'Chưa có ứng viên tài xế không đội mũ ở ảnh này.'} Các cảnh có nhiều người hoặc chồng lấn được giữ là “mơ hồ”.
+            </Alert>
+            {result.rider_analysis.rider_groups.length > 0 && (
+              <Box className="rider-group-list">
+                {result.rider_analysis.rider_groups.slice(0, 6).map((group, index) => (
+                  <Box className="rider-group-row" key={group.group_id}>
+                    <Typography variant="body2" sx={{ fontWeight: 760 }}>Xe {index + 1}</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {group.driver
+                        ? group.driver.helmet_status === 'no_helmet'
+                          ? 'Ứng viên tài xế · không mũ'
+                          : 'Ứng viên tài xế · có mũ'
+                        : group.heads.length > 1
+                          ? `${group.heads.length} đầu · chưa xác định vai trò`
+                          : 'Chưa ghép được đầu'}
+                    </Typography>
+                  </Box>
+                ))}
+                {result.rider_analysis.rider_groups.length > 6 && (
+                  <Typography variant="caption" color="text.secondary">
+                    +{result.rider_analysis.rider_groups.length - 6} vùng xe khác
+                  </Typography>
+                )}
+              </Box>
+            )}
+          </Paper>
+        )}
+
         <Paper className="results-card" elevation={0}>
           <Box className="card-heading compact">
             <Box>

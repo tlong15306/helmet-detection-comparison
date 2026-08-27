@@ -417,6 +417,33 @@
   padding: 20px 22px;
 }
 
+.role-analysis-card {
+  margin-top: 18px;
+  padding: 20px 22px;
+}
+
+.role-analysis-note {
+  border-radius: 10px !important;
+  font-size: 0.82rem;
+}
+
+.rider-group-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-top: 12px;
+}
+
+.rider-group-row {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  align-items: center;
+  gap: 12px;
+  min-height: 38px;
+  padding: 7px 10px;
+  border-bottom: 1px solid #eef2f7;
+}
+
 .table-head {
   display: grid;
   grid-template-columns: 1.2fr 0.8fr 1fr;

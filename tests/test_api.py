@@ -55,6 +55,9 @@ def test_infer_image_contract(monkeypatch) -> None:
     payload = response.json()
     assert payload["summary"]["NoHelmet"] == 1
     assert payload["detections"][0]["confidence"] == 0.91
+    assert payload["detections"][0]["detection_id"] == "detection_1"
+    assert payload["rider_analysis"]["summary"]["unassigned_heads"] == 1
+    assert payload["rider_analysis"]["summary"]["confirmed_driver_no_helmet"] == 0
     assert payload["latency_ms"] == 12.346
     assert payload["result_image"].startswith("data:image/png;base64,")
 

@@ -24,6 +24,7 @@ from src.infer import (
     summarize_detections,
     validate_threshold,
 )
+from src.rider_association import analyze_rider_roles
 
 
 MAX_UPLOAD_BYTES = 20 * 1024 * 1024
@@ -122,6 +123,7 @@ def infer_image(
             detector.default_threshold if threshold is None else float(threshold)
         )
         records = prediction_records(prediction, detector.class_names)
+        rider_analysis = analyze_rider_roles(records)
         return {
             "model": {
                 "id": detector.model_id,
@@ -149,6 +151,7 @@ def infer_image(
             "latency_ms": round(latency_ms, 3),
             "summary": summarize_detections(prediction, detector.class_names),
             "detections": records,
+            "rider_analysis": rider_analysis,
             "result_image": "data:image/png;base64," + base64.b64encode(rendered_png).decode("ascii"),
         }
     except ValueError as error:
