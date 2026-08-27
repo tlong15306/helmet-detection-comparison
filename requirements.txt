@@ -9,5 +9,8 @@ opencv-python==4.10.0.84
 tqdm==4.67.1
 torchmetrics[detection]==1.7.4
 pycocotools==2.0.8
-streamlit==1.41.1
+fastapi==0.141.1
+uvicorn==0.52.4
+python-multipart==0.0.32
+httpx==0.28.1
 pytest==8.3.4

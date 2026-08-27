@@ -9,6 +9,7 @@ Dự án fine-tune và so sánh Faster R-CNN với RetinaNet cho bài toán phá
 - Đã tiếp nhận EdgeVision v1 cục bộ và tạo bản annotation processed có nhật ký thay đổi.
 - Đã tạo và đóng băng split theo seed 42 sau khi kiểm tra nguy cơ ảnh cùng cảnh.
 - Đã hoàn thành smoke test CUDA cho Faster R-CNN và RetinaNet; chưa có kết quả thực nghiệm chính thức.
+- Đã dựng frontend React và kết nối FastAPI cho suy luận ảnh bằng hai checkpoint tốt nhất.
 - Môi trường trên từng máy thành viên cần được cài và xác minh riêng.
 - Chưa huấn luyện baseline chính thức hoặc có kết quả thực nghiệm cuối cùng.
 
@@ -62,16 +63,39 @@ python -m src.train --config configs/faster_rcnn.yaml
 python -m src.train --config configs/retinanet.yaml
 python -m src.evaluate --config configs/faster_rcnn.yaml --split test
 python -m src.evaluate --config configs/retinanet.yaml --split test
+python -m src.threshold_selection --config configs/faster_rcnn.yaml --output outputs/faster_rcnn/metrics/validation_threshold_selection.json
+python -m src.threshold_selection --config configs/retinanet.yaml --output outputs/retinanet/metrics/validation_threshold_selection.json
 python -m tools.benchmark_inference --config configs/faster_rcnn.yaml --checkpoint outputs/faster_rcnn/checkpoints/best_map.pth --output outputs/faster_rcnn/metrics/latency_validation.json --device cuda
 python -m tools.benchmark_inference --config configs/retinanet.yaml --checkpoint outputs/retinanet/checkpoints/best_map.pth --output outputs/retinanet/metrics/latency_validation.json --device cuda
 python -m src.compare_models
 ```
+
+## Chạy demo ảnh React + FastAPI
+
+Mở hai cửa sổ PowerShell tại thư mục dự án.
+
+Backend:
+
+```powershell
+.venv\Scripts\python.exe -m uvicorn app.api:app --host 127.0.0.1 --port 8000
+```
+
+Frontend:
+
+```powershell
+Set-Location frontend
+npm install
+npm run dev
+```
+
+Mở `http://127.0.0.1:5173/`. Chế độ ảnh đã hoạt động; video và camera là giai đoạn tiếp theo.
 
 ## Quy tắc quan trọng
 
 - Không sửa trực tiếp dữ liệu trong `data/raw/`.
 - Không dùng tập test để chọn hyperparameter.
 - Hai mô hình phải dùng cùng các tệp split và evaluator.
+- Confidence threshold cho demo phải được chọn trên validation; không dùng test.
 - Chạy `tools/freeze_splits.py` trước smoke test hoặc train chính thức; thay đổi split sau đó làm mất hiệu lực artifact cũ.
 - Pilot dùng `configs/pilot_*.yaml`, lưu độc lập tại `outputs/pilot/` và không được resume từ checkpoint smoke.
 - Benchmark latency/FPS dùng 20 ảnh warm-up và 100 ảnh validation, batch size 1; thời gian bao gồm chuyển tensor lên GPU, inference và NMS, không gồm đọc ảnh/render giao diện.

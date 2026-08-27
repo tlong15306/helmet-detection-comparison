@@ -1,10 +1,12 @@
-"""Điểm vào dự kiến cho ứng dụng demo ảnh, video và camera."""
+"""Lệnh tương thích để khởi động backend demo cục bộ."""
 
 from __future__ import annotations
 
 
 def main() -> None:
-    print("Ứng dụng chưa được triển khai; cần chốt giao diện và có checkpoint.")
+    import uvicorn
+
+    uvicorn.run("app.api:app", host="127.0.0.1", port=8000, reload=False)
 
 
 if __name__ == "__main__":

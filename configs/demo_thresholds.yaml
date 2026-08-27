@@ -1,0 +1,17 @@
+models:
+  fasterrcnn_resnet50_fpn_v2:
+    confidence_threshold: 0.85
+    selection_split: val
+    selection_target_class: NoHelmet
+    selection_metric: f1
+    selection_iou_threshold: 0.5
+    checkpoint_sha256: 27fc925e68cd908e82b3865f3781ea01ee643c67674a392e62d7893d59f92682
+  retinanet_resnet50_fpn_v2:
+    confidence_threshold: 0.6
+    selection_split: val
+    selection_target_class: NoHelmet
+    selection_metric: f1
+    selection_iou_threshold: 0.5
+    checkpoint_sha256: 5f3e4cb963e2c079094254b261dec15e21b0b2784d5aa1fd34756ff006ed5ed5
+schema_version: demo-thresholds-1.0
+note: Các threshold được chọn trên validation; không dùng kết quả test.

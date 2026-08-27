@@ -10,7 +10,9 @@
 | CUDA wheel cho GPU | cu121 |
 | TorchMetrics | 1.7.4 |
 | pycocotools | 2.0.8 |
-| Streamlit | 1.41.1 |
+| FastAPI | 0.141.1 |
+| Uvicorn | 0.52.4 |
+| Node.js | 20.19 trở lên |
 
 Không tự nâng phiên bản trong khi hai mô hình đang được so sánh. Nếu bắt buộc thay đổi, cả nhóm phải cập nhật cùng lúc và ghi lại trong experiment manifest.
 
@@ -105,6 +107,12 @@ Kaggle Notebook phải ghi lại phiên bản Python, PyTorch, Torchvision, CUDA
 Checkpoint phải được lưu sau mỗi epoch và tải ra khỏi runtime để tránh mất dữ liệu khi phiên bị ngắt.
 
 ## 8. Lỗi thường gặp
+
+### Frontend không kết nối được backend
+
+- Xác nhận FastAPI đang chạy tại `http://127.0.0.1:8000`.
+- Xác nhận frontend đang chạy tại `http://127.0.0.1:5173`.
+- Kiểm tra `http://127.0.0.1:8000/api/health` trả trạng thái `ready`.
 
 ### `python` không được nhận diện
 
