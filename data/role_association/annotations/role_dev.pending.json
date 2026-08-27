@@ -1,0 +1,3942 @@
+{
+  "schema_version": "role_association_tasks_v1",
+  "source": {
+    "split": "validation",
+    "annotations": "data\\splits\\val.json",
+    "annotations_sha256": "f4979f8a7533889a52d484e215f7c838625d95b14a72c00ebd9eec5d4d2cd7c5",
+    "image_root": "data/raw/edgevision/images",
+    "selection": "ground_truth_geometry_only; no model predictions; no role labels inferred"
+  },
+  "tasks": [
+    {
+      "image_id": 16,
+      "file_name": "Image_00016.jpg",
+      "image_width": 3755,
+      "image_height": 1054,
+      "bike_annotation_id": 48,
+      "bike_box_xyxy": [
+        2917.0,
+        222.0,
+        3685.0,
+        1024.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 51,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            3159.0,
+            244.0,
+            3319.0,
+            409.0
+          ],
+          "source_category_id": 3
+        },
+        {
+          "annotation_id": 52,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            3260.0,
+            350.0,
+            3371.0,
+            477.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "multiple_heads",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": null,
+      "proposal_status": "unknown",
+      "task_id": "role_dev_001",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00016.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "51": null,
+          "52": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 28,
+      "file_name": "Image_00028.jpg",
+      "image_width": 1880,
+      "image_height": 1054,
+      "bike_annotation_id": 89,
+      "bike_box_xyxy": [
+        1347.0,
+        94.0,
+        1813.0,
+        809.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 96,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            1503.0,
+            140.0,
+            1629.0,
+            250.0
+          ],
+          "source_category_id": 2
+        },
+        {
+          "annotation_id": 97,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            1524.0,
+            101.0,
+            1644.0,
+            207.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "multiple_heads",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": null,
+      "proposal_status": "unknown",
+      "task_id": "role_dev_002",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00028.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "96": null,
+          "97": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 65,
+      "file_name": "Image_00065.jpg",
+      "image_width": 1596,
+      "image_height": 1011,
+      "bike_annotation_id": 230,
+      "bike_box_xyxy": [
+        1242.0,
+        139.0,
+        1500.0,
+        639.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 232,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            1361.0,
+            145.0,
+            1433.0,
+            213.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 232,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_003",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00065.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "232": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 86,
+      "file_name": "Image_00086.jpg",
+      "image_width": 1660,
+      "image_height": 625,
+      "bike_annotation_id": 310,
+      "bike_box_xyxy": [
+        1089.0,
+        93.0,
+        1571.0,
+        516.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 312,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            1311.0,
+            101.0,
+            1405.0,
+            183.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 312,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_004",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00086.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "312": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 105,
+      "file_name": "Image_00105.jpg",
+      "image_width": 760,
+      "image_height": 1456,
+      "bike_annotation_id": 408,
+      "bike_box_xyxy": [
+        93.0,
+        71.0,
+        672.0,
+        1394.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 413,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            229.0,
+            82.0,
+            430.0,
+            290.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene"
+      ],
+      "proposed_driver_head_annotation_id": 413,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_005",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00105.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "413": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 127,
+      "file_name": "Image_00127.jpg",
+      "image_width": 2218,
+      "image_height": 1327,
+      "bike_annotation_id": 490,
+      "bike_box_xyxy": [
+        1798.0,
+        184.0,
+        2119.0,
+        748.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 493,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            1941.0,
+            188.0,
+            2039.0,
+            285.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 493,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_006",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00127.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "493": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 137,
+      "file_name": "Image_00137.jpg",
+      "image_width": 974,
+      "image_height": 1655,
+      "bike_annotation_id": 525,
+      "bike_box_xyxy": [
+        816.0,
+        194.0,
+        931.0,
+        395.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 527,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            863.0,
+            215.0,
+            902.0,
+            258.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 527,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_007",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00137.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "527": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 138,
+      "file_name": "Image_00138.jpg",
+      "image_width": 674,
+      "image_height": 1167,
+      "bike_annotation_id": 529,
+      "bike_box_xyxy": [
+        0.0,
+        153.0,
+        141.0,
+        656.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 532,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            0.0,
+            156.0,
+            54.0,
+            243.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "small_head",
+        "edge_truncation"
+      ],
+      "proposed_driver_head_annotation_id": 532,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_008",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00138.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "532": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 148,
+      "file_name": "Image_00148.jpg",
+      "image_width": 1864,
+      "image_height": 1017,
+      "bike_annotation_id": 557,
+      "bike_box_xyxy": [
+        51.0,
+        58.0,
+        413.0,
+        745.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 560,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            144.0,
+            64.0,
+            263.0,
+            190.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 560,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_009",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00148.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "560": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 190,
+      "file_name": "Image_00190.jpg",
+      "image_width": 947,
+      "image_height": 1670,
+      "bike_annotation_id": 698,
+      "bike_box_xyxy": [
+        769.0,
+        141.0,
+        947.0,
+        772.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 699,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            837.0,
+            146.0,
+            910.0,
+            226.0
+          ],
+          "source_category_id": 2
+        },
+        {
+          "annotation_id": 700,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            878.0,
+            135.0,
+            947.0,
+            241.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "multiple_heads",
+        "crowded_scene",
+        "small_head",
+        "edge_truncation"
+      ],
+      "proposed_driver_head_annotation_id": null,
+      "proposal_status": "unknown",
+      "task_id": "role_dev_010",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00190.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "699": null,
+          "700": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 194,
+      "file_name": "Image_00194.jpg",
+      "image_width": 1961,
+      "image_height": 1730,
+      "bike_annotation_id": 712,
+      "bike_box_xyxy": [
+        32.0,
+        162.0,
+        446.0,
+        897.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 715,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            178.0,
+            172.0,
+            295.0,
+            302.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 715,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_011",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00194.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "715": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 225,
+      "file_name": "Image_00225.jpg",
+      "image_width": 980,
+      "image_height": 669,
+      "bike_annotation_id": 813,
+      "bike_box_xyxy": [
+        655.0,
+        60.0,
+        881.0,
+        566.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 816,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            710.0,
+            61.0,
+            810.0,
+            162.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene"
+      ],
+      "proposed_driver_head_annotation_id": 816,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_012",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00225.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "816": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 241,
+      "file_name": "Image_00241.jpg",
+      "image_width": 223,
+      "image_height": 315,
+      "bike_annotation_id": 879,
+      "bike_box_xyxy": [
+        62.0,
+        70.0,
+        156.0,
+        249.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 877,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            112.0,
+            82.0,
+            130.0,
+            107.0
+          ],
+          "source_category_id": 2
+        },
+        {
+          "annotation_id": 878,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            85.0,
+            71.0,
+            117.0,
+            108.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "multiple_heads",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": null,
+      "proposal_status": "unknown",
+      "task_id": "role_dev_013",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00241.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "877": null,
+          "878": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 253,
+      "file_name": "Image_00253.jpg",
+      "image_width": 876,
+      "image_height": 1009,
+      "bike_annotation_id": 925,
+      "bike_box_xyxy": [
+        87.0,
+        76.0,
+        799.0,
+        1009.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 926,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            416.0,
+            78.0,
+            635.0,
+            341.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene"
+      ],
+      "proposed_driver_head_annotation_id": 926,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_014",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00253.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "926": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 275,
+      "file_name": "Image_00275.jpg",
+      "image_width": 823,
+      "image_height": 756,
+      "bike_annotation_id": 1022,
+      "bike_box_xyxy": [
+        543.0,
+        55.0,
+        733.0,
+        447.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 1024,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            621.0,
+            57.0,
+            685.0,
+            133.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 1024,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_015",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00275.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "1024": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 300,
+      "file_name": "Image_00300.jpg",
+      "image_width": 2081,
+      "image_height": 1430,
+      "bike_annotation_id": 1109,
+      "bike_box_xyxy": [
+        1015.0,
+        191.0,
+        1174.0,
+        478.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 1118,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            1080.0,
+            206.0,
+            1127.0,
+            258.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 1118,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_016",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00300.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "1118": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 328,
+      "file_name": "Image_00328.jpg",
+      "image_width": 1170,
+      "image_height": 514,
+      "bike_annotation_id": 1225,
+      "bike_box_xyxy": [
+        52.0,
+        72.0,
+        329.0,
+        465.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 1230,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            165.0,
+            74.0,
+            234.0,
+            148.0
+          ],
+          "source_category_id": 2
+        },
+        {
+          "annotation_id": 1236,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            224.0,
+            93.0,
+            292.0,
+            159.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "multiple_heads",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": null,
+      "proposal_status": "unknown",
+      "task_id": "role_dev_017",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00328.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "1230": null,
+          "1236": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 334,
+      "file_name": "Image_00334.jpg",
+      "image_width": 1345,
+      "image_height": 1837,
+      "bike_annotation_id": 1256,
+      "bike_box_xyxy": [
+        1147.0,
+        0.0,
+        1345.0,
+        528.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 1258,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            1256.0,
+            0.0,
+            1345.0,
+            89.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "small_head",
+        "edge_truncation"
+      ],
+      "proposed_driver_head_annotation_id": 1258,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_018",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00334.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "1258": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 367,
+      "file_name": "Image_00367.jpg",
+      "image_width": 1229,
+      "image_height": 749,
+      "bike_annotation_id": 1366,
+      "bike_box_xyxy": [
+        44.0,
+        56.0,
+        422.0,
+        702.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 1369,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            186.0,
+            58.0,
+            303.0,
+            184.0
+          ],
+          "source_category_id": 3
+        },
+        {
+          "annotation_id": 1370,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            266.0,
+            77.0,
+            366.0,
+            188.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "multiple_heads",
+        "crowded_scene"
+      ],
+      "proposed_driver_head_annotation_id": null,
+      "proposal_status": "unknown",
+      "task_id": "role_dev_019",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00367.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "1369": null,
+          "1370": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 376,
+      "file_name": "Image_00376.jpg",
+      "image_width": 217,
+      "image_height": 286,
+      "bike_annotation_id": 1395,
+      "bike_box_xyxy": [
+        63.0,
+        59.0,
+        150.0,
+        243.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 1393,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            79.0,
+            65.0,
+            102.0,
+            89.0
+          ],
+          "source_category_id": 2
+        },
+        {
+          "annotation_id": 1394,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            89.0,
+            60.0,
+            110.0,
+            83.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "multiple_heads",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": null,
+      "proposal_status": "unknown",
+      "task_id": "role_dev_020",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00376.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "1393": null,
+          "1394": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 416,
+      "file_name": "Image_00416.jpg",
+      "image_width": 324,
+      "image_height": 470,
+      "bike_annotation_id": 1538,
+      "bike_box_xyxy": [
+        46.0,
+        54.0,
+        249.0,
+        420.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 1537,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            119.0,
+            54.0,
+            171.0,
+            115.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene"
+      ],
+      "proposed_driver_head_annotation_id": 1537,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_021",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00416.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "1537": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 465,
+      "file_name": "Image_00465.jpg",
+      "image_width": 715,
+      "image_height": 695,
+      "bike_annotation_id": 1716,
+      "bike_box_xyxy": [
+        485.0,
+        69.0,
+        652.0,
+        336.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 1717,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            527.0,
+            75.0,
+            584.0,
+            131.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 1717,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_022",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00465.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "1717": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 490,
+      "file_name": "Image_00490.jpg",
+      "image_width": 920,
+      "image_height": 705,
+      "bike_annotation_id": 1812,
+      "bike_box_xyxy": [
+        600.0,
+        59.0,
+        857.0,
+        496.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 1813,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            682.0,
+            59.0,
+            736.0,
+            120.0
+          ],
+          "source_category_id": 2
+        },
+        {
+          "annotation_id": 1814,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            669.0,
+            62.0,
+            719.0,
+            111.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "multiple_heads",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": null,
+      "proposal_status": "unknown",
+      "task_id": "role_dev_023",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00490.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "1813": null,
+          "1814": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 492,
+      "file_name": "Image_00492.jpg",
+      "image_width": 1017,
+      "image_height": 591,
+      "bike_annotation_id": 1819,
+      "bike_box_xyxy": [
+        831.0,
+        52.0,
+        958.0,
+        297.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 1823,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            870.0,
+            55.0,
+            913.0,
+            105.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 1823,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_024",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00492.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "1823": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 505,
+      "file_name": "Image_00505.jpg",
+      "image_width": 718,
+      "image_height": 434,
+      "bike_annotation_id": 1870,
+      "bike_box_xyxy": [
+        52.0,
+        51.0,
+        261.0,
+        391.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 1873,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            107.0,
+            55.0,
+            165.0,
+            116.0
+          ],
+          "source_category_id": 2
+        },
+        {
+          "annotation_id": 1874,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            159.0,
+            78.0,
+            207.0,
+            127.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "multiple_heads",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": null,
+      "proposal_status": "unknown",
+      "task_id": "role_dev_025",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00505.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "1873": null,
+          "1874": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 532,
+      "file_name": "Image_00532.jpg",
+      "image_width": 470,
+      "image_height": 619,
+      "bike_annotation_id": 1990,
+      "bike_box_xyxy": [
+        0.0,
+        0.0,
+        116.0,
+        465.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 1986,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            0.0,
+            0.0,
+            50.0,
+            77.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene",
+        "edge_truncation"
+      ],
+      "proposed_driver_head_annotation_id": 1986,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_026",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00532.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "1986": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 538,
+      "file_name": "Image_00538.jpg",
+      "image_width": 335,
+      "image_height": 467,
+      "bike_annotation_id": 2010,
+      "bike_box_xyxy": [
+        30.0,
+        28.0,
+        103.0,
+        161.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 2011,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            61.0,
+            32.0,
+            86.0,
+            54.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 2011,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_027",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00538.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "2011": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 541,
+      "file_name": "Image_00541.jpg",
+      "image_width": 692,
+      "image_height": 549,
+      "bike_annotation_id": 2018,
+      "bike_box_xyxy": [
+        471.0,
+        57.0,
+        623.0,
+        323.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 2021,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            516.0,
+            60.0,
+            559.0,
+            107.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 2021,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_028",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00541.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "2021": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 549,
+      "file_name": "Image_00549.jpg",
+      "image_width": 417,
+      "image_height": 608,
+      "bike_annotation_id": 2055,
+      "bike_box_xyxy": [
+        277.0,
+        15.0,
+        389.0,
+        211.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 2056,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            307.0,
+            21.0,
+            340.0,
+            50.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 2056,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_029",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00549.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "2056": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 602,
+      "file_name": "Image_00602.jpg",
+      "image_width": 269,
+      "image_height": 386,
+      "bike_annotation_id": 2226,
+      "bike_box_xyxy": [
+        170.0,
+        169.0,
+        269.0,
+        386.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 2227,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            242.0,
+            171.0,
+            269.0,
+            229.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "edge_truncation"
+      ],
+      "proposed_driver_head_annotation_id": 2227,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_030",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00602.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "2227": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 706,
+      "file_name": "Image_00706.jpg",
+      "image_width": 927,
+      "image_height": 1631,
+      "bike_annotation_id": 2714,
+      "bike_box_xyxy": [
+        691.0,
+        271.0,
+        927.0,
+        866.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 2717,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            777.0,
+            272.0,
+            870.0,
+            387.0
+          ],
+          "source_category_id": 2
+        },
+        {
+          "annotation_id": 2719,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            816.0,
+            319.0,
+            917.0,
+            440.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "multiple_heads",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": null,
+      "proposal_status": "unknown",
+      "task_id": "role_dev_031",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00706.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "2717": null,
+          "2719": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 708,
+      "file_name": "Image_00708.jpg",
+      "image_width": 2015,
+      "image_height": 687,
+      "bike_annotation_id": 2729,
+      "bike_box_xyxy": [
+        1669.0,
+        58.0,
+        1918.0,
+        630.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 2731,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            1746.0,
+            62.0,
+            1837.0,
+            161.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 2731,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_032",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00708.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "2731": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 714,
+      "file_name": "Image_00714.jpg",
+      "image_width": 2076,
+      "image_height": 1724,
+      "bike_annotation_id": 2757,
+      "bike_box_xyxy": [
+        50.0,
+        691.0,
+        640.0,
+        1678.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 2766,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            255.0,
+            744.0,
+            390.0,
+            898.0
+          ],
+          "source_category_id": 2
+        },
+        {
+          "annotation_id": 2767,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            238.0,
+            694.0,
+            346.0,
+            818.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "multiple_heads",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": null,
+      "proposal_status": "unknown",
+      "task_id": "role_dev_033",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00714.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "2766": null,
+          "2767": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 723,
+      "file_name": "Image_00723.jpg",
+      "image_width": 1402,
+      "image_height": 1366,
+      "bike_annotation_id": 2829,
+      "bike_box_xyxy": [
+        908.0,
+        105.0,
+        1259.0,
+        898.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 2831,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            1018.0,
+            110.0,
+            1132.0,
+            237.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 2831,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_034",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00723.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "2831": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 725,
+      "file_name": "Image_00725.jpg",
+      "image_width": 1029,
+      "image_height": 2116,
+      "bike_annotation_id": 2838,
+      "bike_box_xyxy": [
+        408.0,
+        62.0,
+        641.0,
+        548.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 2843,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            483.0,
+            72.0,
+            569.0,
+            153.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 2843,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_035",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00725.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "2843": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 737,
+      "file_name": "Image_00737.jpg",
+      "image_width": 830,
+      "image_height": 2092,
+      "bike_annotation_id": 2897,
+      "bike_box_xyxy": [
+        209.0,
+        1189.0,
+        617.0,
+        2038.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 2900,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            370.0,
+            1247.0,
+            488.0,
+            1374.0
+          ],
+          "source_category_id": 3
+        },
+        {
+          "annotation_id": 2901,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            340.0,
+            1204.0,
+            432.0,
+            1316.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "multiple_heads",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": null,
+      "proposal_status": "unknown",
+      "task_id": "role_dev_036",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00737.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "2900": null,
+          "2901": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 738,
+      "file_name": "Image_00738.jpg",
+      "image_width": 1249,
+      "image_height": 1867,
+      "bike_annotation_id": 2907,
+      "bike_box_xyxy": [
+        52.0,
+        984.0,
+        509.0,
+        1843.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 2908,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            235.0,
+            1102.0,
+            317.0,
+            1216.0
+          ],
+          "source_category_id": 2
+        },
+        {
+          "annotation_id": 2909,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            219.0,
+            1080.0,
+            314.0,
+            1178.0
+          ],
+          "source_category_id": 2
+        },
+        {
+          "annotation_id": 2910,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            210.0,
+            1019.0,
+            308.0,
+            1128.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "multiple_heads",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": null,
+      "proposal_status": "unknown",
+      "task_id": "role_dev_037",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00738.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "2908": null,
+          "2909": null,
+          "2910": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 751,
+      "file_name": "Image_00751.jpg",
+      "image_width": 1826,
+      "image_height": 2160,
+      "bike_annotation_id": 2976,
+      "bike_box_xyxy": [
+        1491.0,
+        460.0,
+        1823.0,
+        985.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 2969,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            1649.0,
+            464.0,
+            1767.0,
+            597.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 2969,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_038",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00751.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "2969": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 754,
+      "file_name": "Image_00754.jpg",
+      "image_width": 1239,
+      "image_height": 1305,
+      "bike_annotation_id": 2990,
+      "bike_box_xyxy": [
+        854.0,
+        57.0,
+        1146.0,
+        681.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 2994,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            972.0,
+            70.0,
+            1064.0,
+            173.0
+          ],
+          "source_category_id": 2
+        },
+        {
+          "annotation_id": 2996,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            1013.0,
+            46.0,
+            1101.0,
+            153.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "multiple_heads",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": null,
+      "proposal_status": "unknown",
+      "task_id": "role_dev_039",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00754.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "2994": null,
+          "2996": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 925,
+      "file_name": "Image_00925.jpg",
+      "image_width": 385,
+      "image_height": 470,
+      "bike_annotation_id": 3463,
+      "bike_box_xyxy": [
+        203.0,
+        51.0,
+        299.0,
+        251.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 3458,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            236.0,
+            52.0,
+            266.0,
+            84.0
+          ],
+          "source_category_id": 3
+        },
+        {
+          "annotation_id": 3459,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            237.0,
+            67.0,
+            259.0,
+            96.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "multiple_heads",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": null,
+      "proposal_status": "unknown",
+      "task_id": "role_dev_040",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00925.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "3458": null,
+          "3459": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 949,
+      "file_name": "Image_00949.jpg",
+      "image_width": 2160,
+      "image_height": 3840,
+      "bike_annotation_id": 3522,
+      "bike_box_xyxy": [
+        1651.0,
+        1524.0,
+        2126.0,
+        2391.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 3523,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            1893.0,
+            1566.0,
+            2051.0,
+            1733.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 3523,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_041",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00949.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "3523": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 953,
+      "file_name": "Image_00953.jpg",
+      "image_width": 2160,
+      "image_height": 3840,
+      "bike_annotation_id": 3531,
+      "bike_box_xyxy": [
+        1426.0,
+        1541.0,
+        1976.0,
+        2491.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 3532,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            1634.0,
+            1633.0,
+            1793.0,
+            1816.0
+          ],
+          "source_category_id": 3
+        },
+        {
+          "annotation_id": 3533,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            1758.0,
+            1613.0,
+            1877.0,
+            1770.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "multiple_heads",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": null,
+      "proposal_status": "unknown",
+      "task_id": "role_dev_042",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00953.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "3532": null,
+          "3533": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 960,
+      "file_name": "Image_00960.jpg",
+      "image_width": 1128,
+      "image_height": 2506,
+      "bike_annotation_id": 3558,
+      "bike_box_xyxy": [
+        522.0,
+        978.0,
+        757.0,
+        1474.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 3559,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            605.0,
+            1003.0,
+            700.0,
+            1086.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 3559,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_043",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00960.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "3559": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 998,
+      "file_name": "Image_00998.jpg",
+      "image_width": 3489,
+      "image_height": 1354,
+      "bike_annotation_id": 3682,
+      "bike_box_xyxy": [
+        3030.0,
+        13.0,
+        3489.0,
+        612.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 3683,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            3173.0,
+            52.0,
+            3260.0,
+            129.0
+          ],
+          "source_category_id": 2
+        },
+        {
+          "annotation_id": 3684,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            3130.0,
+            52.0,
+            3194.0,
+            127.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "multiple_heads",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": null,
+      "proposal_status": "unknown",
+      "task_id": "role_dev_044",
+      "image_path": "data\\raw\\edgevision\\images\\Image_00998.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "3683": null,
+          "3684": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 1047,
+      "file_name": "Image_01047.jpg",
+      "image_width": 2604,
+      "image_height": 4624,
+      "bike_annotation_id": 3843,
+      "bike_box_xyxy": [
+        0.0,
+        1336.0,
+        637.0,
+        2741.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 3844,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            0.0,
+            1364.0,
+            174.0,
+            1613.0
+          ],
+          "source_category_id": 2
+        },
+        {
+          "annotation_id": 3845,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            174.0,
+            1343.0,
+            368.0,
+            1620.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "multiple_heads",
+        "small_head",
+        "edge_truncation"
+      ],
+      "proposed_driver_head_annotation_id": null,
+      "proposal_status": "unknown",
+      "task_id": "role_dev_045",
+      "image_path": "data\\raw\\edgevision\\images\\Image_01047.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "3844": null,
+          "3845": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 1232,
+      "file_name": "Image_01232.jpg",
+      "image_width": 884,
+      "image_height": 1110,
+      "bike_annotation_id": 4383,
+      "bike_box_xyxy": [
+        51.0,
+        72.0,
+        415.0,
+        878.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 4381,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            181.0,
+            76.0,
+            325.0,
+            240.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene"
+      ],
+      "proposed_driver_head_annotation_id": 4381,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_046",
+      "image_path": "data\\raw\\edgevision\\images\\Image_01232.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "4381": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 1309,
+      "file_name": "Image_01309.jpg",
+      "image_width": 929,
+      "image_height": 768,
+      "bike_annotation_id": 4612,
+      "bike_box_xyxy": [
+        647.0,
+        106.0,
+        878.0,
+        555.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 4615,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            721.0,
+            108.0,
+            790.0,
+            186.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 4615,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_047",
+      "image_path": "data\\raw\\edgevision\\images\\Image_01309.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "4615": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 1327,
+      "file_name": "Image_01327.jpg",
+      "image_width": 3541,
+      "image_height": 809,
+      "bike_annotation_id": 4665,
+      "bike_box_xyxy": [
+        27.0,
+        199.0,
+        490.0,
+        771.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 4668,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            217.0,
+            204.0,
+            358.0,
+            316.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 4668,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_048",
+      "image_path": "data\\raw\\edgevision\\images\\Image_01327.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "4668": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 1349,
+      "file_name": "Image_01349.jpg",
+      "image_width": 3024,
+      "image_height": 4032,
+      "bike_annotation_id": 4737,
+      "bike_box_xyxy": [
+        1562.0,
+        1982.0,
+        2281.0,
+        3251.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 4741,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            1910.0,
+            2013.0,
+            2106.0,
+            2215.0
+          ],
+          "source_category_id": 2
+        },
+        {
+          "annotation_id": 4742,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            1941.0,
+            1946.0,
+            2046.0,
+            2080.0
+          ],
+          "source_category_id": 2
+        },
+        {
+          "annotation_id": 4744,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            1852.0,
+            2119.0,
+            1991.0,
+            2261.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "multiple_heads",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": null,
+      "proposal_status": "unknown",
+      "task_id": "role_dev_049",
+      "image_path": "data\\raw\\edgevision\\images\\Image_01349.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "4741": null,
+          "4742": null,
+          "4744": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 1371,
+      "file_name": "Image_01371.jpg",
+      "image_width": 2296,
+      "image_height": 1073,
+      "bike_annotation_id": 4820,
+      "bike_box_xyxy": [
+        32.0,
+        101.0,
+        526.0,
+        883.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 4823,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            173.0,
+            105.0,
+            309.0,
+            242.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 4823,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_050",
+      "image_path": "data\\raw\\edgevision\\images\\Image_01371.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "4823": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 1408,
+      "file_name": "Image_01408.jpg",
+      "image_width": 3024,
+      "image_height": 4032,
+      "bike_annotation_id": 4943,
+      "bike_box_xyxy": [
+        1536.0,
+        1002.0,
+        3024.0,
+        2861.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 4942,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            2592.0,
+            1026.0,
+            3024.0,
+            1412.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "edge_truncation"
+      ],
+      "proposed_driver_head_annotation_id": 4942,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_051",
+      "image_path": "data\\raw\\edgevision\\images\\Image_01408.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "4942": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 1428,
+      "file_name": "Image_01428.jpg",
+      "image_width": 2304,
+      "image_height": 4096,
+      "bike_annotation_id": 5021,
+      "bike_box_xyxy": [
+        150.0,
+        705.0,
+        1293.0,
+        1757.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 5022,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            568.0,
+            712.0,
+            799.0,
+            934.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 5022,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_052",
+      "image_path": "data\\raw\\edgevision\\images\\Image_01428.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "5022": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 1430,
+      "file_name": "Image_01430.jpg",
+      "image_width": 2304,
+      "image_height": 4096,
+      "bike_annotation_id": 5037,
+      "bike_box_xyxy": [
+        0.0,
+        666.0,
+        970.0,
+        1813.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 5039,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            0.0,
+            622.0,
+            260.0,
+            933.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "edge_truncation"
+      ],
+      "proposed_driver_head_annotation_id": 5039,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_053",
+      "image_path": "data\\raw\\edgevision\\images\\Image_01430.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "5039": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 1432,
+      "file_name": "Image_01432.jpg",
+      "image_width": 960,
+      "image_height": 1280,
+      "bike_annotation_id": 5054,
+      "bike_box_xyxy": [
+        559.0,
+        351.0,
+        662.0,
+        557.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 5057,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            601.0,
+            354.0,
+            635.0,
+            394.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 5057,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_054",
+      "image_path": "data\\raw\\edgevision\\images\\Image_01432.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "5057": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 1440,
+      "file_name": "Image_01440.jpg",
+      "image_width": 2304,
+      "image_height": 4096,
+      "bike_annotation_id": 5092,
+      "bike_box_xyxy": [
+        741.0,
+        926.0,
+        1489.0,
+        1938.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 5091,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            1011.0,
+            932.0,
+            1201.0,
+            1128.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 5091,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_055",
+      "image_path": "data\\raw\\edgevision\\images\\Image_01440.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "5091": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 1455,
+      "file_name": "Image_01455.jpg",
+      "image_width": 2304,
+      "image_height": 4096,
+      "bike_annotation_id": 5170,
+      "bike_box_xyxy": [
+        335.0,
+        1003.0,
+        1634.0,
+        2215.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 5175,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            963.0,
+            1007.0,
+            1246.0,
+            1260.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 5175,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_056",
+      "image_path": "data\\raw\\edgevision\\images\\Image_01455.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "5175": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 1534,
+      "file_name": "Image_01534.jpg",
+      "image_width": 886,
+      "image_height": 859,
+      "bike_annotation_id": 5460,
+      "bike_box_xyxy": [
+        0.0,
+        134.0,
+        88.0,
+        684.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 5461,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            0.0,
+            136.0,
+            47.0,
+            224.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene",
+        "small_head",
+        "edge_truncation"
+      ],
+      "proposed_driver_head_annotation_id": 5461,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_057",
+      "image_path": "data\\raw\\edgevision\\images\\Image_01534.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "5461": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 1548,
+      "file_name": "Image_01548.jpg",
+      "image_width": 478,
+      "image_height": 850,
+      "bike_annotation_id": 5523,
+      "bike_box_xyxy": [
+        229.0,
+        286.0,
+        355.0,
+        459.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 5524,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            276.0,
+            315.0,
+            301.0,
+            340.0
+          ],
+          "source_category_id": 2
+        },
+        {
+          "annotation_id": 5525,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            294.0,
+            288.0,
+            327.0,
+            322.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "multiple_heads",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": null,
+      "proposal_status": "unknown",
+      "task_id": "role_dev_058",
+      "image_path": "data\\raw\\edgevision\\images\\Image_01548.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "5524": null,
+          "5525": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 1552,
+      "file_name": "Image_01552.jpg",
+      "image_width": 478,
+      "image_height": 850,
+      "bike_annotation_id": 5543,
+      "bike_box_xyxy": [
+        277.0,
+        228.0,
+        356.0,
+        302.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 5547,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            303.0,
+            230.0,
+            316.0,
+            244.0
+          ],
+          "source_category_id": 2
+        },
+        {
+          "annotation_id": 5548,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            290.0,
+            230.0,
+            302.0,
+            243.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "multiple_heads",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": null,
+      "proposal_status": "unknown",
+      "task_id": "role_dev_059",
+      "image_path": "data\\raw\\edgevision\\images\\Image_01552.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "5547": null,
+          "5548": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 1575,
+      "file_name": "Image_01575.jpg",
+      "image_width": 946,
+      "image_height": 664,
+      "bike_annotation_id": 5629,
+      "bike_box_xyxy": [
+        42.0,
+        87.0,
+        352.0,
+        624.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 5632,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            155.0,
+            88.0,
+            235.0,
+            152.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene"
+      ],
+      "proposed_driver_head_annotation_id": 5632,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_060",
+      "image_path": "data\\raw\\edgevision\\images\\Image_01575.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "5632": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 1606,
+      "file_name": "Image_01606.jpg",
+      "image_width": 302,
+      "image_height": 518,
+      "bike_annotation_id": 5742,
+      "bike_box_xyxy": [
+        0.0,
+        36.0,
+        80.0,
+        324.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 5748,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            0.0,
+            38.0,
+            37.0,
+            86.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene",
+        "edge_truncation"
+      ],
+      "proposed_driver_head_annotation_id": 5748,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_061",
+      "image_path": "data\\raw\\edgevision\\images\\Image_01606.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "5748": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 1675,
+      "file_name": "Image_01675.jpg",
+      "image_width": 1127,
+      "image_height": 1387,
+      "bike_annotation_id": 5941,
+      "bike_box_xyxy": [
+        45.0,
+        166.0,
+        347.0,
+        862.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 5945,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            172.0,
+            168.0,
+            259.0,
+            282.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 5945,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_062",
+      "image_path": "data\\raw\\edgevision\\images\\Image_01675.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "5945": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 1707,
+      "file_name": "Image_01707.jpg",
+      "image_width": 415,
+      "image_height": 727,
+      "bike_annotation_id": 6046,
+      "bike_box_xyxy": [
+        0.0,
+        49.0,
+        135.0,
+        575.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 6047,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            15.0,
+            66.0,
+            78.0,
+            149.0
+          ],
+          "source_category_id": 2
+        },
+        {
+          "annotation_id": 6050,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            0.0,
+            396.0,
+            51.0,
+            434.0
+          ],
+          "source_category_id": 2
+        },
+        {
+          "annotation_id": 6051,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            2.0,
+            55.0,
+            78.0,
+            158.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "multiple_heads",
+        "small_head",
+        "edge_truncation"
+      ],
+      "proposed_driver_head_annotation_id": null,
+      "proposal_status": "unknown",
+      "task_id": "role_dev_063",
+      "image_path": "data\\raw\\edgevision\\images\\Image_01707.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "6047": null,
+          "6050": null,
+          "6051": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 1744,
+      "file_name": "Image_01744.jpg",
+      "image_width": 1645,
+      "image_height": 909,
+      "bike_annotation_id": 6156,
+      "bike_box_xyxy": [
+        443.0,
+        161.0,
+        731.0,
+        696.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 6160,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            557.0,
+            169.0,
+            631.0,
+            277.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 6160,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_064",
+      "image_path": "data\\raw\\edgevision\\images\\Image_01744.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "6160": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 1773,
+      "file_name": "Image_01773.jpg",
+      "image_width": 239,
+      "image_height": 338,
+      "bike_annotation_id": 6246,
+      "bike_box_xyxy": [
+        45.0,
+        32.0,
+        177.0,
+        291.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 6244,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            89.0,
+            35.0,
+            132.0,
+            81.0
+          ],
+          "source_category_id": 2
+        },
+        {
+          "annotation_id": 6245,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            104.0,
+            32.0,
+            146.0,
+            76.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "multiple_heads",
+        "crowded_scene"
+      ],
+      "proposed_driver_head_annotation_id": null,
+      "proposal_status": "unknown",
+      "task_id": "role_dev_065",
+      "image_path": "data\\raw\\edgevision\\images\\Image_01773.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "6244": null,
+          "6245": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 1908,
+      "file_name": "Image_01908.jpg",
+      "image_width": 425,
+      "image_height": 777,
+      "bike_annotation_id": 6661,
+      "bike_box_xyxy": [
+        48.0,
+        48.0,
+        382.0,
+        729.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 6660,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            112.0,
+            48.0,
+            230.0,
+            160.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene"
+      ],
+      "proposed_driver_head_annotation_id": 6660,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_066",
+      "image_path": "data\\raw\\edgevision\\images\\Image_01908.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "6660": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 1961,
+      "file_name": "Image_01961.jpg",
+      "image_width": 1980,
+      "image_height": 1400,
+      "bike_annotation_id": 6816,
+      "bike_box_xyxy": [
+        627.0,
+        117.0,
+        896.0,
+        529.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 6822,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            735.0,
+            131.0,
+            807.0,
+            191.0
+          ],
+          "source_category_id": 2
+        },
+        {
+          "annotation_id": 6823,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            705.0,
+            131.0,
+            752.0,
+            199.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "multiple_heads",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": null,
+      "proposal_status": "unknown",
+      "task_id": "role_dev_067",
+      "image_path": "data\\raw\\edgevision\\images\\Image_01961.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "6822": null,
+          "6823": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 2110,
+      "file_name": "Image_02110.jpg",
+      "image_width": 2132,
+      "image_height": 1729,
+      "bike_annotation_id": 7237,
+      "bike_box_xyxy": [
+        1364.0,
+        55.0,
+        2026.0,
+        1706.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 7240,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            1562.0,
+            56.0,
+            1859.0,
+            329.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene"
+      ],
+      "proposed_driver_head_annotation_id": 7240,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_068",
+      "image_path": "data\\raw\\edgevision\\images\\Image_02110.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "7240": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 2130,
+      "file_name": "Image_02130.jpg",
+      "image_width": 2709,
+      "image_height": 1135,
+      "bike_annotation_id": 7313,
+      "bike_box_xyxy": [
+        1477.0,
+        85.0,
+        2635.0,
+        1066.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 7316,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            1936.0,
+            87.0,
+            2167.0,
+            284.0
+          ],
+          "source_category_id": 3
+        },
+        {
+          "annotation_id": 7319,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            1605.0,
+            193.0,
+            1741.0,
+            328.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "multiple_heads",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": null,
+      "proposal_status": "unknown",
+      "task_id": "role_dev_069",
+      "image_path": "data\\raw\\edgevision\\images\\Image_02130.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "7316": null,
+          "7319": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 2145,
+      "file_name": "Image_02145.jpg",
+      "image_width": 1666,
+      "image_height": 818,
+      "bike_annotation_id": 7379,
+      "bike_box_xyxy": [
+        863.0,
+        98.0,
+        1101.0,
+        533.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 7382,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            966.0,
+            111.0,
+            1050.0,
+            197.0
+          ],
+          "source_category_id": 3
+        },
+        {
+          "annotation_id": 7384,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            952.0,
+            106.0,
+            1012.0,
+            170.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "multiple_heads",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": null,
+      "proposal_status": "unknown",
+      "task_id": "role_dev_070",
+      "image_path": "data\\raw\\edgevision\\images\\Image_02145.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "7382": null,
+          "7384": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 2155,
+      "file_name": "Image_02155.jpg",
+      "image_width": 450,
+      "image_height": 700,
+      "bike_annotation_id": 7416,
+      "bike_box_xyxy": [
+        316.0,
+        0.0,
+        395.0,
+        143.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 7418,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            339.0,
+            0.0,
+            369.0,
+            24.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "small_head",
+        "edge_truncation"
+      ],
+      "proposed_driver_head_annotation_id": 7418,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_071",
+      "image_path": "data\\raw\\edgevision\\images\\Image_02155.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "7418": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 2167,
+      "file_name": "Image_02167.jpg",
+      "image_width": 953,
+      "image_height": 662,
+      "bike_annotation_id": 7462,
+      "bike_box_xyxy": [
+        2.0,
+        23.0,
+        126.0,
+        240.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 7467,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            36.0,
+            25.0,
+            84.0,
+            79.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 7467,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_072",
+      "image_path": "data\\raw\\edgevision\\images\\Image_02167.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "7467": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 2169,
+      "file_name": "Image_02169.jpg",
+      "image_width": 712,
+      "image_height": 721,
+      "bike_annotation_id": 7478,
+      "bike_box_xyxy": [
+        598.0,
+        34.0,
+        712.0,
+        237.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 7483,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            645.0,
+            36.0,
+            679.0,
+            72.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 7483,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_073",
+      "image_path": "data\\raw\\edgevision\\images\\Image_02169.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "7483": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 2171,
+      "file_name": "Image_02171.jpg",
+      "image_width": 313,
+      "image_height": 507,
+      "bike_annotation_id": 7490,
+      "bike_box_xyxy": [
+        0.0,
+        53.0,
+        49.0,
+        250.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 7487,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            0.0,
+            54.0,
+            30.0,
+            88.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene",
+        "small_head",
+        "edge_truncation"
+      ],
+      "proposed_driver_head_annotation_id": 7487,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_074",
+      "image_path": "data\\raw\\edgevision\\images\\Image_02171.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "7487": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 2254,
+      "file_name": "Image_02254.jpg",
+      "image_width": 2127,
+      "image_height": 1398,
+      "bike_annotation_id": 7770,
+      "bike_box_xyxy": [
+        1517.0,
+        62.0,
+        2014.0,
+        960.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 7769,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            1684.0,
+            104.0,
+            1806.0,
+            225.0
+          ],
+          "source_category_id": 3
+        },
+        {
+          "annotation_id": 7771,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            1755.0,
+            112.0,
+            1881.0,
+            246.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "multiple_heads",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": null,
+      "proposal_status": "unknown",
+      "task_id": "role_dev_075",
+      "image_path": "data\\raw\\edgevision\\images\\Image_02254.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "7769": null,
+          "7771": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 2255,
+      "file_name": "Image_02255.jpg",
+      "image_width": 1531,
+      "image_height": 797,
+      "bike_annotation_id": 7773,
+      "bike_box_xyxy": [
+        87.0,
+        144.0,
+        321.0,
+        605.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 7775,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            148.0,
+            147.0,
+            244.0,
+            232.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 7775,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_076",
+      "image_path": "data\\raw\\edgevision\\images\\Image_02255.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "7775": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 2264,
+      "file_name": "Image_02264.jpg",
+      "image_width": 2228,
+      "image_height": 1965,
+      "bike_annotation_id": 7812,
+      "bike_box_xyxy": [
+        1806.0,
+        189.0,
+        2146.0,
+        883.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 7817,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            1922.0,
+            195.0,
+            2072.0,
+            319.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 7817,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_077",
+      "image_path": "data\\raw\\edgevision\\images\\Image_02264.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "7817": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 2278,
+      "file_name": "Image_02278.jpg",
+      "image_width": 2888,
+      "image_height": 1541,
+      "bike_annotation_id": 7883,
+      "bike_box_xyxy": [
+        692.0,
+        149.0,
+        1176.0,
+        1092.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 7887,
+          "helmet_status": "helmet",
+          "box_xyxy": [
+            861.0,
+            154.0,
+            1038.0,
+            306.0
+          ],
+          "source_category_id": 3
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 7887,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_078",
+      "image_path": "data\\raw\\edgevision\\images\\Image_02278.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "7887": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 2321,
+      "file_name": "Image_02321.jpg",
+      "image_width": 3166,
+      "image_height": 1976,
+      "bike_annotation_id": 8035,
+      "bike_box_xyxy": [
+        0.0,
+        282.0,
+        610.0,
+        1246.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 8038,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            181.0,
+            350.0,
+            374.0,
+            512.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene",
+        "small_head"
+      ],
+      "proposed_driver_head_annotation_id": 8038,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_079",
+      "image_path": "data\\raw\\edgevision\\images\\Image_02321.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "8038": null
+        },
+        "notes": null
+      }
+    },
+    {
+      "image_id": 2366,
+      "file_name": "Image_02366.jpg",
+      "image_width": 1263,
+      "image_height": 1124,
+      "bike_annotation_id": 8191,
+      "bike_box_xyxy": [
+        45.0,
+        65.0,
+        1196.0,
+        1030.0
+      ],
+      "heads": [
+        {
+          "annotation_id": 8192,
+          "helmet_status": "no_helmet",
+          "box_xyxy": [
+            382.0,
+            82.0,
+            539.0,
+            256.0
+          ],
+          "source_category_id": 2
+        }
+      ],
+      "difficulty_tags": [
+        "single_head",
+        "crowded_scene"
+      ],
+      "proposed_driver_head_annotation_id": 8192,
+      "proposal_status": "candidate_only",
+      "task_id": "role_dev_080",
+      "image_path": "data\\raw\\edgevision\\images\\Image_02366.jpg",
+      "review": {
+        "status": "pending",
+        "reviewer": null,
+        "reviewed_at": null,
+        "driver_head_annotation_id": null,
+        "head_roles": {
+          "8192": null
+        },
+        "notes": null
+      }
+    }
+  ]
+}

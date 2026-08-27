@@ -3,16 +3,20 @@
 from __future__ import annotations
 
 import base64
+import json
+import threading
 import warnings
+from datetime import UTC, datetime
 from io import BytesIO
 from pathlib import Path
 from typing import Annotated, Any
 
 import torch
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
-from PIL import Image, UnidentifiedImageError
+from pydantic import BaseModel
+from PIL import Image, ImageDraw, UnidentifiedImageError
 
 from app.model_loader import DetectorManager, list_model_metadata
 from app.video_jobs import ALLOWED_VIDEO_SUFFIXES, MAX_VIDEO_BYTES, VideoJobManager
@@ -25,6 +29,8 @@ from src.infer import (
     validate_threshold,
 )
 from src.rider_association import analyze_rider_roles
+from src.role_annotations import VALID_REVIEW_STATUSES, VALID_ROLES, validate_role_tasks
+from src.utils import resolve_project_path
 
 
 MAX_UPLOAD_BYTES = 20 * 1024 * 1024
@@ -33,6 +39,9 @@ ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png"}
 GENERIC_UPLOAD_TYPES = {None, "", "application/octet-stream"}
 DETECTOR_MANAGER = DetectorManager(requested_device="auto")
 VIDEO_JOBS = VideoJobManager(DETECTOR_MANAGER)
+ROLE_TASKS_PATH = resolve_project_path("data/role_association/annotations/role_dev.pending.json")
+ROLE_IMAGE_ROOT = resolve_project_path("data/raw/edgevision/images")
+ROLE_TASKS_LOCK = threading.RLock()
 
 app = FastAPI(
     title="Helmet Detection AI API",
@@ -43,13 +52,68 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://127.0.0.1:5173", "http://localhost:5173"],
     allow_credentials=False,
-    allow_methods=["GET", "POST"],
+    allow_methods=["GET", "POST", "PUT"],
     allow_headers=["Content-Type"],
 )
 
 
+class RoleReviewUpdate(BaseModel):
+    reviewer: str
+    driver_head_annotation_id: int | None
+    head_roles: dict[str, str]
+    notes: str | None = None
+    status: str = "needs_second_review"
+
+
 def _api_error(status_code: int, code: str, message: str) -> HTTPException:
     return HTTPException(status_code=status_code, detail={"code": code, "message": message})
+
+
+def _read_role_tasks() -> dict[str, Any]:
+    if not ROLE_TASKS_PATH.is_file():
+        raise FileNotFoundError(f"Chưa có task role_dev: {ROLE_TASKS_PATH}")
+    with ROLE_TASKS_PATH.open("r", encoding="utf-8") as stream:
+        payload = json.load(stream)
+    validate_role_tasks(payload)
+    return payload
+
+
+def _role_task(payload: dict[str, Any], task_id: str) -> dict[str, Any]:
+    for task in payload["tasks"]:
+        if task["task_id"] == task_id:
+            return task
+    raise KeyError(task_id)
+
+
+def _role_task_preview(task: dict[str, Any]) -> Image.Image:
+    source_path = resolve_project_path(task["image_path"])
+    try:
+        source_path.relative_to(ROLE_IMAGE_ROOT)
+    except ValueError as error:
+        raise ValueError("Đường dẫn ảnh review nằm ngoài image root được phép") from error
+    if not source_path.is_file():
+        raise FileNotFoundError(source_path)
+    with Image.open(source_path) as source:
+        image = normalize_pil_image(source)
+    x1, y1, x2, y2 = (float(value) for value in task["bike_box_xyxy"])
+    pad_x = max(28.0, (x2 - x1) * 0.45)
+    pad_y = max(28.0, (y2 - y1) * 0.45)
+    left, top, right, bottom = (
+        max(0, int(x1 - pad_x)),
+        max(0, int(y1 - pad_y)),
+        min(image.width, int(x2 + pad_x)),
+        min(image.height, int(y2 + pad_y)),
+    )
+    preview = image.crop((left, top, right, bottom))
+    draw = ImageDraw.Draw(preview)
+    draw.rectangle((x1 - left, y1 - top, x2 - left, y2 - top), outline=(245, 158, 11), width=4)
+    colors = {"helmet": (34, 197, 94), "no_helmet": (239, 68, 68)}
+    for head in task["heads"]:
+        hx1, hy1, hx2, hy2 = (float(value) for value in head["box_xyxy"])
+        color = colors[head["helmet_status"]]
+        draw.rectangle((hx1 - left, hy1 - top, hx2 - left, hy2 - top), outline=color, width=4)
+        draw.text((hx1 - left + 3, max(0, hy1 - top - 14)), f"H{head['annotation_id']}", fill=color)
+    return preview
 
 
 def decode_uploaded_image(content: bytes) -> Image.Image:
@@ -87,6 +151,70 @@ def models() -> dict[str, Any]:
         return {"models": list_model_metadata()}
     except (ValueError, FileNotFoundError) as error:
         raise _api_error(500, "MODEL_CONFIG_ERROR", str(error)) from error
+
+
+@app.get("/api/role-review/tasks")
+def role_review_tasks() -> dict[str, Any]:
+    """Danh sách task pending/review cho công cụ gán nhãn cục bộ."""
+    try:
+        with ROLE_TASKS_LOCK:
+            payload = _read_role_tasks()
+        tasks = payload["tasks"]
+        status_counts = {
+            status: sum(task["review"]["status"] == status for task in tasks)
+            for status in VALID_REVIEW_STATUSES
+        }
+        return {
+            "schema_version": payload["schema_version"],
+            "tasks": tasks,
+            "summary": {"tasks": len(tasks), **status_counts},
+        }
+    except (FileNotFoundError, ValueError, json.JSONDecodeError) as error:
+        raise _api_error(503, "ROLE_TASKS_UNAVAILABLE", str(error)) from error
+
+
+@app.get("/api/role-review/tasks/{task_id}/preview")
+def role_review_preview(task_id: str) -> Response:
+    try:
+        with ROLE_TASKS_LOCK:
+            task = _role_task(_read_role_tasks(), task_id)
+        return Response(content=encode_png(_role_task_preview(task)), media_type="image/png")
+    except KeyError as error:
+        raise _api_error(404, "ROLE_TASK_NOT_FOUND", f"Không tìm thấy task: {task_id}") from error
+    except (FileNotFoundError, ValueError, json.JSONDecodeError) as error:
+        raise _api_error(503, "ROLE_PREVIEW_UNAVAILABLE", str(error)) from error
+
+
+@app.put("/api/role-review/tasks/{task_id}")
+def update_role_review(task_id: str, update: RoleReviewUpdate) -> dict[str, Any]:
+    """Lưu review thủ công sau khi validator kiểm tra tính nhất quán."""
+    if update.status not in {"reviewed", "needs_second_review"}:
+        raise _api_error(422, "INVALID_ROLE_STATUS", "status phải là reviewed hoặc needs_second_review")
+    if not update.reviewer.strip():
+        raise _api_error(422, "INVALID_REVIEWER", "Cần nhập tên người review")
+    if any(role not in VALID_ROLES for role in update.head_roles.values()):
+        raise _api_error(422, "INVALID_HEAD_ROLE", "head_roles chỉ được driver, passenger hoặc unknown")
+    try:
+        with ROLE_TASKS_LOCK:
+            payload = _read_role_tasks()
+            task = _role_task(payload, task_id)
+            task["review"] = {
+                "status": update.status,
+                "reviewer": update.reviewer.strip(),
+                "reviewed_at": datetime.now(UTC).isoformat(),
+                "driver_head_annotation_id": update.driver_head_annotation_id,
+                "head_roles": update.head_roles,
+                "notes": update.notes.strip() if update.notes and update.notes.strip() else None,
+            }
+            validate_role_tasks(payload)
+            temporary = ROLE_TASKS_PATH.with_suffix(".tmp")
+            temporary.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+            temporary.replace(ROLE_TASKS_PATH)
+        return {"task": task, "message": "Đã lưu review; cần kiểm tra chéo trước khi dùng để chọn quy tắc."}
+    except KeyError as error:
+        raise _api_error(404, "ROLE_TASK_NOT_FOUND", f"Không tìm thấy task: {task_id}") from error
+    except (FileNotFoundError, ValueError, json.JSONDecodeError) as error:
+        raise _api_error(422, "INVALID_ROLE_REVIEW", str(error)) from error
 
 
 @app.post("/api/infer/image")

@@ -14,7 +14,8 @@
 - Baseline chỉ ghép đầu–xe theo hình học. Một vùng xe có đúng một đầu được gọi `driver_candidate`; đó **không** là kết luận tài xế và `confirmed_driver_no_helmet` luôn bằng 0.
 - Audit trên ground truth validation EdgeVision: 633/670 box đầu (94,48%) ghép được duy nhất, 28/670 (4,18%) mơ hồ và 9/670 (1,34%) chưa ghép. Đây là coverage hình học, không phải accuracy tài xế/người ngồi sau.
 - Báo cáo audit cục bộ: `outputs/role_association/edgevision_val_geometry_audit.json`; tái tạo bằng `python -m tools.audit_rider_association`.
-- Đã thêm unit/API test. Chưa triển khai video role analysis, chưa tạo `role_dev` và chưa đổi/huấn luyện lại detector.
+- Đã thêm unit/API test. Chưa triển khai video role analysis, chưa hoàn tất review `role_dev` và chưa đổi/huấn luyện lại detector.
+- Đã tạo `role_dev.pending.json` gồm 80 task validation đa dạng và màn review cục bộ trong web demo. Tất cả task hiện `pending`; chưa có nhãn role nào được dùng làm ground truth.
 
 ## 2. Vấn đề cần giải quyết
 

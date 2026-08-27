@@ -444,6 +444,42 @@
   border-bottom: 1px solid #eef2f7;
 }
 
+.role-review-card {
+  margin-top: 18px;
+  padding: 20px 22px;
+}
+
+.role-review-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 1.1fr) minmax(360px, 0.9fr);
+  gap: 20px;
+  margin-top: 16px;
+}
+
+.role-review-preview {
+  display: block;
+  width: 100%;
+  max-height: 460px;
+  object-fit: contain;
+  border-radius: 12px;
+  background: #0f172a;
+}
+
+.role-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.role-review-empty {
+  min-height: 120px;
+  display: grid;
+  place-items: center;
+}
+
 .table-head {
   display: grid;
   grid-template-columns: 1.2fr 0.8fr 1fr;
@@ -524,6 +560,7 @@
   .workspace-grid { grid-template-columns: 1fr; }
   .media-card { min-height: 560px; }
   .metrics-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .role-review-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 760px) {

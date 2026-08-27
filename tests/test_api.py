@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from io import BytesIO
 from types import SimpleNamespace
+import json
 
 import torch
 from fastapi.testclient import TestClient
@@ -127,3 +128,53 @@ def test_video_preview_is_inline_while_download_is_attachment(monkeypatch, tmp_p
     assert "content-disposition" not in preview.headers
     assert download.status_code == 200
     assert "attachment" in download.headers["content-disposition"]
+
+
+def test_role_review_endpoints_validate_and_save_manual_review(monkeypatch, tmp_path) -> None:
+    image_root = tmp_path / "images"
+    image_root.mkdir()
+    Image.new("RGB", (100, 100), "white").save(image_root / "sample.jpg")
+    tasks_path = tmp_path / "role_dev.pending.json"
+    tasks_path.write_text(
+        json.dumps(
+            {
+                "schema_version": "role_association_tasks_v1",
+                "tasks": [
+                    {
+                        "task_id": "role_dev_001",
+                        "image_id": 1,
+                        "image_path": str(image_root / "sample.jpg"),
+                        "bike_box_xyxy": [0, 0, 100, 100],
+                        "heads": [{"annotation_id": 11, "helmet_status": "no_helmet", "box_xyxy": [40, 10, 60, 30]}],
+                        "review": {
+                            "status": "pending",
+                            "reviewer": None,
+                            "reviewed_at": None,
+                            "driver_head_annotation_id": None,
+                            "head_roles": {"11": None},
+                            "notes": None,
+                        },
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(api, "ROLE_TASKS_PATH", tasks_path)
+    monkeypatch.setattr(api, "ROLE_IMAGE_ROOT", image_root)
+    client = TestClient(api.app)
+    assert client.get("/api/role-review/tasks").json()["summary"]["pending"] == 1
+    assert client.get("/api/role-review/tasks/role_dev_001/preview").headers["content-type"] == "image/png"
+    saved = client.put(
+        "/api/role-review/tasks/role_dev_001",
+        json={
+            "reviewer": "Long",
+            "status": "needs_second_review",
+            "driver_head_annotation_id": 11,
+            "head_roles": {"11": "driver"},
+            "notes": "Rõ tay lái",
+        },
+    )
+    assert saved.status_code == 200
+    assert saved.json()["task"]["review"]["status"] == "needs_second_review"
+    assert json.loads(tasks_path.read_text(encoding="utf-8"))["tasks"][0]["review"]["driver_head_annotation_id"] == 11

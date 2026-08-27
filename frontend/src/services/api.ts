@@ -71,6 +71,36 @@ export interface RiderAnalysis {
   limitations: string[]
 }
 
+export type ReviewedHeadRole = 'driver' | 'passenger' | 'unknown'
+
+export interface RoleReviewHead {
+  annotation_id: number
+  helmet_status: 'helmet' | 'no_helmet'
+  box_xyxy: [number, number, number, number]
+}
+
+export interface RoleReviewTask {
+  task_id: string
+  image_id: number
+  file_name: string
+  bike_annotation_id: number
+  difficulty_tags: string[]
+  heads: RoleReviewHead[]
+  review: {
+    status: 'pending' | 'reviewed' | 'needs_second_review'
+    reviewer: string | null
+    driver_head_annotation_id: number | null
+    head_roles: Record<string, ReviewedHeadRole | null>
+    notes: string | null
+  }
+}
+
+export interface RoleReviewQueue {
+  schema_version: string
+  tasks: RoleReviewTask[]
+  summary: { tasks: number; pending: number; reviewed: number; needs_second_review: number }
+}
+
 export interface InferenceResponse {
   model: { id: ModelId; name: string; architecture: string }
   device: { type: 'cuda' | 'cpu'; name: string }
@@ -171,4 +201,27 @@ export function fetchVideoJob(jobId: string): Promise<VideoJobResponse> {
 
 export function absoluteApiUrl(path: string): string {
   return `${API_BASE_URL}${path}`
+}
+
+export function fetchRoleReviewTasks(): Promise<RoleReviewQueue> {
+  return getJson<RoleReviewQueue>('/api/role-review/tasks')
+}
+
+export async function saveRoleReview(
+  taskId: string,
+  review: {
+    reviewer: string
+    driver_head_annotation_id: number | null
+    head_roles: Record<string, ReviewedHeadRole>
+    notes: string | null
+    status: 'reviewed' | 'needs_second_review'
+  },
+): Promise<{ task: RoleReviewTask; message: string }> {
+  const response = await fetch(`${API_BASE_URL}/api/role-review/tasks/${taskId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(review),
+  })
+  if (!response.ok) throw new Error(await readError(response))
+  return response.json() as Promise<{ task: RoleReviewTask; message: string }>
 }

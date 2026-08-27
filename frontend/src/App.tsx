@@ -17,6 +17,7 @@ import {
   Stack,
   Tab,
   Tabs,
+  TextField,
   Tooltip,
   Typography,
 } from '@mui/material'
@@ -36,13 +37,17 @@ import {
   absoluteApiUrl,
   fetchHealth,
   fetchModels,
+  fetchRoleReviewTasks,
   fetchVideoJob,
   inferImage,
   inferVideo,
+  saveRoleReview,
   type HealthResponse,
   type InferenceResponse,
   type ModelId,
   type ModelMetadata,
+  type ReviewedHeadRole,
+  type RoleReviewTask,
   type VideoJobResponse,
 } from './services/api'
 import './App.css'
@@ -105,10 +110,33 @@ function App() {
   const [apiError, setApiError] = useState<string | null>(null)
   const [cameraActive, setCameraActive] = useState(false)
   const [cameraError, setCameraError] = useState<string | null>(null)
+  const [roleReviewTasks, setRoleReviewTasks] = useState<RoleReviewTask[]>([])
+  const [roleReviewIndex, setRoleReviewIndex] = useState(0)
+  const [roleReviewer, setRoleReviewer] = useState('Long')
+  const [roleHeadRoles, setRoleHeadRoles] = useState<Record<string, ReviewedHeadRole>>({})
+  const [roleNotes, setRoleNotes] = useState('')
+  const [roleReviewLoading, setRoleReviewLoading] = useState(false)
+  const [roleReviewSaving, setRoleReviewSaving] = useState(false)
+  const [roleReviewError, setRoleReviewError] = useState<string | null>(null)
   const cameraVideoRef = useRef<HTMLVideoElement | null>(null)
   const cameraStreamRef = useRef<MediaStream | null>(null)
   const apiModel = modelCatalog.find((model) => model.id === modelId)
   const defaultThreshold = apiModel?.default_threshold ?? selectedModel.defaultThreshold
+  const selectedRoleTask = roleReviewTasks[roleReviewIndex] ?? null
+
+  const loadRoleReviewTasks = useCallback(async () => {
+    setRoleReviewLoading(true)
+    try {
+      const payload = await fetchRoleReviewTasks()
+      setRoleReviewTasks(payload.tasks)
+      setRoleReviewIndex((current) => Math.min(current, Math.max(payload.tasks.length - 1, 0)))
+      setRoleReviewError(null)
+    } catch (error) {
+      setRoleReviewError(error instanceof Error ? error.message : 'Không thể tải task review')
+    } finally {
+      setRoleReviewLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
     setThreshold(defaultThreshold)
@@ -135,6 +163,21 @@ function App() {
     }, 5000)
     return () => window.clearInterval(retryTimer)
   }, [connectBackend, health])
+
+  useEffect(() => {
+    void loadRoleReviewTasks()
+  }, [loadRoleReviewTasks])
+
+  useEffect(() => {
+    if (!selectedRoleTask) return
+    const nextRoles: Record<string, ReviewedHeadRole> = {}
+    selectedRoleTask.heads.forEach((head) => {
+      nextRoles[String(head.annotation_id)] = selectedRoleTask.review.head_roles[String(head.annotation_id)] ?? 'unknown'
+    })
+    setRoleHeadRoles(nextRoles)
+    setRoleReviewer(selectedRoleTask.review.reviewer ?? 'Long')
+    setRoleNotes(selectedRoleTask.review.notes ?? '')
+  }, [selectedRoleTask?.task_id])
 
   useEffect(() => {
     if (!selectedFile) {
@@ -269,6 +312,40 @@ function App() {
       setApiError(error instanceof Error ? error.message : 'Không thể chạy suy luận')
     } finally {
       setIsInferring(false)
+    }
+  }
+
+  const setHeadRole = (annotationId: number, role: ReviewedHeadRole) => {
+    const key = String(annotationId)
+    setRoleHeadRoles((current) => {
+      const next = { ...current, [key]: role }
+      if (role === 'driver') {
+        Object.keys(next).forEach((id) => {
+          if (id !== key && next[id] === 'driver') next[id] = 'unknown'
+        })
+      }
+      return next
+    })
+  }
+
+  const saveCurrentRoleReview = async () => {
+    if (!selectedRoleTask) return
+    setRoleReviewSaving(true)
+    try {
+      const driverId = selectedRoleTask.heads.find((head) => roleHeadRoles[String(head.annotation_id)] === 'driver')?.annotation_id ?? null
+      const payload = await saveRoleReview(selectedRoleTask.task_id, {
+        reviewer: roleReviewer,
+        driver_head_annotation_id: driverId,
+        head_roles: roleHeadRoles,
+        notes: roleNotes || null,
+        status: 'needs_second_review',
+      })
+      setRoleReviewTasks((current) => current.map((task) => task.task_id === payload.task.task_id ? payload.task : task))
+      setRoleReviewError(null)
+    } catch (error) {
+      setRoleReviewError(error instanceof Error ? error.message : 'Không thể lưu review')
+    } finally {
+      setRoleReviewSaving(false)
     }
   }
 
@@ -686,6 +763,70 @@ function App() {
             )}
           </Paper>
         )}
+
+        <Paper className="role-review-card" elevation={0}>
+          <Box className="card-heading compact">
+            <Box>
+              <Typography variant="h6">Review nhãn tài xế/người ngồi sau</Typography>
+              <Typography variant="body2" color="text.secondary">
+                Dữ liệu validation độc lập; không dùng prediction của mô hình để gán nhãn.
+              </Typography>
+            </Box>
+            <Chip label={`${roleReviewTasks.length} task`} size="small" variant="outlined" />
+          </Box>
+          {roleReviewLoading ? (
+            <Box className="role-review-empty"><CircularProgress size={24} /></Box>
+          ) : roleReviewError ? (
+            <Alert severity="error" sx={{ mt: 1.5 }} action={<Button color="inherit" size="small" onClick={() => void loadRoleReviewTasks()}>Thử lại</Button>}>
+              {roleReviewError}
+            </Alert>
+          ) : selectedRoleTask ? (
+            <Box className="role-review-grid">
+              <Box>
+                <img
+                  className="role-review-preview"
+                  src={absoluteApiUrl(`/api/role-review/tasks/${selectedRoleTask.task_id}/preview`)}
+                  alt={`Crop review ${selectedRoleTask.task_id}`}
+                />
+                <Stack direction="row" spacing={1} sx={{ mt: 1, alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Button size="small" disabled={roleReviewIndex === 0} onClick={() => setRoleReviewIndex((current) => current - 1)}>Trước</Button>
+                  <Typography variant="caption" color="text.secondary">
+                    {roleReviewIndex + 1}/{roleReviewTasks.length} · {selectedRoleTask.task_id} · {selectedRoleTask.difficulty_tags.join(', ')}
+                  </Typography>
+                  <Button size="small" disabled={roleReviewIndex >= roleReviewTasks.length - 1} onClick={() => setRoleReviewIndex((current) => current + 1)}>Sau</Button>
+                </Stack>
+              </Box>
+              <Stack spacing={1.25}>
+                <Alert severity="warning" icon={false} className="role-analysis-note">
+                  Chỉ chọn “Tài xế” khi thấy rõ người điều khiển tay lái. Không rõ thì chọn “Không xác định”.
+                </Alert>
+                {selectedRoleTask.heads.map((head) => {
+                  const key = String(head.annotation_id)
+                  const role = roleHeadRoles[key] ?? 'unknown'
+                  return (
+                    <Box className="role-head-row" key={key}>
+                      <Typography variant="body2" sx={{ fontWeight: 760 }}>
+                        H{head.annotation_id} · {head.helmet_status === 'no_helmet' ? 'Không mũ' : 'Có mũ'}
+                      </Typography>
+                      <Stack direction="row" spacing={0.75} sx={{ flexWrap: 'wrap' }}>
+                        <Button size="small" variant={role === 'driver' ? 'contained' : 'outlined'} onClick={() => setHeadRole(head.annotation_id, 'driver')}>Tài xế</Button>
+                        <Button size="small" variant={role === 'passenger' ? 'contained' : 'outlined'} onClick={() => setHeadRole(head.annotation_id, 'passenger')}>Ngồi sau</Button>
+                        <Button size="small" variant={role === 'unknown' ? 'contained' : 'outlined'} onClick={() => setHeadRole(head.annotation_id, 'unknown')}>Không rõ</Button>
+                      </Stack>
+                    </Box>
+                  )
+                })}
+                <TextField size="small" label="Người review" value={roleReviewer} onChange={(event) => setRoleReviewer(event.target.value)} />
+                <TextField size="small" label="Ghi chú (tùy chọn)" value={roleNotes} onChange={(event) => setRoleNotes(event.target.value)} multiline minRows={2} />
+                <Button variant="contained" onClick={() => void saveCurrentRoleReview()} disabled={roleReviewSaving || !roleReviewer.trim()}>
+                  {roleReviewSaving ? 'Đang lưu…' : 'Lưu để kiểm tra chéo'}
+                </Button>
+              </Stack>
+            </Box>
+          ) : (
+            <Box className="role-review-empty"><Typography color="text.secondary">Chưa có task review.</Typography></Box>
+          )}
+        </Paper>
 
         <Paper className="results-card" elevation={0}>
           <Box className="card-heading compact">

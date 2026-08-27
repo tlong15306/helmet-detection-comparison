@@ -26,3 +26,14 @@ Thư mục này dành cho annotation quan hệ bổ sung; không thay đổi nh�
 ```
 
 Không tạo nhãn vai trò bằng prediction của model. Nhãn phải được người gán kiểm tra trên ảnh gốc.
+
+## Quy trình review hiện tại
+
+1. Tạo task pending bằng `python -m tools.create_role_dev_tasks`.
+2. Mở web demo cục bộ và kéo đến mục **Review nhãn tài xế/người ngồi sau**.
+3. Dựa trên tay lái/tư thế điều khiển, gán mỗi đầu là `driver`, `passenger` hoặc `unknown`.
+4. Chỉ có một `driver` trong một task. Nếu không đủ bằng chứng, đặt mọi đầu là `unknown`.
+5. Bấm **Lưu để kiểm tra chéo**. Hệ thống lưu tên người review, thời gian và chuyển task sang `needs_second_review`.
+6. Sau khi hoàn tất, chạy validator trước khi dùng `role_dev` để chọn quy tắc.
+
+Không thay đổi `data/splits/test.json` và không dùng Hard Subset để chọn quy tắc vai trò.

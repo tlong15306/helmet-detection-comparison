@@ -37,6 +37,10 @@ data/challenge/selected/*
 data/challenge/previews/*
 !data/challenge/previews/.gitkeep
 
+# Contact sheet cục bộ để review role_dev; không đưa ảnh dataset vào Git.
+data/role_association/previews/*
+!data/role_association/previews/.gitkeep
+
 # Model outputs
 outputs/**/*.pth
 outputs/**/*.pt

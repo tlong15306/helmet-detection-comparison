@@ -1,0 +1,28 @@
+{
+  "source": {
+    "split": "validation",
+    "annotations": "data\\splits\\val.json",
+    "annotations_sha256": "f4979f8a7533889a52d484e215f7c838625d95b14a72c00ebd9eec5d4d2cd7c5",
+    "image_root": "data/raw/edgevision/images",
+    "selection": "ground_truth_geometry_only; no model predictions; no role labels inferred"
+  },
+  "selection": {
+    "tasks": 80,
+    "pending": 80,
+    "reviewed": 0,
+    "needs_second_review": 0,
+    "images": 80
+  },
+  "difficulty_tags": {
+    "crowded_scene": 53,
+    "edge_truncation": 13,
+    "multiple_heads": 27,
+    "single_head": 53,
+    "small_head": 64
+  },
+  "proposals": {
+    "unknown": 27,
+    "candidate_only": 53
+  },
+  "warning": "Mọi role vẫn pending. proposed_driver_head_annotation_id chỉ là gợi ý baseline, không phải ground truth."
+}
