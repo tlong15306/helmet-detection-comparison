@@ -6,7 +6,7 @@
 - **Người phụ trách demo:** Nguyễn Thành Long.
 - **Ngày lập kế hoạch:** 27/08/2026.
 - **Hạn kỹ thuật nội bộ:** hoàn thành trước 03/09/2026 để nhóm còn thời gian ghép báo cáo và chuẩn bị trình bày.
-- **Trạng thái:** Chờ Long duyệt trước khi triển khai.
+- **Trạng thái:** Đang hoàn thiện sau khi Long đã duyệt triển khai.
 - **Phạm vi:** hoàn thiện video, camera snapshot, kiểm thử, tài liệu, ảnh minh họa và đưa mã nguồn lên GitHub.
 - **Không thuộc phạm vi:** train lại trên nhiều dataset, webcam live tốc độ cao, tracking, nhận dạng biển số, đăng nhập, cơ sở dữ liệu, ONNX/TensorRT và triển khai Internet.
 
@@ -22,7 +22,7 @@
 - Frontend React đã có ba chế độ: ảnh, video và camera.
 - FastAPI, model loader và pipeline suy luận ảnh đã hoạt động với checkpoint thật.
 - Chuyển đổi giữa hai mô hình đã được kiểm tra tuần tự để tránh giữ đồng thời hai checkpoint trong VRAM.
-- Toàn bộ bộ kiểm thử hiện tại đạt `44 passed, 1 skipped`.
+- Toàn bộ bộ kiểm thử hiện tại đạt `46 passed, 1 skipped`.
 - Frontend production build thành công.
 - Bản Word mục 2.1.2 của Long và các biểu đồ so sánh đã có.
 
@@ -77,8 +77,8 @@ Video không chạy trong một request kéo dài. Backend tạo một tác vụ
 API dự kiến:
 
 - `POST /api/infer/video`: nhận video, model và threshold; trả `job_id`.
-- `GET /api/jobs/{job_id}`: trả trạng thái `queued/running/completed/failed`, phần trăm tiến độ và thống kê.
-- `GET /api/jobs/{job_id}/download`: tải video kết quả khi hoàn thành.
+- `GET /api/infer/video/jobs/{job_id}`: trả trạng thái `queued/processing/completed/failed`, phần trăm tiến độ và thống kê.
+- `GET /api/infer/video/jobs/{job_id}/download`: tải video kết quả khi hoàn thành.
 - `DELETE /api/jobs/{job_id}`: dọn tệp tạm sau khi người dùng không cần nữa; chỉ triển khai nếu không làm phức tạp luồng chính.
 
 #### Quy tắc xử lý
@@ -251,10 +251,10 @@ Không cắt giảm kiểm tra hash checkpoint, threshold validation, giải ph�
 
 ## 8. Tiêu chí hoàn thành cuối
 
-- [ ] Mốc demo ảnh đã commit và push.
-- [ ] Video chạy được với cả hai mô hình.
-- [ ] Video có progress, trạng thái lỗi và nút tải kết quả.
-- [ ] Camera snapshot chạy được với cả hai mô hình.
+- [x] Mốc demo ảnh đã commit và push (`67bed52`).
+- [x] Video chạy được với cả hai mô hình (smoke test 2 frame đã hoàn tất với Faster R-CNN và RetinaNet trên RTX 2050).
+- [x] Video có progress, trạng thái lỗi và nút tải kết quả.
+- [ ] Camera snapshot chạy được với cả hai mô hình (đã hoàn thiện mã; cần xác nhận quyền camera trên trình duyệt của Long).
 - [ ] Ảnh, video và camera dùng chung class mapping và threshold config.
 - [ ] Chỉ một model nằm trên GPU tại một thời điểm.
 - [ ] Toàn bộ test pass; skip còn lại có lý do rõ ràng.

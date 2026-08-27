@@ -114,6 +114,18 @@ Checkpoint phải được lưu sau mỗi epoch và tải ra khỏi runtime đ�
 - Xác nhận frontend đang chạy tại `http://127.0.0.1:5173`.
 - Kiểm tra `http://127.0.0.1:8000/api/health` trả trạng thái `ready`.
 
+### Video không tạo được kết quả
+
+- Chỉ dùng tệp MP4, MOV hoặc AVI; dung lượng không quá 200 MB và thời lượng không quá 5 phút.
+- Chờ thanh tiến độ hoàn tất trước khi tải video; backend xử lý tuần tự để chỉ giữ một model trên GPU.
+- Nếu trình duyệt không phát được MP4 kết quả, dùng nút tải xuống rồi mở bằng trình phát video cục bộ.
+
+### Camera bị từ chối quyền
+
+- Mở demo bằng `http://127.0.0.1:5173/` hoặc `http://localhost:5173/`.
+- Bấm **Mở camera** và chấp nhận quyền trong trình duyệt; nếu đã từ chối, cấp lại quyền camera cho địa chỉ demo trong cài đặt trình duyệt.
+- Bấm **Tắt camera** hoặc đổi tab để giải phóng camera; chế độ này chỉ chụp frame, không chạy live detection liên tục.
+
 ### `python` không được nhận diện
 
 Cài lại Python 3.11 và chọn **Add python.exe to PATH**, sau đó mở PowerShell mới.

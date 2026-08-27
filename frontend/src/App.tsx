@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   Alert,
   AppBar,
@@ -23,6 +23,7 @@ import {
 import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded'
 import CameraAltRoundedIcon from '@mui/icons-material/CameraAltRounded'
 import CloudUploadRoundedIcon from '@mui/icons-material/CloudUploadRounded'
+import DownloadRoundedIcon from '@mui/icons-material/DownloadRounded'
 import HelpOutlineRoundedIcon from '@mui/icons-material/HelpOutlineRounded'
 import ImageRoundedIcon from '@mui/icons-material/ImageRounded'
 import MemoryRoundedIcon from '@mui/icons-material/MemoryRounded'
@@ -32,13 +33,17 @@ import ShieldRoundedIcon from '@mui/icons-material/ShieldRounded'
 import VideocamRoundedIcon from '@mui/icons-material/VideocamRounded'
 import { useDropzone, type Accept } from 'react-dropzone'
 import {
+  absoluteApiUrl,
   fetchHealth,
   fetchModels,
+  fetchVideoJob,
   inferImage,
+  inferVideo,
   type HealthResponse,
   type InferenceResponse,
   type ModelId,
   type ModelMetadata,
+  type VideoJobResponse,
 } from './services/api'
 import './App.css'
 
@@ -94,9 +99,14 @@ function App() {
   const [health, setHealth] = useState<HealthResponse | null>(null)
   const [modelCatalog, setModelCatalog] = useState<ModelMetadata[]>([])
   const [result, setResult] = useState<InferenceResponse | null>(null)
+  const [videoJob, setVideoJob] = useState<VideoJobResponse | null>(null)
   const [isInferring, setIsInferring] = useState(false)
   const [isConnecting, setIsConnecting] = useState(false)
   const [apiError, setApiError] = useState<string | null>(null)
+  const [cameraActive, setCameraActive] = useState(false)
+  const [cameraError, setCameraError] = useState<string | null>(null)
+  const cameraVideoRef = useRef<HTMLVideoElement | null>(null)
+  const cameraStreamRef = useRef<MediaStream | null>(null)
   const apiModel = modelCatalog.find((model) => model.id === modelId)
   const defaultThreshold = apiModel?.default_threshold ?? selectedModel.defaultThreshold
 
@@ -137,10 +147,45 @@ function App() {
     return () => URL.revokeObjectURL(url)
   }, [selectedFile])
 
+  const stopCamera = useCallback(() => {
+    cameraStreamRef.current?.getTracks().forEach((track) => track.stop())
+    cameraStreamRef.current = null
+    setCameraActive(false)
+  }, [])
+
+  useEffect(() => stopCamera, [stopCamera])
+
+  useEffect(() => {
+    if (cameraActive && cameraVideoRef.current && cameraStreamRef.current) {
+      cameraVideoRef.current.srcObject = cameraStreamRef.current
+    }
+  }, [cameraActive])
+
+  useEffect(() => {
+    if (!videoJob || !['queued', 'processing'].includes(videoJob.status)) return
+    let cancelled = false
+    const refresh = async () => {
+      try {
+        const next = await fetchVideoJob(videoJob.id)
+        if (!cancelled) setVideoJob(next)
+      } catch (error) {
+        if (!cancelled) setApiError(error instanceof Error ? error.message : 'Không thể cập nhật tiến độ video')
+      }
+    }
+    void refresh()
+    const timer = window.setInterval(() => void refresh(), 1200)
+    return () => {
+      cancelled = true
+      window.clearInterval(timer)
+    }
+  }, [videoJob?.id, videoJob?.status])
+
   const accept = mode === 'video' ? VIDEO_ACCEPT : IMAGE_ACCEPT
 
   const onDrop = useCallback((files: File[]) => {
     setSelectedFile(files[0] ?? null)
+    setResult(null)
+    setVideoJob(null)
   }, [])
 
   const { getRootProps, getInputProps, isDragActive, fileRejections } = useDropzone({
@@ -151,25 +196,74 @@ function App() {
   })
 
   const handleModeChange = (_event: React.SyntheticEvent, nextMode: Mode) => {
+    if (nextMode !== 'camera') stopCamera()
     setMode(nextMode)
     setSelectedFile(null)
     setResult(null)
+    setVideoJob(null)
     setApiError(null)
   }
 
   const handleModelChange = (nextModel: ModelId) => {
     setModelId(nextModel)
     setResult(null)
+    setVideoJob(null)
   }
   const resetThreshold = () => setThreshold(defaultThreshold)
 
+  const openCamera = async () => {
+    setCameraError(null)
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: { facingMode: { ideal: 'environment' } },
+      })
+      stopCamera()
+      cameraStreamRef.current = stream
+      if (cameraVideoRef.current) cameraVideoRef.current.srcObject = stream
+      setCameraActive(true)
+    } catch (error) {
+      setCameraError(error instanceof Error ? error.message : 'Không thể mở camera')
+    }
+  }
+
+  const captureCameraFrame = async () => {
+    const video = cameraVideoRef.current
+    if (!video || video.videoWidth === 0 || video.videoHeight === 0) {
+      setCameraError('Camera chưa sẵn sàng; hãy chờ vài giây rồi thử lại.')
+      return
+    }
+    const canvas = document.createElement('canvas')
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+    const context = canvas.getContext('2d')
+    if (!context) {
+      setCameraError('Trình duyệt không hỗ trợ chụp frame từ camera.')
+      return
+    }
+    context.drawImage(video, 0, 0, canvas.width, canvas.height)
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'))
+    if (!blob) {
+      setCameraError('Không thể tạo ảnh chụp từ camera.')
+      return
+    }
+    setSelectedFile(new File([blob], `camera_${Date.now()}.png`, { type: 'image/png' }))
+    setResult(null)
+    setCameraError(null)
+  }
+
   const runDetection = async () => {
-    if (mode !== 'image' || !selectedFile) return
+    if ((mode !== 'image' && mode !== 'video' && mode !== 'camera') || !selectedFile) return
     setIsInferring(true)
     setApiError(null)
     try {
-      const payload = await inferImage(selectedFile, modelId, threshold)
-      setResult(payload)
+      if (mode === 'image' || mode === 'camera') {
+        const payload = await inferImage(selectedFile, modelId, threshold)
+        setResult(payload)
+      } else {
+        const job = await inferVideo(selectedFile, modelId, threshold)
+        setVideoJob(job)
+      }
       setHealth(await fetchHealth())
     } catch (error) {
       setApiError(error instanceof Error ? error.message : 'Không thể chạy suy luận')
@@ -178,13 +272,19 @@ function App() {
     }
   }
 
-  const displayedMediaUrl = result?.result_image ?? previewUrl
+  const isVideoProcessing = videoJob?.status === 'queued' || videoJob?.status === 'processing'
+  const completedVideoUrl = videoJob?.download_url ? absoluteApiUrl(videoJob.download_url) : null
+  const displayedMediaUrl = mode === 'video'
+    ? completedVideoUrl ?? previewUrl
+    : result?.result_image ?? previewUrl
+  const videoSummary = videoJob?.summary ?? {}
+  const isVideoComplete = mode === 'video' && videoJob?.status === 'completed'
   const metricCards = [
-    { label: 'Tổng đối tượng', color: '#0F172A', value: result ? String(result.detections.length) : '—', note: result ? 'detection' : 'Chờ suy luận' },
-    { label: 'Không đội mũ', color: '#DC2626', value: result ? String(result.summary.NoHelmet ?? 0) : '—', note: 'NoHelmet' },
-    { label: 'Có đội mũ', color: '#16A34A', value: result ? String(result.summary.Helmet ?? 0) : '—', note: 'Helmet' },
-    { label: 'Xe và người lái', color: '#2563EB', value: result ? String(result.summary.BikeWithRider ?? 0) : '—', note: 'BikeWithRider' },
-    { label: 'Độ trễ', color: '#7C3AED', value: result ? `${result.latency_ms.toFixed(1)} ms` : '—', note: result ? result.device.name : 'Chờ suy luận' },
+    { label: mode === 'video' ? 'Tổng theo frame' : 'Tổng đối tượng', color: '#0F172A', value: mode === 'video' && videoJob ? String(Object.values(videoSummary).reduce((total, value) => total + value, 0)) : result ? String(result.detections.length) : '—', note: mode === 'video' ? 'lượt phát hiện' : result ? 'detection' : 'Chờ suy luận' },
+    { label: 'Không đội mũ', color: '#DC2626', value: mode === 'video' ? (videoJob ? String(videoSummary.NoHelmet ?? 0) : '—') : result ? String(result.summary.NoHelmet ?? 0) : '—', note: 'NoHelmet' },
+    { label: 'Có đội mũ', color: '#16A34A', value: mode === 'video' ? (videoJob ? String(videoSummary.Helmet ?? 0) : '—') : result ? String(result.summary.Helmet ?? 0) : '—', note: 'Helmet' },
+    { label: 'Xe và người lái', color: '#2563EB', value: mode === 'video' ? (videoJob ? String(videoSummary.BikeWithRider ?? 0) : '—') : result ? String(result.summary.BikeWithRider ?? 0) : '—', note: 'BikeWithRider' },
+    { label: 'Độ trễ', color: '#7C3AED', value: mode === 'video' && videoJob?.average_latency_ms != null ? `${videoJob.average_latency_ms.toFixed(1)} ms` : result ? `${result.latency_ms.toFixed(1)} ms` : '—', note: mode === 'video' ? videoJob?.device_name ?? 'Chờ xử lý' : result ? result.device.name : 'Chờ suy luận' },
   ]
 
   return (
@@ -272,16 +372,41 @@ function App() {
 
             {mode === 'camera' ? (
               <Box className="dropzone camera-placeholder">
-                <Box className="upload-icon camera-icon">
-                  <CameraAltRoundedIcon />
-                </Box>
-                <Typography variant="h6">Camera sẽ xuất hiện tại đây</Typography>
-                <Typography color="text.secondary" sx={{ textAlign: 'center' }}>
-                  Quyền camera chỉ được yêu cầu sau khi backend được kết nối.
-                </Typography>
-                <Button variant="outlined" startIcon={<CameraAltRoundedIcon />} disabled>
-                  Mở camera
-                </Button>
+                {result && selectedFile ? (
+                  <>
+                    <img className="media-preview" src={result.result_image} alt="Kết quả phát hiện từ camera" />
+                    <Box className="file-overlay">
+                      <Typography variant="body2" noWrap sx={{ fontWeight: 700 }}>Kết quả ảnh chụp · {result.model.name}</Typography>
+                      <Typography variant="caption">Threshold {result.threshold.toFixed(2)} · {result.detections.length} detection</Typography>
+                    </Box>
+                  </>
+                ) : cameraActive ? (
+                  <video ref={cameraVideoRef} className="media-preview" autoPlay playsInline muted />
+                ) : previewUrl ? (
+                  <img className="media-preview" src={previewUrl} alt="Ảnh chụp camera" />
+                ) : (
+                  <>
+                    <Box className="upload-icon camera-icon"><CameraAltRoundedIcon /></Box>
+                    <Typography variant="h6">Sẵn sàng chụp từ camera</Typography>
+                    <Typography color="text.secondary" sx={{ textAlign: 'center' }}>
+                      Quyền camera chỉ được yêu cầu khi bạn bấm mở camera.
+                    </Typography>
+                  </>
+                )}
+                <Stack direction="row" spacing={1} className="camera-actions">
+                  {cameraActive ? (
+                    <>
+                      <Button variant="outlined" onClick={stopCamera}>Tắt camera</Button>
+                      <Button variant="contained" startIcon={<CameraAltRoundedIcon />} onClick={() => void captureCameraFrame()}>
+                        Chụp ảnh
+                      </Button>
+                    </>
+                  ) : (
+                    <Button variant="outlined" startIcon={<CameraAltRoundedIcon />} onClick={() => void openCamera()}>
+                      Mở camera
+                    </Button>
+                  )}
+                </Stack>
               </Box>
             ) : (
               <Box
@@ -291,17 +416,21 @@ function App() {
                 <input {...getInputProps()} />
                 {displayedMediaUrl && selectedFile ? (
                   <>
-                    {mode === 'video' && !result ? (
+                    {mode === 'video' ? (
                       <video className="media-preview" src={displayedMediaUrl} controls />
                     ) : (
                       <img className="media-preview" src={displayedMediaUrl} alt={result ? 'Ảnh kết quả phát hiện' : 'Tệp ảnh vừa chọn'} />
                     )}
                     <Box className="file-overlay">
                       <Typography variant="body2" noWrap sx={{ fontWeight: 700 }}>
-                        {result ? `Kết quả · ${result.model.name}` : selectedFile.name}
+                        {mode === 'video' && videoJob?.status === 'completed'
+                          ? `Kết quả · ${videoJob.model.name ?? selectedModel.name}`
+                          : result ? `Kết quả · ${result.model.name}` : selectedFile.name}
                       </Typography>
                       <Typography variant="caption">
-                        {result
+                        {mode === 'video' && videoJob
+                          ? `${videoJob.progress.processed_frames}${videoJob.progress.total_frames ? `/${videoJob.progress.total_frames}` : ''} frame · Threshold ${videoJob.threshold.toFixed(2)}`
+                          : result
                           ? `Threshold ${result.threshold.toFixed(2)} · ${result.detections.length} detection`
                           : `${(selectedFile.size / 1024 / 1024).toFixed(2)} MB · Nhấn để đổi tệp`}
                       </Typography>
@@ -325,6 +454,43 @@ function App() {
             {fileRejections.length > 0 && (
               <Alert severity="error" sx={{ mt: 2 }}>Tệp không đúng định dạng được hỗ trợ.</Alert>
             )}
+            {cameraError && <Alert severity="error" sx={{ mt: 2 }}>{cameraError}</Alert>}
+            {mode === 'video' && videoJob && (
+              <Box className="video-progress-panel">
+                <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center', mb: 0.8 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 760 }}>
+                    {videoJob.status === 'queued' && 'Đang chờ GPU xử lý'}
+                    {videoJob.status === 'processing' && 'Đang gắn nhãn video'}
+                    {videoJob.status === 'completed' && 'Video kết quả đã sẵn sàng'}
+                    {videoJob.status === 'failed' && 'Không thể xử lý video'}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">{videoJob.progress.percent.toFixed(0)}%</Typography>
+                </Stack>
+                <LinearProgress
+                  variant="determinate"
+                  value={videoJob.status === 'queued' ? 0 : videoJob.progress.percent}
+                  color={videoJob.status === 'failed' ? 'error' : 'primary'}
+                />
+                {videoJob.error ? (
+                  <Alert severity="error" sx={{ mt: 1 }}>{videoJob.error}</Alert>
+                ) : videoJob.status === 'completed' && videoJob.download_url ? (
+                  <Button
+                    component="a"
+                    href={absoluteApiUrl(videoJob.download_url)}
+                    download
+                    size="small"
+                    startIcon={<DownloadRoundedIcon />}
+                    sx={{ mt: 1 }}
+                  >
+                    Tải video đã gắn nhãn
+                  </Button>
+                ) : (
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+                    Video được xử lý lần lượt từng frame. Khi GPU đang xử lý video, hãy chờ tác vụ hoàn tất trước khi đổi mô hình.
+                  </Typography>
+                )}
+              </Box>
+            )}
             {apiError && (
               <Alert
                 severity="error"
@@ -343,14 +509,14 @@ function App() {
               <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                 <Box className={`status-dot ${health ? 'status-dot-ready' : ''}`} />
                 <Typography variant="body2" color="text.secondary">
-                  {isInferring
+                  {isInferring || isVideoProcessing
                     ? `Đang nạp và chạy ${selectedModel.name}…`
                     : health
                       ? `Máy chủ sẵn sàng · ${health.device_name}`
                       : 'Chưa kết nối máy chủ suy luận'}
                 </Typography>
               </Stack>
-              <Typography variant="caption" color="text.secondary">Kết quả sẽ giữ nguyên tỉ lệ ảnh gốc</Typography>
+              <Typography variant="caption" color="text.secondary">{mode === 'video' ? 'Khuyến nghị dùng video ngắn, tối đa 5 phút / 200 MB' : 'Kết quả sẽ giữ nguyên tỉ lệ ảnh gốc'}</Typography>
             </Box>
           </Paper>
 
@@ -438,21 +604,25 @@ function App() {
                 fullWidth
                 size="large"
                 variant="contained"
-                startIcon={isInferring ? <CircularProgress size={18} color="inherit" /> : <PlayArrowRoundedIcon />}
+                startIcon={isInferring || isVideoProcessing ? <CircularProgress size={18} color="inherit" /> : <PlayArrowRoundedIcon />}
                 onClick={runDetection}
-                disabled={isInferring || mode !== 'image' || !selectedFile || !health}
+                disabled={isInferring || isVideoProcessing || !selectedFile || !health}
                 sx={{ backgroundColor: selectedModel.accent }}
               >
                 {isInferring
                   ? 'Đang phát hiện…'
                   : mode === 'image'
                     ? 'Bắt đầu phát hiện'
-                    : 'Sẽ nối ở giai đoạn tiếp theo'}
+                    : mode === 'video'
+                      ? isVideoProcessing ? 'Đang xử lý video…' : 'Bắt đầu xử lý video'
+                      : 'Phát hiện ảnh chụp'}
               </Button>
               <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>
                 {mode === 'image'
                   ? 'Lần chạy đầu tiên cần thời gian nạp checkpoint vào GPU.'
-                  : 'Video và camera sẽ dùng lại pipeline ảnh sau khi được nghiệm thu.'}
+                  : mode === 'video'
+                    ? 'Video được đưa vào hàng đợi để không làm tràn bộ nhớ GPU.'
+                    : 'Mở camera, chụp một frame, sau đó chạy cùng pipeline suy luận ảnh.'}
               </Typography>
             </Box>
           </Paper>
@@ -472,17 +642,31 @@ function App() {
         <Paper className="results-card" elevation={0}>
           <Box className="card-heading compact">
             <Box>
-              <Typography variant="h6">Chi tiết phát hiện</Typography>
-              <Typography variant="body2" color="text.secondary">Bounding box, lớp và độ tin cậy của từng đối tượng</Typography>
+              <Typography variant="h6">{mode === 'video' ? 'Tổng hợp xử lý video' : 'Chi tiết phát hiện'}</Typography>
+              <Typography variant="body2" color="text.secondary">
+                {mode === 'video' ? 'Số lượt phát hiện được cộng dồn trên các frame đã xử lý' : 'Bounding box, lớp và độ tin cậy của từng đối tượng'}
+              </Typography>
             </Box>
-            <Chip label={`${result?.detections.length ?? 0} đối tượng`} size="small" variant="outlined" />
+            <Chip label={mode === 'video' ? `${videoJob?.progress.processed_frames ?? 0} frame` : `${result?.detections.length ?? 0} đối tượng`} size="small" variant="outlined" />
           </Box>
           <Box className="table-head">
             <Typography>LỚP</Typography>
-            <Typography>CONFIDENCE</Typography>
-            <Typography>BOUNDING BOX</Typography>
+            <Typography>{mode === 'video' ? 'TỔNG LƯỢT' : 'CONFIDENCE'}</Typography>
+            <Typography>{mode === 'video' ? 'TRẠNG THÁI' : 'BOUNDING BOX'}</Typography>
           </Box>
-          {result && result.detections.length > 0 ? (
+          {mode === 'video' && videoJob && Object.keys(videoSummary).length > 0 ? (
+            <Box className="detection-list">
+              {Object.entries(videoSummary).map(([className, count]) => (
+                <Box className="detection-row" key={className}>
+                  <Chip label={className} size="small" className={`detection-class detection-${className.toLowerCase()}`} />
+                  <Typography variant="body2" sx={{ fontWeight: 760 }}>{count}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {isVideoComplete ? 'Đã hoàn tất' : 'Đang cập nhật'}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          ) : result && result.detections.length > 0 ? (
             <Box className="detection-list">
               {result.detections.map((detection, index) => (
                 <Box className="detection-row" key={`${detection.class_name}-${index}`}>
@@ -504,7 +688,11 @@ function App() {
             <Box className="empty-results">
               <LinearProgress className="empty-line" variant="determinate" value={0} />
               <Typography variant="body2" color="text.secondary">
-                {result
+                {mode === 'video'
+                  ? videoJob?.status === 'failed'
+                    ? 'Video chưa tạo được kết quả; xem thông báo lỗi phía trên.'
+                    : 'Tổng hợp theo lớp sẽ xuất hiện ngay khi video bắt đầu xử lý.'
+                  : result
                   ? 'Không có detection nào đạt threshold hiện tại.'
                   : 'Kết quả chi tiết sẽ xuất hiện sau khi mô hình hoàn tất suy luận.'}
               </Typography>

@@ -5,14 +5,17 @@ from __future__ import annotations
 import base64
 import warnings
 from io import BytesIO
+from pathlib import Path
 from typing import Annotated, Any
 
 import torch
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image, UnidentifiedImageError
 
 from app.model_loader import DetectorManager, list_model_metadata
+from app.video_jobs import ALLOWED_VIDEO_SUFFIXES, MAX_VIDEO_BYTES, VideoJobManager
 from src.infer import (
     draw_detections,
     encode_png,
@@ -28,6 +31,7 @@ MAX_IMAGE_PIXELS = 40_000_000
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png"}
 GENERIC_UPLOAD_TYPES = {None, "", "application/octet-stream"}
 DETECTOR_MANAGER = DetectorManager(requested_device="auto")
+VIDEO_JOBS = VideoJobManager(DETECTOR_MANAGER)
 
 app = FastAPI(
     title="Helmet Detection AI API",
@@ -155,3 +159,56 @@ def infer_image(
         message = str(error)
         code = "CUDA_OUT_OF_MEMORY" if "out of memory" in message.lower() else "MODEL_LOAD_ERROR"
         raise _api_error(503, code, message) from error
+
+
+@app.post("/api/infer/video", status_code=202)
+def infer_video(
+    file: Annotated[UploadFile, File(description="Video MP4, MOV hoặc AVI")],
+    model_id: Annotated[str, Form()],
+    threshold: Annotated[float | None, Form()] = None,
+) -> dict[str, Any]:
+    suffix = Path(file.filename or "").suffix.lower()
+    if suffix not in ALLOWED_VIDEO_SUFFIXES:
+        raise _api_error(415, "UNSUPPORTED_VIDEO_TYPE", "Chỉ hỗ trợ video MP4, MOV hoặc AVI")
+    if threshold is not None:
+        try:
+            threshold = validate_threshold(threshold)
+        except ValueError as error:
+            raise _api_error(422, "INVALID_THRESHOLD", str(error)) from error
+    try:
+        content = file.file.read(MAX_VIDEO_BYTES + 1)
+        effective_threshold = (
+            threshold
+            if threshold is not None
+            else next(model["default_threshold"] for model in list_model_metadata() if model["id"] == model_id)
+        )
+        job = VIDEO_JOBS.submit(content, file.filename or "video.mp4", model_id, effective_threshold)
+        return VIDEO_JOBS.payload(job.job_id) or {}
+    except StopIteration as error:
+        raise _api_error(422, "INVALID_REQUEST", f"Model không được hỗ trợ: {model_id}") from error
+    except ValueError as error:
+        raise _api_error(400, "INVALID_VIDEO", str(error)) from error
+    finally:
+        file.file.close()
+
+
+@app.get("/api/infer/video/jobs/{job_id}")
+def get_video_job(job_id: str) -> dict[str, Any]:
+    payload = VIDEO_JOBS.payload(job_id)
+    if payload is None:
+        raise _api_error(404, "VIDEO_JOB_NOT_FOUND", "Không tìm thấy phiên xử lý video")
+    return payload
+
+
+@app.get("/api/infer/video/jobs/{job_id}/download")
+def download_video_result(job_id: str) -> FileResponse:
+    job = VIDEO_JOBS.get(job_id)
+    if job is None:
+        raise _api_error(404, "VIDEO_JOB_NOT_FOUND", "Không tìm thấy phiên xử lý video")
+    if job.status != "completed" or not job.output_path.is_file():
+        raise _api_error(409, "VIDEO_NOT_READY", "Video kết quả chưa sẵn sàng")
+    return FileResponse(
+        job.output_path,
+        media_type="video/mp4",
+        filename=f"detected_{Path(job.input_filename).stem}.mp4",
+    )

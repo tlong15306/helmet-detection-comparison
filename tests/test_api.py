@@ -67,3 +67,40 @@ def test_infer_image_rejects_wrong_content_type() -> None:
         files={"file": ("sample.txt", b"not an image", "text/plain")},
     )
     assert response.status_code == 415
+
+
+def test_infer_video_queues_job_and_exposes_status(monkeypatch) -> None:
+    payload = {
+        "id": "video-job-1",
+        "status": "queued",
+        "threshold": 0.6,
+        "progress": {"processed_frames": 0, "total_frames": None, "percent": 0},
+        "download_url": None,
+        "error": None,
+    }
+    monkeypatch.setattr(
+        api.VIDEO_JOBS,
+        "submit",
+        lambda content, filename, model_id, threshold: SimpleNamespace(job_id="video-job-1"),
+    )
+    monkeypatch.setattr(api.VIDEO_JOBS, "payload", lambda job_id: payload if job_id == "video-job-1" else None)
+    client = TestClient(api.app)
+    response = client.post(
+        "/api/infer/video",
+        data={"model_id": "retinanet", "threshold": "0.60"},
+        files={"file": ("sample.mp4", b"small test video", "video/mp4")},
+    )
+    assert response.status_code == 202
+    assert response.json()["id"] == "video-job-1"
+    assert response.json()["status"] == "queued"
+    assert client.get("/api/infer/video/jobs/video-job-1").json()["threshold"] == 0.6
+
+
+def test_infer_video_rejects_unsupported_extension() -> None:
+    client = TestClient(api.app)
+    response = client.post(
+        "/api/infer/video",
+        data={"model_id": "retinanet"},
+        files={"file": ("sample.mkv", b"not accepted", "video/x-matroska")},
+    )
+    assert response.status_code == 415

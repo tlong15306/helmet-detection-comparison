@@ -212,6 +212,24 @@
 
 .camera-placeholder { cursor: default; }
 
+.camera-actions {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  z-index: 2;
+}
+
+.camera-actions .MuiButton-root {
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+}
+
+.camera-actions .MuiButton-contained {
+  color: #fff;
+  background: #7c3aed;
+}
+
 .upload-icon {
   width: 66px;
   height: 66px;
@@ -258,6 +276,24 @@
   align-items: center;
   gap: 12px;
   margin-top: 14px;
+}
+
+.video-progress-panel {
+  margin-top: 14px;
+  padding: 13px 14px;
+  border: 1px solid #dbeafe;
+  border-radius: 12px;
+  background: #f8fbff;
+}
+
+.video-progress-panel .MuiLinearProgress-root {
+  height: 7px;
+  border-radius: 99px;
+  background: #dbeafe;
+}
+
+.video-progress-panel .MuiLinearProgress-bar {
+  border-radius: 99px;
 }
 
 .status-dot {

@@ -70,7 +70,7 @@ python -m tools.benchmark_inference --config configs/retinanet.yaml --checkpoint
 python -m src.compare_models
 ```
 
-## Chạy demo ảnh React + FastAPI
+## Chạy demo React + FastAPI
 
 Mở hai cửa sổ PowerShell tại thư mục dự án.
 
@@ -88,7 +88,13 @@ npm install
 npm run dev
 ```
 
-Mở `http://127.0.0.1:5173/`. Chế độ ảnh đã hoạt động; video và camera là giai đoạn tiếp theo.
+Mở `http://127.0.0.1:5173/`.
+
+- **Hình ảnh:** tải JPG/JPEG/PNG, chọn Faster R-CNN hoặc RetinaNet và xem bounding box, confidence, latency.
+- **Video:** tải MP4/MOV/AVI (tối đa 200 MB, tối đa 5 phút), theo dõi tiến độ xử lý nền và tải tệp MP4 đã gắn nhãn khi hoàn tất. Video được xử lý từng frame, không phải chế độ thời gian thực.
+- **Camera:** bấm mở camera, chụp một frame, sau đó chạy lại pipeline suy luận ảnh. Trình duyệt chỉ được yêu cầu quyền camera khi bấm nút mở.
+
+Khi GPU đang xử lý một video, hãy chờ tác vụ hoàn tất trước khi chạy yêu cầu khác hoặc đổi mô hình. Các tệp video tạm và kết quả được lưu cục bộ, không được đưa lên GitHub.
 
 ## Quy tắc quan trọng
 

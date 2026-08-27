@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import gc
 import threading
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping
@@ -184,6 +185,31 @@ class DetectorManager:
                 detector.model, image, detector.device, threshold
             )
             return detector, prediction, latency_ms
+
+    @contextmanager
+    def hold_detector(self, model_id: str):
+        """Giữ model cố định trong một phiên xử lý dài, ví dụ một video.
+
+        Khóa được giữ trong toàn bộ phiên để một yêu cầu khác không thể thay
+        checkpoint giữa các frame. Nhờ vậy GPU luôn chỉ chứa một model và video
+        nhất quán với model người dùng đã chọn.
+        """
+        with self._lock:
+            yield self._get_locked(model_id)
+
+    def predict_loaded(
+        self,
+        detector: LoadedDetector,
+        image: Image.Image,
+        confidence_threshold: float | None = None,
+    ) -> tuple[dict[str, torch.Tensor], float]:
+        """Suy luận bằng detector đang được giữ bởi :meth:`hold_detector`."""
+        threshold = (
+            detector.default_threshold
+            if confidence_threshold is None
+            else float(confidence_threshold)
+        )
+        return predict_image(detector.model, image, detector.device, threshold)
 
     def release(self) -> None:
         with self._lock:
