@@ -10,6 +10,7 @@ Quản lý dữ liệu theo từng giai đoạn mà không làm thay đổi bả
 - `processed/`: annotation đã xử lý, có nhật ký thay đổi, dùng làm đầu vào để chia tập.
 - `splits/`: ba tệp COCO JSON cố định cho train, validation và test.
 - `samples/`: ảnh trực quan hóa phục vụ kiểm tra chất lượng.
+- `challenge/`: tập ảnh khó tách biệt dùng đánh giá robustness; không trộn vào split EdgeVision đã đóng băng.
 
 ## Quy trình bắt buộc
 
@@ -20,6 +21,7 @@ Quản lý dữ liệu theo từng giai đoạn mà không làm thay đổi bả
 5. Xác định cách tránh rò rỉ giữa các ảnh cùng cảnh/video.
 6. Tạo split đúng một lần và lưu bản tóm tắt.
 7. Không sửa split khi chuyển từ Faster R-CNN sang RetinaNet.
+8. Không dùng `challenge/` để chọn hyperparameter hoặc confidence threshold.
 
 ## Thông tin phải đưa vào báo cáo
 

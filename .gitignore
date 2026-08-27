@@ -26,6 +26,17 @@ data/samples/invalid_examples/*
 !data/samples/annotated_examples/.gitkeep
 !data/samples/invalid_examples/.gitkeep
 
+# Challenge Set v1: ảnh/video nguồn và preview chỉ lưu cục bộ.
+# Manifest, annotation COCO và metadata được giữ trong Git để tái lập được.
+data/challenge/raw/*
+!data/challenge/raw/.gitkeep
+data/challenge/candidates/*
+!data/challenge/candidates/.gitkeep
+data/challenge/selected/*
+!data/challenge/selected/.gitkeep
+data/challenge/previews/*
+!data/challenge/previews/.gitkeep
+
 # Model outputs
 outputs/**/*.pth
 outputs/**/*.pt
