@@ -1,0 +1,7 @@
+{
+  "image_count": 50,
+  "hash_algorithm": "sha256 + 16x16 average hash",
+  "near_duplicate_threshold": 12,
+  "exact_duplicates": [],
+  "near_duplicates": []
+}

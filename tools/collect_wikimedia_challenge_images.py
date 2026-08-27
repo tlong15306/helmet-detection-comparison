@@ -18,7 +18,6 @@ import time
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
-from urllib.error import HTTPError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
@@ -71,18 +70,8 @@ def fetch_json(params: dict[str, str]) -> dict[str, Any]:
 
 def fetch_bytes(url: str) -> bytes:
     request = Request(url, headers={"User-Agent": USER_AGENT})
-    for attempt in range(3):
-        try:
-            with urlopen(request, timeout=60) as response:  # noqa: S310 - URL from Commons API
-                content = response.read(20 * 1024 * 1024 + 1)
-            break
-        except HTTPError as error:
-            if error.code != 429 or attempt == 2:
-                raise
-            retry_after = error.headers.get("Retry-After")
-            wait_seconds = float(retry_after) if retry_after and retry_after.isdigit() else 20.0 * (attempt + 1)
-            print(f"Wikimedia giới hạn tạm thời; chờ {wait_seconds:.0f} giây trước khi thử lại.", file=sys.stderr)
-            time.sleep(wait_seconds)
+    with urlopen(request, timeout=60) as response:  # noqa: S310 - URL from Commons API
+        content = response.read(20 * 1024 * 1024 + 1)
     if len(content) > 20 * 1024 * 1024:
         raise ValueError("Ảnh vượt giới hạn 20 MB")
     return content
@@ -176,6 +165,7 @@ def collect(args: argparse.Namespace) -> int:
     known_hashes = {row["sha256"] for row in existing_rows if row.get("sha256")}
     rows = list(existing_rows)
     added = 0
+    consecutive_errors = 0
     candidates: list[dict[str, str]] = []
     for query in args.query:
         for page in search_files(query, args.per_query):
@@ -201,7 +191,13 @@ def collect(args: argparse.Namespace) -> int:
             width, height = validate_image(content)
         except (OSError, ValueError) as error:
             print(f"Bỏ qua {source_title}: {error}", file=sys.stderr)
+            consecutive_errors += 1
+            if consecutive_errors >= args.max_consecutive_errors:
+                print("Dừng an toàn vì nguồn trả lỗi liên tiếp; có thể chạy lại sau.", file=sys.stderr)
+                break
+            time.sleep(args.throttle_seconds)
             continue
+        consecutive_errors = 0
         digest = hashlib.sha256(content).hexdigest()
         if digest in known_hashes:
             continue
@@ -226,6 +222,8 @@ def collect(args: argparse.Namespace) -> int:
                 "notes": f"query={candidate['query']}; dimensions={width}x{height}",
             }
         )
+        # Ghi ngay sau từng ảnh thành công để không mất provenance nếu nguồn ngắt.
+        write_manifest(manifest_path, rows)
         added += 1
         known_hashes.add(digest)
         known_pages.add(candidate["source_page_url"])
@@ -250,11 +248,17 @@ def parse_args() -> argparse.Namespace:
         default=3.0,
         help="Thời gian chờ giữa các lần tải thật để tôn trọng giới hạn nguồn",
     )
+    parser.add_argument(
+        "--max-consecutive-errors",
+        type=int,
+        default=3,
+        help="Dừng đợt tải khi nguồn trả lỗi liên tiếp để tránh retry dồn",
+    )
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--query", action="append", default=[], help="Có thể truyền nhiều lần")
     args = parser.parse_args()
-    if args.max_images < 1 or args.per_query < 1 or args.throttle_seconds < 0:
-        parser.error("--max-images/per-query phải lớn hơn 0; throttle không âm")
+    if args.max_images < 1 or args.per_query < 1 or args.throttle_seconds < 0 or args.max_consecutive_errors < 1:
+        parser.error("--max-images/per-query/max-consecutive-errors phải lớn hơn 0; throttle không âm")
     if not args.query:
         args.query = list(DEFAULT_QUERIES)
     return args

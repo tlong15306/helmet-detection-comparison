@@ -155,12 +155,23 @@ def default_output(config: Mapping[str, Any], split: str) -> str:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Evaluate object detector on a fixed COCO split")
     parser.add_argument("--config", required=True, help="Cấu hình Faster R-CNN hoặc RetinaNet")
-    parser.add_argument("--split", choices=("val", "test"), default="val")
+    parser.add_argument("--split", choices=("val", "test", "challenge"), default="val")
+    parser.add_argument(
+        "--annotations",
+        default=None,
+        help="COCO annotation tùy chọn, bắt buộc khi --split challenge",
+    )
     parser.add_argument("--checkpoint", default=None, help="Checkpoint cần đánh giá")
     parser.add_argument("--output", default=None, help="Tệp JSON kết quả")
     parser.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
     parser.add_argument("--batch-size", type=int, default=1)
     parser.add_argument("--num-workers", type=int, default=None)
+    parser.add_argument(
+        "--confidence-threshold",
+        type=float,
+        default=None,
+        help="Chỉ áp dụng cho Precision/Recall; mAP luôn dùng toàn bộ prediction",
+    )
     parser.add_argument(
         "--allow-partial-load",
         action="store_true",
@@ -178,6 +189,8 @@ def evaluate(
     batch_size: int = 1,
     num_workers: int | None = None,
     allow_partial_load: bool = False,
+    annotations_override: str | Path | None = None,
+    confidence_threshold_override: float | None = None,
 ) -> dict[str, Any]:
     """Đánh giá toàn bộ một split và ghi JSON tái lập được.
 
@@ -186,13 +199,19 @@ def evaluate(
     """
     if batch_size < 1:
         raise ValueError("batch_size phải lớn hơn hoặc bằng 1")
-    if split not in {"val", "test"}:
-        raise ValueError("split chỉ được là val hoặc test")
+    if split not in {"val", "test", "challenge"}:
+        raise ValueError("split chỉ được là val, test hoặc challenge")
+    if split == "challenge" and annotations_override is None:
+        raise ValueError("split challenge yêu cầu annotations_override")
+    if confidence_threshold_override is not None and not 0.0 <= confidence_threshold_override <= 1.0:
+        raise ValueError("confidence_threshold_override phải nằm trong [0, 1]")
 
     seed = int(config.get("project", {}).get("seed", 42))
     set_seed(seed)
     device = choose_device(device_name)
-    annotation_path = resolve_project_path(config["data"][f"{split}_annotations"])
+    annotation_path = resolve_project_path(
+        annotations_override if annotations_override is not None else config["data"][f"{split}_annotations"]
+    )
     image_root = resolve_project_path(config["data"]["image_root"])
     checkpoint_file = resolve_project_path(checkpoint_path)
     result_file = resolve_project_path(output_path)
@@ -227,10 +246,15 @@ def evaluate(
     )
     model.eval()
     evaluation_config = config["evaluation"]
+    confidence_threshold = (
+        confidence_threshold_override
+        if confidence_threshold_override is not None
+        else evaluation_config.get("confidence_threshold")
+    )
     evaluator = DetectionEvaluator(
         configured_classes,
         iou_threshold=float(evaluation_config["precision_recall_iou_threshold"]),
-        confidence_threshold=evaluation_config.get("confidence_threshold"),
+        confidence_threshold=confidence_threshold,
     )
 
     with torch.inference_mode():
@@ -260,7 +284,7 @@ def evaluate(
             "precision_recall": {
                 "matching": "greedy one-to-one, score descending, same class",
                 "iou_threshold": float(evaluation_config["precision_recall_iou_threshold"]),
-                "confidence_threshold": evaluation_config.get("confidence_threshold"),
+                "confidence_threshold": confidence_threshold,
             },
         },
         "runtime": {
@@ -284,6 +308,8 @@ def evaluate(
 
 def main() -> None:
     args = parse_args()
+    if args.split == "challenge" and args.annotations is None:
+        raise ValueError("--annotations là bắt buộc khi --split challenge")
     config = load_config(args.config)
     result = evaluate(
         config=config,
@@ -294,6 +320,8 @@ def main() -> None:
         batch_size=args.batch_size,
         num_workers=args.num_workers,
         allow_partial_load=args.allow_partial_load,
+        annotations_override=args.annotations,
+        confidence_threshold_override=args.confidence_threshold,
     )
     metrics = result["metrics"]
     print(

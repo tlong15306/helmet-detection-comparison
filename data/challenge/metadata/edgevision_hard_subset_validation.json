@@ -1,0 +1,92 @@
+{
+  "annotations_path": "C:\\Users\\choqu\\OneDrive\\Desktop\\New folder\\helmet_detection_project\\data\\challenge\\annotations\\edgevision_hard_subset_v1.coco.json",
+  "annotation_checks": {
+    "counts": {
+      "images_in_json": 50,
+      "annotations": 349,
+      "categories": 3
+    },
+    "categories": [
+      {
+        "id": 1,
+        "name": "BikeWithRider"
+      },
+      {
+        "id": 2,
+        "name": "NoHelmet"
+      },
+      {
+        "id": 3,
+        "name": "Helmet"
+      }
+    ],
+    "annotations_per_category": {
+      "BikeWithRider": 154,
+      "NoHelmet": 131,
+      "Helmet": 64
+    },
+    "issue_counts": {
+      "duplicate_image_ids": 0,
+      "duplicate_annotation_ids": 0,
+      "duplicate_category_ids": 0,
+      "malformed_images": 0,
+      "invalid_boxes": 0,
+      "boxes_outside_image": 0,
+      "annotations_missing_images": 0,
+      "annotations_unknown_categories": 0,
+      "images_without_annotations": 0
+    },
+    "issue_samples": {
+      "duplicate_image_ids": [],
+      "duplicate_annotation_ids": [],
+      "duplicate_category_ids": [],
+      "malformed_images": [],
+      "invalid_boxes": [],
+      "boxes_outside_image": [],
+      "annotations_missing_images": [],
+      "annotations_unknown_categories": [],
+      "images_without_annotations": []
+    }
+  },
+  "images_path": "C:\\Users\\choqu\\OneDrive\\Desktop\\New folder\\helmet_detection_project\\data\\raw\\edgevision\\images",
+  "image_checks": {
+    "images_on_disk": 2392,
+    "referenced_image_names": 50,
+    "issue_counts": {
+      "missing_image_files": 0,
+      "unsafe_image_paths": 0,
+      "unreadable_image_files": 0,
+      "dimension_mismatches": 0,
+      "unreferenced_image_files": 2342
+    },
+    "issue_samples": {
+      "missing_image_files": [],
+      "unsafe_image_paths": [],
+      "unreadable_image_files": [],
+      "dimension_mismatches": [],
+      "unreferenced_image_files": [
+        "Image_00001.jpg",
+        "Image_00002.jpg",
+        "Image_00003.jpg",
+        "Image_00004.jpg",
+        "Image_00005.jpg",
+        "Image_00006.jpg",
+        "Image_00007.jpg",
+        "Image_00008.jpg",
+        "Image_00009.jpg",
+        "Image_00010.jpg",
+        "Image_00011.jpg",
+        "Image_00012.jpg",
+        "Image_00013.jpg",
+        "Image_00014.jpg",
+        "Image_00015.jpg",
+        "Image_00016.jpg",
+        "Image_00017.jpg",
+        "Image_00018.jpg",
+        "Image_00019.jpg",
+        "Image_00020.jpg"
+      ]
+    }
+  },
+  "status": "completed"
+}
