@@ -144,6 +144,11 @@ class VideoJobManager:
                     if job.status == "completed" and job.output_path.is_file()
                     else None
                 ),
+                "preview_url": (
+                    f"/api/infer/video/jobs/{job.job_id}/preview"
+                    if job.status == "completed" and job.output_path.is_file()
+                    else None
+                ),
                 "error": job.error,
             }
 

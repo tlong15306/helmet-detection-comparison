@@ -60,6 +60,7 @@ export interface VideoJobResponse {
   average_latency_ms: number | null
   device_name: string | null
   download_url: string | null
+  preview_url: string | null
   error: string | null
 }
 

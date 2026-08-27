@@ -212,3 +212,14 @@ def download_video_result(job_id: str) -> FileResponse:
         media_type="video/mp4",
         filename=f"detected_{Path(job.input_filename).stem}.mp4",
     )
+
+
+@app.get("/api/infer/video/jobs/{job_id}/preview")
+def preview_video_result(job_id: str) -> FileResponse:
+    """Phục vụ MP4 inline để thẻ video của trình duyệt phát trực tiếp."""
+    job = VIDEO_JOBS.get(job_id)
+    if job is None:
+        raise _api_error(404, "VIDEO_JOB_NOT_FOUND", "Không tìm thấy phiên xử lý video")
+    if job.status != "completed" or not job.output_path.is_file():
+        raise _api_error(409, "VIDEO_NOT_READY", "Video kết quả chưa sẵn sàng")
+    return FileResponse(job.output_path, media_type="video/mp4")

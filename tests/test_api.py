@@ -76,6 +76,7 @@ def test_infer_video_queues_job_and_exposes_status(monkeypatch) -> None:
         "threshold": 0.6,
         "progress": {"processed_frames": 0, "total_frames": None, "percent": 0},
         "download_url": None,
+        "preview_url": None,
         "error": None,
     }
     monkeypatch.setattr(
@@ -104,3 +105,22 @@ def test_infer_video_rejects_unsupported_extension() -> None:
         files={"file": ("sample.mkv", b"not accepted", "video/x-matroska")},
     )
     assert response.status_code == 415
+
+
+def test_video_preview_is_inline_while_download_is_attachment(monkeypatch, tmp_path) -> None:
+    result_path = tmp_path / "detected.mp4"
+    result_path.write_bytes(b"fake-mp4")
+    job = SimpleNamespace(
+        status="completed",
+        output_path=result_path,
+        input_filename="source.mp4",
+    )
+    monkeypatch.setattr(api.VIDEO_JOBS, "get", lambda job_id: job if job_id == "done" else None)
+    client = TestClient(api.app)
+    preview = client.get("/api/infer/video/jobs/done/preview")
+    download = client.get("/api/infer/video/jobs/done/download")
+    assert preview.status_code == 200
+    assert preview.headers["content-type"] == "video/mp4"
+    assert "content-disposition" not in preview.headers
+    assert download.status_code == 200
+    assert "attachment" in download.headers["content-disposition"]

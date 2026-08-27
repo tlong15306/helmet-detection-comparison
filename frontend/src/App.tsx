@@ -273,7 +273,7 @@ function App() {
   }
 
   const isVideoProcessing = videoJob?.status === 'queued' || videoJob?.status === 'processing'
-  const completedVideoUrl = videoJob?.download_url ? absoluteApiUrl(videoJob.download_url) : null
+  const completedVideoUrl = videoJob?.preview_url ? absoluteApiUrl(videoJob.preview_url) : null
   const displayedMediaUrl = mode === 'video'
     ? completedVideoUrl ?? previewUrl
     : result?.result_image ?? previewUrl
