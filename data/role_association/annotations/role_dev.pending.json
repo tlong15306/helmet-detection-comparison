@@ -7,6 +7,12 @@
     "image_root": "data/raw/edgevision/images",
     "selection": "ground_truth_geometry_only; no model predictions; no role labels inferred"
   },
+  "team_confirmation": {
+    "status": "confirmed_by_team",
+    "reported_by": "Long",
+    "confirmed_on": "2026-08-28",
+    "note": "Nhóm xác nhận toàn bộ lượt gán nhãn; không lưu log review vòng hai riêng cho từng task."
+  },
   "tasks": [
     {
       "image_id": 16,
@@ -53,7 +59,7 @@
       "task_id": "role_dev_001",
       "image_path": "data\\raw\\edgevision\\images\\Image_00016.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:12:33.840159+00:00",
         "driver_head_annotation_id": 51,
@@ -110,7 +116,7 @@
       "task_id": "role_dev_002",
       "image_path": "data\\raw\\edgevision\\images\\Image_00028.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:14:13.777768+00:00",
         "driver_head_annotation_id": 97,
@@ -155,7 +161,7 @@
       "task_id": "role_dev_003",
       "image_path": "data\\raw\\edgevision\\images\\Image_00065.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:22:09.873548+00:00",
         "driver_head_annotation_id": 232,
@@ -199,7 +205,7 @@
       "task_id": "role_dev_004",
       "image_path": "data\\raw\\edgevision\\images\\Image_00086.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:14:29.936998+00:00",
         "driver_head_annotation_id": 312,
@@ -243,7 +249,7 @@
       "task_id": "role_dev_005",
       "image_path": "data\\raw\\edgevision\\images\\Image_00105.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:18:05.348159+00:00",
         "driver_head_annotation_id": 413,
@@ -287,7 +293,7 @@
       "task_id": "role_dev_006",
       "image_path": "data\\raw\\edgevision\\images\\Image_00127.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:18:13.791657+00:00",
         "driver_head_annotation_id": 493,
@@ -331,7 +337,7 @@
       "task_id": "role_dev_007",
       "image_path": "data\\raw\\edgevision\\images\\Image_00137.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:22:37.756933+00:00",
         "driver_head_annotation_id": 527,
@@ -376,7 +382,7 @@
       "task_id": "role_dev_008",
       "image_path": "data\\raw\\edgevision\\images\\Image_00138.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:22:48.891970+00:00",
         "driver_head_annotation_id": null,
@@ -420,7 +426,7 @@
       "task_id": "role_dev_009",
       "image_path": "data\\raw\\edgevision\\images\\Image_00148.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:22:55.615963+00:00",
         "driver_head_annotation_id": 560,
@@ -477,7 +483,7 @@
       "task_id": "role_dev_010",
       "image_path": "data\\raw\\edgevision\\images\\Image_00190.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:23:12.677883+00:00",
         "driver_head_annotation_id": 700,
@@ -523,7 +529,7 @@
       "task_id": "role_dev_011",
       "image_path": "data\\raw\\edgevision\\images\\Image_00194.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:23:22.141239+00:00",
         "driver_head_annotation_id": null,
@@ -567,7 +573,7 @@
       "task_id": "role_dev_012",
       "image_path": "data\\raw\\edgevision\\images\\Image_00225.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:23:28.232370+00:00",
         "driver_head_annotation_id": 816,
@@ -622,7 +628,7 @@
       "task_id": "role_dev_013",
       "image_path": "data\\raw\\edgevision\\images\\Image_00241.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:23:48.671807+00:00",
         "driver_head_annotation_id": 878,
@@ -667,7 +673,7 @@
       "task_id": "role_dev_014",
       "image_path": "data\\raw\\edgevision\\images\\Image_00253.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:23:55.782633+00:00",
         "driver_head_annotation_id": 926,
@@ -711,7 +717,7 @@
       "task_id": "role_dev_015",
       "image_path": "data\\raw\\edgevision\\images\\Image_00275.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:24:04.760029+00:00",
         "driver_head_annotation_id": 1024,
@@ -756,7 +762,7 @@
       "task_id": "role_dev_016",
       "image_path": "data\\raw\\edgevision\\images\\Image_00300.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:24:08.699403+00:00",
         "driver_head_annotation_id": 1118,
@@ -812,7 +818,7 @@
       "task_id": "role_dev_017",
       "image_path": "data\\raw\\edgevision\\images\\Image_00328.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:24:20.974344+00:00",
         "driver_head_annotation_id": 1230,
@@ -858,7 +864,7 @@
       "task_id": "role_dev_018",
       "image_path": "data\\raw\\edgevision\\images\\Image_00334.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:24:24.701870+00:00",
         "driver_head_annotation_id": 1258,
@@ -913,7 +919,7 @@
       "task_id": "role_dev_019",
       "image_path": "data\\raw\\edgevision\\images\\Image_00367.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:24:37.787181+00:00",
         "driver_head_annotation_id": 1369,
@@ -969,7 +975,7 @@
       "task_id": "role_dev_020",
       "image_path": "data\\raw\\edgevision\\images\\Image_00376.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:24:48.978942+00:00",
         "driver_head_annotation_id": 1394,
@@ -1014,7 +1020,7 @@
       "task_id": "role_dev_021",
       "image_path": "data\\raw\\edgevision\\images\\Image_00416.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:24:55.179848+00:00",
         "driver_head_annotation_id": 1537,
@@ -1058,7 +1064,7 @@
       "task_id": "role_dev_022",
       "image_path": "data\\raw\\edgevision\\images\\Image_00465.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:24:59.756076+00:00",
         "driver_head_annotation_id": 1717,
@@ -1113,7 +1119,7 @@
       "task_id": "role_dev_023",
       "image_path": "data\\raw\\edgevision\\images\\Image_00490.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:25:22.774220+00:00",
         "driver_head_annotation_id": 1813,
@@ -1159,7 +1165,7 @@
       "task_id": "role_dev_024",
       "image_path": "data\\raw\\edgevision\\images\\Image_00492.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:25:28.306955+00:00",
         "driver_head_annotation_id": 1823,
@@ -1215,7 +1221,7 @@
       "task_id": "role_dev_025",
       "image_path": "data\\raw\\edgevision\\images\\Image_00505.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:26:12.493821+00:00",
         "driver_head_annotation_id": 1873,
@@ -1261,7 +1267,7 @@
       "task_id": "role_dev_026",
       "image_path": "data\\raw\\edgevision\\images\\Image_00532.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:26:17.305051+00:00",
         "driver_head_annotation_id": 1986,
@@ -1305,7 +1311,7 @@
       "task_id": "role_dev_027",
       "image_path": "data\\raw\\edgevision\\images\\Image_00538.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:26:24.176594+00:00",
         "driver_head_annotation_id": 2011,
@@ -1349,7 +1355,7 @@
       "task_id": "role_dev_028",
       "image_path": "data\\raw\\edgevision\\images\\Image_00541.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:26:29.315323+00:00",
         "driver_head_annotation_id": 2021,
@@ -1393,7 +1399,7 @@
       "task_id": "role_dev_029",
       "image_path": "data\\raw\\edgevision\\images\\Image_00549.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:26:32.816845+00:00",
         "driver_head_annotation_id": 2056,
@@ -1437,7 +1443,7 @@
       "task_id": "role_dev_030",
       "image_path": "data\\raw\\edgevision\\images\\Image_00602.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:26:43.346966+00:00",
         "driver_head_annotation_id": 2227,
@@ -1493,7 +1499,7 @@
       "task_id": "role_dev_031",
       "image_path": "data\\raw\\edgevision\\images\\Image_00706.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:26:57.566212+00:00",
         "driver_head_annotation_id": 2719,
@@ -1538,7 +1544,7 @@
       "task_id": "role_dev_032",
       "image_path": "data\\raw\\edgevision\\images\\Image_00708.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:27:03.085950+00:00",
         "driver_head_annotation_id": 2731,
@@ -1594,7 +1600,7 @@
       "task_id": "role_dev_033",
       "image_path": "data\\raw\\edgevision\\images\\Image_00714.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:27:19.633441+00:00",
         "driver_head_annotation_id": 2766,
@@ -1639,7 +1645,7 @@
       "task_id": "role_dev_034",
       "image_path": "data\\raw\\edgevision\\images\\Image_00723.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:27:35.937291+00:00",
         "driver_head_annotation_id": 2831,
@@ -1684,7 +1690,7 @@
       "task_id": "role_dev_035",
       "image_path": "data\\raw\\edgevision\\images\\Image_00725.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:27:50.243360+00:00",
         "driver_head_annotation_id": 2843,
@@ -1740,7 +1746,7 @@
       "task_id": "role_dev_036",
       "image_path": "data\\raw\\edgevision\\images\\Image_00737.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:28:05.744148+00:00",
         "driver_head_annotation_id": 2900,
@@ -1808,7 +1814,7 @@
       "task_id": "role_dev_037",
       "image_path": "data\\raw\\edgevision\\images\\Image_00738.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:28:31.648483+00:00",
         "driver_head_annotation_id": 2908,
@@ -1855,7 +1861,7 @@
       "task_id": "role_dev_038",
       "image_path": "data\\raw\\edgevision\\images\\Image_00751.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:28:38.524745+00:00",
         "driver_head_annotation_id": 2969,
@@ -1911,7 +1917,7 @@
       "task_id": "role_dev_039",
       "image_path": "data\\raw\\edgevision\\images\\Image_00754.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:28:55.400442+00:00",
         "driver_head_annotation_id": 2994,
@@ -1968,7 +1974,7 @@
       "task_id": "role_dev_040",
       "image_path": "data\\raw\\edgevision\\images\\Image_00925.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:29:08.287607+00:00",
         "driver_head_annotation_id": 3458,
@@ -2013,7 +2019,7 @@
       "task_id": "role_dev_041",
       "image_path": "data\\raw\\edgevision\\images\\Image_00949.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:29:16.296611+00:00",
         "driver_head_annotation_id": 3523,
@@ -2068,7 +2074,7 @@
       "task_id": "role_dev_042",
       "image_path": "data\\raw\\edgevision\\images\\Image_00953.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:29:37.468610+00:00",
         "driver_head_annotation_id": 3532,
@@ -2113,7 +2119,7 @@
       "task_id": "role_dev_043",
       "image_path": "data\\raw\\edgevision\\images\\Image_00960.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:29:42.406645+00:00",
         "driver_head_annotation_id": 3559,
@@ -2169,7 +2175,7 @@
       "task_id": "role_dev_044",
       "image_path": "data\\raw\\edgevision\\images\\Image_00998.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:30:00.270315+00:00",
         "driver_head_annotation_id": 3683,
@@ -2226,7 +2232,7 @@
       "task_id": "role_dev_045",
       "image_path": "data\\raw\\edgevision\\images\\Image_01047.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:30:27.654006+00:00",
         "driver_head_annotation_id": 3844,
@@ -2271,7 +2277,7 @@
       "task_id": "role_dev_046",
       "image_path": "data\\raw\\edgevision\\images\\Image_01232.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:30:33.827406+00:00",
         "driver_head_annotation_id": 4381,
@@ -2316,7 +2322,7 @@
       "task_id": "role_dev_047",
       "image_path": "data\\raw\\edgevision\\images\\Image_01309.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:30:40.238608+00:00",
         "driver_head_annotation_id": 4615,
@@ -2361,7 +2367,7 @@
       "task_id": "role_dev_048",
       "image_path": "data\\raw\\edgevision\\images\\Image_01327.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:30:48.857516+00:00",
         "driver_head_annotation_id": 4668,
@@ -2428,7 +2434,7 @@
       "task_id": "role_dev_049",
       "image_path": "data\\raw\\edgevision\\images\\Image_01349.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:32:18.585929+00:00",
         "driver_head_annotation_id": 4744,
@@ -2475,7 +2481,7 @@
       "task_id": "role_dev_050",
       "image_path": "data\\raw\\edgevision\\images\\Image_01371.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:34:46.867461+00:00",
         "driver_head_annotation_id": 4823,
@@ -2519,7 +2525,7 @@
       "task_id": "role_dev_051",
       "image_path": "data\\raw\\edgevision\\images\\Image_01408.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:35:07.521614+00:00",
         "driver_head_annotation_id": 4942,
@@ -2564,7 +2570,7 @@
       "task_id": "role_dev_052",
       "image_path": "data\\raw\\edgevision\\images\\Image_01428.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-28T08:54:53.766512+00:00",
         "driver_head_annotation_id": 5022,
@@ -2608,7 +2614,7 @@
       "task_id": "role_dev_053",
       "image_path": "data\\raw\\edgevision\\images\\Image_01430.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:35:48.067593+00:00",
         "driver_head_annotation_id": 5039,
@@ -2653,7 +2659,7 @@
       "task_id": "role_dev_054",
       "image_path": "data\\raw\\edgevision\\images\\Image_01432.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:35:35.651417+00:00",
         "driver_head_annotation_id": 5057,
@@ -2698,7 +2704,7 @@
       "task_id": "role_dev_055",
       "image_path": "data\\raw\\edgevision\\images\\Image_01440.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:35:31.740293+00:00",
         "driver_head_annotation_id": 5091,
@@ -2743,7 +2749,7 @@
       "task_id": "role_dev_056",
       "image_path": "data\\raw\\edgevision\\images\\Image_01455.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:36:55.255918+00:00",
         "driver_head_annotation_id": 5175,
@@ -2789,7 +2795,7 @@
       "task_id": "role_dev_057",
       "image_path": "data\\raw\\edgevision\\images\\Image_01534.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:36:59.112191+00:00",
         "driver_head_annotation_id": 5461,
@@ -2845,7 +2851,7 @@
       "task_id": "role_dev_058",
       "image_path": "data\\raw\\edgevision\\images\\Image_01548.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:37:15.750403+00:00",
         "driver_head_annotation_id": 5525,
@@ -2902,7 +2908,7 @@
       "task_id": "role_dev_059",
       "image_path": "data\\raw\\edgevision\\images\\Image_01552.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:37:30.717301+00:00",
         "driver_head_annotation_id": 5547,
@@ -2947,7 +2953,7 @@
       "task_id": "role_dev_060",
       "image_path": "data\\raw\\edgevision\\images\\Image_01575.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:37:35.655400+00:00",
         "driver_head_annotation_id": 5632,
@@ -2992,7 +2998,7 @@
       "task_id": "role_dev_061",
       "image_path": "data\\raw\\edgevision\\images\\Image_01606.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:37:39.352700+00:00",
         "driver_head_annotation_id": 5748,
@@ -3037,7 +3043,7 @@
       "task_id": "role_dev_062",
       "image_path": "data\\raw\\edgevision\\images\\Image_01675.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:38:22.844935+00:00",
         "driver_head_annotation_id": 5945,
@@ -3104,7 +3110,7 @@
       "task_id": "role_dev_063",
       "image_path": "data\\raw\\edgevision\\images\\Image_01707.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:39:31.875920+00:00",
         "driver_head_annotation_id": 6051,
@@ -3151,7 +3157,7 @@
       "task_id": "role_dev_064",
       "image_path": "data\\raw\\edgevision\\images\\Image_01744.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:39:46.507863+00:00",
         "driver_head_annotation_id": 6160,
@@ -3206,7 +3212,7 @@
       "task_id": "role_dev_065",
       "image_path": "data\\raw\\edgevision\\images\\Image_01773.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:39:56.654901+00:00",
         "driver_head_annotation_id": 6245,
@@ -3251,7 +3257,7 @@
       "task_id": "role_dev_066",
       "image_path": "data\\raw\\edgevision\\images\\Image_01908.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:40:01.573645+00:00",
         "driver_head_annotation_id": 6660,
@@ -3307,7 +3313,7 @@
       "task_id": "role_dev_067",
       "image_path": "data\\raw\\edgevision\\images\\Image_01961.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:40:12.631472+00:00",
         "driver_head_annotation_id": 6823,
@@ -3352,7 +3358,7 @@
       "task_id": "role_dev_068",
       "image_path": "data\\raw\\edgevision\\images\\Image_02110.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:40:22.656474+00:00",
         "driver_head_annotation_id": 7240,
@@ -3408,7 +3414,7 @@
       "task_id": "role_dev_069",
       "image_path": "data\\raw\\edgevision\\images\\Image_02130.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:40:54.199914+00:00",
         "driver_head_annotation_id": 7319,
@@ -3465,7 +3471,7 @@
       "task_id": "role_dev_070",
       "image_path": "data\\raw\\edgevision\\images\\Image_02145.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:41:30.157513+00:00",
         "driver_head_annotation_id": 7382,
@@ -3511,7 +3517,7 @@
       "task_id": "role_dev_071",
       "image_path": "data\\raw\\edgevision\\images\\Image_02155.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:41:35.376972+00:00",
         "driver_head_annotation_id": 7418,
@@ -3556,7 +3562,7 @@
       "task_id": "role_dev_072",
       "image_path": "data\\raw\\edgevision\\images\\Image_02167.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:41:40.029447+00:00",
         "driver_head_annotation_id": 7467,
@@ -3601,7 +3607,7 @@
       "task_id": "role_dev_073",
       "image_path": "data\\raw\\edgevision\\images\\Image_02169.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:41:43.702706+00:00",
         "driver_head_annotation_id": 7483,
@@ -3647,7 +3653,7 @@
       "task_id": "role_dev_074",
       "image_path": "data\\raw\\edgevision\\images\\Image_02171.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:41:49.456072+00:00",
         "driver_head_annotation_id": 7487,
@@ -3703,7 +3709,7 @@
       "task_id": "role_dev_075",
       "image_path": "data\\raw\\edgevision\\images\\Image_02254.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:42:15.655877+00:00",
         "driver_head_annotation_id": 7769,
@@ -3749,7 +3755,7 @@
       "task_id": "role_dev_076",
       "image_path": "data\\raw\\edgevision\\images\\Image_02255.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:42:51.191301+00:00",
         "driver_head_annotation_id": 7775,
@@ -3794,7 +3800,7 @@
       "task_id": "role_dev_077",
       "image_path": "data\\raw\\edgevision\\images\\Image_02264.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:42:57.518545+00:00",
         "driver_head_annotation_id": 7817,
@@ -3839,7 +3845,7 @@
       "task_id": "role_dev_078",
       "image_path": "data\\raw\\edgevision\\images\\Image_02278.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:43:06.560075+00:00",
         "driver_head_annotation_id": 7887,
@@ -3884,7 +3890,7 @@
       "task_id": "role_dev_079",
       "image_path": "data\\raw\\edgevision\\images\\Image_02321.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:43:13.129406+00:00",
         "driver_head_annotation_id": 8038,
@@ -3928,7 +3934,7 @@
       "task_id": "role_dev_080",
       "image_path": "data\\raw\\edgevision\\images\\Image_02366.jpg",
       "review": {
-        "status": "needs_second_review",
+        "status": "reviewed",
         "reviewer": "Long",
         "reviewed_at": "2026-08-27T20:44:31.613398+00:00",
         "driver_head_annotation_id": 8192,
@@ -3940,3 +3946,4 @@
     }
   ]
 }
+

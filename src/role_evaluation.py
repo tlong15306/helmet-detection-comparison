@@ -88,11 +88,28 @@ def evaluate_role_candidate_baseline(
 
     # Với task không có proposal, không thể có candidate đúng. Đây là chủ đích
     # an toàn của baseline khi có nhiều đầu hoặc ghép hình học chưa rõ ràng.
+    team_confirmation = payload.get("team_confirmation")
+    has_team_confirmation = (
+        isinstance(team_confirmation, Mapping)
+        and team_confirmation.get("status") == "confirmed_by_team"
+        and validation_counts["reviewed"] == validation_counts["tasks"]
+    )
+    has_provisional_reviews = validation_counts["needs_second_review"] > 0
+    limitations = [
+        "Candidate precision/recall chỉ đo gợi ý vai trò trên role_dev; không phải mAP hay metric của Faster R-CNN/RetinaNet.",
+        "Không dùng kết quả này để huấn luyện, chọn cấu hình cuối hoặc kết luận trên role_test.",
+        "Abstention là hành vi an toàn của baseline, cần được diễn giải cùng độ bao phủ thay vì xem như nhãn âm.",
+    ]
+    if has_provisional_reviews:
+        limitations.insert(1, "Task needs_second_review mới là nhãn vòng một, chưa phải ground truth đã thống nhất.")
+    if has_team_confirmation:
+        limitations.insert(1, "Nhóm đã xác nhận tập role_dev nhưng không có log review vòng hai riêng cho từng task.")
+
     result = {
         "schema_version": "role_candidate_evaluation_v1",
         "purpose": "development_diagnostic_only",
-        "ground_truth_status": (
-            "provisional_first_review" if "needs_second_review" in statuses else "reviewed"
+        "ground_truth_status": "team_confirmed_role_dev" if has_team_confirmation else (
+            "provisional_first_review" if has_provisional_reviews else "reviewed"
         ),
         "included_statuses": sorted(statuses),
         "task_counts": {
@@ -110,11 +127,7 @@ def evaluate_role_candidate_baseline(
             "candidate_recall": _rate(actual_driver_with_proposal, actual_driver_tasks),
             "task_outcomes": dict(sorted(task_outcomes.items())),
         },
-        "limitations": [
-            "Candidate precision/recall chỉ đo gợi ý vai trò trên role_dev; không phải mAP hay metric của Faster R-CNN/RetinaNet.",
-            "Task needs_second_review mới là nhãn vòng một, chưa phải ground truth đã thống nhất.",
-            "Không dùng kết quả này để huấn luyện, chọn cấu hình cuối hoặc kết luận trên role_test.",
-            "Abstention là hành vi an toàn của baseline, cần được diễn giải cùng độ bao phủ thay vì xem như nhãn âm.",
-        ],
+        "team_confirmation": team_confirmation if has_team_confirmation else None,
+        "limitations": limitations,
     }
     return result

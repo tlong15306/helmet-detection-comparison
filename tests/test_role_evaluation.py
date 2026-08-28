@@ -61,3 +61,18 @@ def test_role_candidate_report_rejects_pending_as_ground_truth() -> None:
     payload = _payload([_task("role_1", status="pending", proposal=None, driver=None, roles={"11": None})])
     with pytest.raises(ValueError, match="pending"):
         evaluate_role_candidate_baseline(payload, included_statuses={"pending"})
+
+
+def test_role_candidate_report_recognizes_team_confirmation() -> None:
+    payload = _payload(
+        [_task("role_1", status="reviewed", proposal=11, driver=11, roles={"11": "driver"})]
+    )
+    payload["team_confirmation"] = {
+        "status": "confirmed_by_team",
+        "reported_by": "Long",
+        "note": "Không có log vòng hai theo từng task.",
+    }
+    report = evaluate_role_candidate_baseline(payload)
+    assert report["ground_truth_status"] == "team_confirmed_role_dev"
+    assert report["team_confirmation"] == payload["team_confirmation"]
+    assert any("không có log review vòng hai" in item for item in report["limitations"])
