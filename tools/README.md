@@ -31,6 +31,12 @@ Chứa các công cụ hỗ trợ chuẩn bị và kiểm tra dự án. Các t�
 8. `benchmark_speed.py`
    - Chạy sau khi có checkpoint tốt nhất.
    - Đo latency/FPS của hai mô hình theo cùng giao thức.
+9. `src.threshold_selection`
+   - Chạy suy luận một lần trên validation, quét threshold từ 0,05 đến 0,95.
+   - Chọn threshold có F1 cao nhất cho lớp `NoHelmet`; khi bằng nhau ưu tiên Recall,
+     rồi Precision và threshold cao hơn.
+   - Lưu artifact vào `outputs/<model>/metrics/validation_threshold_selection.json`
+     và cập nhật `configs/demo_thresholds.yaml` cho demo dùng lại.
 
 ## Quy tắc
 
@@ -38,6 +44,7 @@ Chứa các công cụ hỗ trợ chuẩn bị và kiểm tra dự án. Các t�
 - Mọi tệp tạo ra phải có đường dẫn đầu ra rõ ràng.
 - Nếu phát hiện lỗi dữ liệu, lưu minh chứng vào `data/samples/invalid_examples/`.
 - Benchmark phải ghi phần cứng, kích thước ảnh, warm-up, số lượt đo và phạm vi thời gian được tính.
+- Tập test không được đọc bởi công cụ chọn threshold cho demo.
 # Benchmark tốc độ suy luận
 
 `benchmark_inference.py` đo latency/FPS công bằng cho hai checkpoint tốt nhất.
