@@ -2564,12 +2564,12 @@
       "task_id": "role_dev_052",
       "image_path": "data\\raw\\edgevision\\images\\Image_01428.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-28T08:54:53.766512+00:00",
+        "driver_head_annotation_id": 5022,
         "head_roles": {
-          "5022": null
+          "5022": "driver"
         },
         "notes": null
       }
