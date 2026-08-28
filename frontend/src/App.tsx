@@ -17,7 +17,6 @@ import {
   Stack,
   Tab,
   Tabs,
-  TextField,
   Tooltip,
   Typography,
 } from '@mui/material'
@@ -37,17 +36,13 @@ import {
   absoluteApiUrl,
   fetchHealth,
   fetchModels,
-  fetchRoleReviewTasks,
   fetchVideoJob,
   inferImage,
   inferVideo,
-  saveRoleReview,
   type HealthResponse,
   type InferenceResponse,
   type ModelId,
   type ModelMetadata,
-  type ReviewedHeadRole,
-  type RoleReviewTask,
   type VideoJobResponse,
 } from './services/api'
 import './App.css'
@@ -110,34 +105,10 @@ function App() {
   const [apiError, setApiError] = useState<string | null>(null)
   const [cameraActive, setCameraActive] = useState(false)
   const [cameraError, setCameraError] = useState<string | null>(null)
-  const [roleReviewTasks, setRoleReviewTasks] = useState<RoleReviewTask[]>([])
-  const [roleReviewIndex, setRoleReviewIndex] = useState(0)
-  const [roleReviewer, setRoleReviewer] = useState('Long')
-  const [roleHeadRoles, setRoleHeadRoles] = useState<Record<string, ReviewedHeadRole>>({})
-  const [roleNotes, setRoleNotes] = useState('')
-  const [roleReviewLoading, setRoleReviewLoading] = useState(false)
-  const [roleReviewSaving, setRoleReviewSaving] = useState(false)
-  const [roleReviewError, setRoleReviewError] = useState<string | null>(null)
   const cameraVideoRef = useRef<HTMLVideoElement | null>(null)
   const cameraStreamRef = useRef<MediaStream | null>(null)
   const apiModel = modelCatalog.find((model) => model.id === modelId)
   const defaultThreshold = apiModel?.default_threshold ?? selectedModel.defaultThreshold
-  const selectedRoleTask = roleReviewTasks[roleReviewIndex] ?? null
-  const roleDevFrozen = roleReviewTasks.length > 0 && roleReviewTasks.every((task) => task.review.status === 'reviewed')
-
-  const loadRoleReviewTasks = useCallback(async () => {
-    setRoleReviewLoading(true)
-    try {
-      const payload = await fetchRoleReviewTasks()
-      setRoleReviewTasks(payload.tasks)
-      setRoleReviewIndex((current) => Math.min(current, Math.max(payload.tasks.length - 1, 0)))
-      setRoleReviewError(null)
-    } catch (error) {
-      setRoleReviewError(error instanceof Error ? error.message : 'Không thể tải task review')
-    } finally {
-      setRoleReviewLoading(false)
-    }
-  }, [])
 
   useEffect(() => {
     setThreshold(defaultThreshold)
@@ -164,21 +135,6 @@ function App() {
     }, 5000)
     return () => window.clearInterval(retryTimer)
   }, [connectBackend, health])
-
-  useEffect(() => {
-    void loadRoleReviewTasks()
-  }, [loadRoleReviewTasks])
-
-  useEffect(() => {
-    if (!selectedRoleTask) return
-    const nextRoles: Record<string, ReviewedHeadRole> = {}
-    selectedRoleTask.heads.forEach((head) => {
-      nextRoles[String(head.annotation_id)] = selectedRoleTask.review.head_roles[String(head.annotation_id)] ?? 'unknown'
-    })
-    setRoleHeadRoles(nextRoles)
-    setRoleReviewer(selectedRoleTask.review.reviewer ?? 'Long')
-    setRoleNotes(selectedRoleTask.review.notes ?? '')
-  }, [selectedRoleTask?.task_id])
 
   useEffect(() => {
     if (!selectedFile) {
@@ -313,40 +269,6 @@ function App() {
       setApiError(error instanceof Error ? error.message : 'Không thể chạy suy luận')
     } finally {
       setIsInferring(false)
-    }
-  }
-
-  const setHeadRole = (annotationId: number, role: ReviewedHeadRole) => {
-    const key = String(annotationId)
-    setRoleHeadRoles((current) => {
-      const next = { ...current, [key]: role }
-      if (role === 'driver') {
-        Object.keys(next).forEach((id) => {
-          if (id !== key && next[id] === 'driver') next[id] = 'unknown'
-        })
-      }
-      return next
-    })
-  }
-
-  const saveCurrentRoleReview = async () => {
-    if (!selectedRoleTask) return
-    setRoleReviewSaving(true)
-    try {
-      const driverId = selectedRoleTask.heads.find((head) => roleHeadRoles[String(head.annotation_id)] === 'driver')?.annotation_id ?? null
-      const payload = await saveRoleReview(selectedRoleTask.task_id, {
-        reviewer: roleReviewer,
-        driver_head_annotation_id: driverId,
-        head_roles: roleHeadRoles,
-        notes: roleNotes || null,
-        status: 'needs_second_review',
-      })
-      setRoleReviewTasks((current) => current.map((task) => task.task_id === payload.task.task_id ? payload.task : task))
-      setRoleReviewError(null)
-    } catch (error) {
-      setRoleReviewError(error instanceof Error ? error.message : 'Không thể lưu review')
-    } finally {
-      setRoleReviewSaving(false)
     }
   }
 
@@ -716,130 +638,6 @@ function App() {
             </Paper>
           ))}
         </Box>
-
-        {mode !== 'video' && result && (
-          <Paper className="role-analysis-card" elevation={0}>
-            <Box className="card-heading compact">
-              <Box>
-              <Typography variant="h6">Liên kết người–xe</Typography>
-              <Typography variant="body2" color="text.secondary">
-                  Quy tắc vai trò có cơ chế không kết luận cho cảnh nhiều người hoặc chồng lấn.
-              </Typography>
-              </Box>
-              <Chip
-                label={result.rider_analysis.version === 'rider_role_rule_v2' ? 'Quy tắc v2 · role_dev' : 'Baseline · candidate'}
-                size="small"
-                color={result.rider_analysis.version === 'rider_role_rule_v2' ? 'success' : 'warning'}
-                variant="outlined"
-              />
-            </Box>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mt: 1.5, mb: 1.5 }}>
-              <Chip label={`${result.rider_analysis.summary.associated_heads} đầu đã ghép xe`} size="small" />
-              <Chip label={`${result.rider_analysis.summary.rule_based_drivers} tài xế theo quy tắc`} size="small" />
-              <Chip label={`${result.rider_analysis.summary.unknown_role_groups} nhóm chưa rõ vai trò`} size="small" />
-              <Chip label={`${result.rider_analysis.summary.ambiguous_heads} trường hợp mơ hồ`} size="small" />
-              <Chip label={`${result.rider_analysis.summary.unassigned_heads} đầu chưa ghép`} size="small" />
-            </Stack>
-            <Alert severity="info" icon={false} className="role-analysis-note">
-              {result.rider_analysis.summary.driver_no_helmet_alerts > 0
-                ? `${result.rider_analysis.summary.driver_no_helmet_alerts} tài xế không mũ theo quy tắc một-đầu.`
-                : 'Chưa có cảnh báo tài xế không đội mũ theo quy tắc.'} Quy tắc đạt Precision 96,23% trên 53 candidate role_dev; chưa có role_test độc lập. Cảnh nhiều người hoặc chồng lấn vẫn là “chưa xác định”.
-            </Alert>
-            {result.rider_analysis.rider_groups.length > 0 && (
-              <Box className="rider-group-list">
-                {result.rider_analysis.rider_groups.slice(0, 6).map((group, index) => (
-                  <Box className="rider-group-row" key={group.group_id}>
-                    <Typography variant="body2" sx={{ fontWeight: 760 }}>Xe {index + 1}</Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {group.driver
-                        ? group.driver.status === 'rule_based'
-                          ? group.driver.helmet_status === 'no_helmet'
-                            ? 'Tài xế theo quy tắc · không mũ'
-                            : 'Tài xế theo quy tắc · có mũ'
-                          : group.driver.helmet_status === 'no_helmet'
-                            ? 'Ứng viên tài xế · không mũ'
-                            : 'Ứng viên tài xế · có mũ'
-                        : group.heads.length > 1
-                          ? `${group.heads.length} đầu · chưa xác định vai trò`
-                          : 'Chưa ghép được đầu'}
-                    </Typography>
-                  </Box>
-                ))}
-                {result.rider_analysis.rider_groups.length > 6 && (
-                  <Typography variant="caption" color="text.secondary">
-                    +{result.rider_analysis.rider_groups.length - 6} vùng xe khác
-                  </Typography>
-                )}
-              </Box>
-            )}
-          </Paper>
-        )}
-
-        <Paper className="role-review-card" elevation={0}>
-          <Box className="card-heading compact">
-            <Box>
-              <Typography variant="h6">Review nhãn tài xế/người ngồi sau</Typography>
-              <Typography variant="body2" color="text.secondary">
-                Dữ liệu validation độc lập; không dùng prediction của mô hình để gán nhãn.
-              </Typography>
-            </Box>
-            <Chip label={`${roleReviewTasks.length} task`} size="small" variant="outlined" />
-          </Box>
-          {roleReviewLoading ? (
-            <Box className="role-review-empty"><CircularProgress size={24} /></Box>
-          ) : roleReviewError ? (
-            <Alert severity="error" sx={{ mt: 1.5 }} action={<Button color="inherit" size="small" onClick={() => void loadRoleReviewTasks()}>Thử lại</Button>}>
-              {roleReviewError}
-            </Alert>
-          ) : selectedRoleTask ? (
-            <Box className="role-review-grid">
-              <Box>
-                <img
-                  className="role-review-preview"
-                  src={absoluteApiUrl(`/api/role-review/tasks/${selectedRoleTask.task_id}/preview`)}
-                  alt={`Crop review ${selectedRoleTask.task_id}`}
-                />
-                <Stack direction="row" spacing={1} sx={{ mt: 1, alignItems: 'center', justifyContent: 'space-between' }}>
-                  <Button size="small" disabled={roleReviewIndex === 0} onClick={() => setRoleReviewIndex((current) => current - 1)}>Trước</Button>
-                  <Typography variant="caption" color="text.secondary">
-                    {roleReviewIndex + 1}/{roleReviewTasks.length} · {selectedRoleTask.task_id} · {selectedRoleTask.difficulty_tags.join(', ')}
-                  </Typography>
-                  <Button size="small" disabled={roleReviewIndex >= roleReviewTasks.length - 1} onClick={() => setRoleReviewIndex((current) => current + 1)}>Sau</Button>
-                </Stack>
-              </Box>
-              <Stack spacing={1.25}>
-                <Alert severity="warning" icon={false} className="role-analysis-note">
-                  {roleDevFrozen
-                    ? 'role_dev đã được nhóm xác nhận và khóa để giữ nguyên SHA-256 dùng bởi quy tắc v2.'
-                    : 'Chỉ chọn “Tài xế” khi thấy rõ người điều khiển tay lái. Không rõ thì chọn “Không xác định”.'}
-                </Alert>
-                {selectedRoleTask.heads.map((head) => {
-                  const key = String(head.annotation_id)
-                  const role = roleHeadRoles[key] ?? 'unknown'
-                  return (
-                    <Box className="role-head-row" key={key}>
-                      <Typography variant="body2" sx={{ fontWeight: 760 }}>
-                        H{head.annotation_id} · {head.helmet_status === 'no_helmet' ? 'Không mũ' : 'Có mũ'}
-                      </Typography>
-                      <Stack direction="row" spacing={0.75} sx={{ flexWrap: 'wrap' }}>
-                        <Button disabled={roleDevFrozen} size="small" variant={role === 'driver' ? 'contained' : 'outlined'} onClick={() => setHeadRole(head.annotation_id, 'driver')}>Tài xế</Button>
-                        <Button disabled={roleDevFrozen} size="small" variant={role === 'passenger' ? 'contained' : 'outlined'} onClick={() => setHeadRole(head.annotation_id, 'passenger')}>Ngồi sau</Button>
-                        <Button disabled={roleDevFrozen} size="small" variant={role === 'unknown' ? 'contained' : 'outlined'} onClick={() => setHeadRole(head.annotation_id, 'unknown')}>Không rõ</Button>
-                      </Stack>
-                    </Box>
-                  )
-                })}
-                <TextField disabled={roleDevFrozen} size="small" label="Người review" value={roleReviewer} onChange={(event) => setRoleReviewer(event.target.value)} />
-                <TextField disabled={roleDevFrozen} size="small" label="Ghi chú (tùy chọn)" value={roleNotes} onChange={(event) => setRoleNotes(event.target.value)} multiline minRows={2} />
-                <Button variant="contained" onClick={() => void saveCurrentRoleReview()} disabled={roleDevFrozen || roleReviewSaving || !roleReviewer.trim()}>
-                  {roleDevFrozen ? 'Đã khóa role_dev' : roleReviewSaving ? 'Đang lưu…' : 'Lưu để kiểm tra chéo'}
-                </Button>
-              </Stack>
-            </Box>
-          ) : (
-            <Box className="role-review-empty"><Typography color="text.secondary">Chưa có task review.</Typography></Box>
-          )}
-        </Paper>
 
         <Paper className="results-card" elevation={0}>
           <Box className="card-heading compact">
