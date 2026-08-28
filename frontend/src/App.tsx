@@ -123,6 +123,7 @@ function App() {
   const apiModel = modelCatalog.find((model) => model.id === modelId)
   const defaultThreshold = apiModel?.default_threshold ?? selectedModel.defaultThreshold
   const selectedRoleTask = roleReviewTasks[roleReviewIndex] ?? null
+  const roleDevFrozen = roleReviewTasks.length > 0 && roleReviewTasks.every((task) => task.review.status === 'reviewed')
 
   const loadRoleReviewTasks = useCallback(async () => {
     setRoleReviewLoading(true)
@@ -720,23 +721,29 @@ function App() {
           <Paper className="role-analysis-card" elevation={0}>
             <Box className="card-heading compact">
               <Box>
-                <Typography variant="h6">Liên kết người–xe</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Phân tích bổ sung để chuẩn bị phân biệt tài xế và người ngồi sau.
-                </Typography>
+              <Typography variant="h6">Liên kết người–xe</Typography>
+              <Typography variant="body2" color="text.secondary">
+                  Quy tắc vai trò có cơ chế không kết luận cho cảnh nhiều người hoặc chồng lấn.
+              </Typography>
               </Box>
-              <Chip label="Baseline · chưa xác nhận vai trò" size="small" color="warning" variant="outlined" />
+              <Chip
+                label={result.rider_analysis.version === 'rider_role_rule_v2' ? 'Quy tắc v2 · role_dev' : 'Baseline · candidate'}
+                size="small"
+                color={result.rider_analysis.version === 'rider_role_rule_v2' ? 'success' : 'warning'}
+                variant="outlined"
+              />
             </Box>
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mt: 1.5, mb: 1.5 }}>
               <Chip label={`${result.rider_analysis.summary.associated_heads} đầu đã ghép xe`} size="small" />
-              <Chip label={`${result.rider_analysis.summary.driver_candidates} ứng viên tài xế`} size="small" />
+              <Chip label={`${result.rider_analysis.summary.rule_based_drivers} tài xế theo quy tắc`} size="small" />
+              <Chip label={`${result.rider_analysis.summary.unknown_role_groups} nhóm chưa rõ vai trò`} size="small" />
               <Chip label={`${result.rider_analysis.summary.ambiguous_heads} trường hợp mơ hồ`} size="small" />
               <Chip label={`${result.rider_analysis.summary.unassigned_heads} đầu chưa ghép`} size="small" />
             </Stack>
             <Alert severity="info" icon={false} className="role-analysis-note">
-              {result.rider_analysis.summary.driver_candidate_no_helmet > 0
-                ? `${result.rider_analysis.summary.driver_candidate_no_helmet} đầu không mũ là ứng viên tài xế, nhưng chưa được tính là vi phạm tài xế.`
-                : 'Chưa có ứng viên tài xế không đội mũ ở ảnh này.'} Các cảnh có nhiều người hoặc chồng lấn được giữ là “mơ hồ”.
+              {result.rider_analysis.summary.driver_no_helmet_alerts > 0
+                ? `${result.rider_analysis.summary.driver_no_helmet_alerts} tài xế không mũ theo quy tắc một-đầu.`
+                : 'Chưa có cảnh báo tài xế không đội mũ theo quy tắc.'} Quy tắc đạt Precision 96,23% trên 53 candidate role_dev; chưa có role_test độc lập. Cảnh nhiều người hoặc chồng lấn vẫn là “chưa xác định”.
             </Alert>
             {result.rider_analysis.rider_groups.length > 0 && (
               <Box className="rider-group-list">
@@ -745,9 +752,13 @@ function App() {
                     <Typography variant="body2" sx={{ fontWeight: 760 }}>Xe {index + 1}</Typography>
                     <Typography variant="body2" color="text.secondary">
                       {group.driver
-                        ? group.driver.helmet_status === 'no_helmet'
-                          ? 'Ứng viên tài xế · không mũ'
-                          : 'Ứng viên tài xế · có mũ'
+                        ? group.driver.status === 'rule_based'
+                          ? group.driver.helmet_status === 'no_helmet'
+                            ? 'Tài xế theo quy tắc · không mũ'
+                            : 'Tài xế theo quy tắc · có mũ'
+                          : group.driver.helmet_status === 'no_helmet'
+                            ? 'Ứng viên tài xế · không mũ'
+                            : 'Ứng viên tài xế · có mũ'
                         : group.heads.length > 1
                           ? `${group.heads.length} đầu · chưa xác định vai trò`
                           : 'Chưa ghép được đầu'}
@@ -798,7 +809,9 @@ function App() {
               </Box>
               <Stack spacing={1.25}>
                 <Alert severity="warning" icon={false} className="role-analysis-note">
-                  Chỉ chọn “Tài xế” khi thấy rõ người điều khiển tay lái. Không rõ thì chọn “Không xác định”.
+                  {roleDevFrozen
+                    ? 'role_dev đã được nhóm xác nhận và khóa để giữ nguyên SHA-256 dùng bởi quy tắc v2.'
+                    : 'Chỉ chọn “Tài xế” khi thấy rõ người điều khiển tay lái. Không rõ thì chọn “Không xác định”.'}
                 </Alert>
                 {selectedRoleTask.heads.map((head) => {
                   const key = String(head.annotation_id)
@@ -809,17 +822,17 @@ function App() {
                         H{head.annotation_id} · {head.helmet_status === 'no_helmet' ? 'Không mũ' : 'Có mũ'}
                       </Typography>
                       <Stack direction="row" spacing={0.75} sx={{ flexWrap: 'wrap' }}>
-                        <Button size="small" variant={role === 'driver' ? 'contained' : 'outlined'} onClick={() => setHeadRole(head.annotation_id, 'driver')}>Tài xế</Button>
-                        <Button size="small" variant={role === 'passenger' ? 'contained' : 'outlined'} onClick={() => setHeadRole(head.annotation_id, 'passenger')}>Ngồi sau</Button>
-                        <Button size="small" variant={role === 'unknown' ? 'contained' : 'outlined'} onClick={() => setHeadRole(head.annotation_id, 'unknown')}>Không rõ</Button>
+                        <Button disabled={roleDevFrozen} size="small" variant={role === 'driver' ? 'contained' : 'outlined'} onClick={() => setHeadRole(head.annotation_id, 'driver')}>Tài xế</Button>
+                        <Button disabled={roleDevFrozen} size="small" variant={role === 'passenger' ? 'contained' : 'outlined'} onClick={() => setHeadRole(head.annotation_id, 'passenger')}>Ngồi sau</Button>
+                        <Button disabled={roleDevFrozen} size="small" variant={role === 'unknown' ? 'contained' : 'outlined'} onClick={() => setHeadRole(head.annotation_id, 'unknown')}>Không rõ</Button>
                       </Stack>
                     </Box>
                   )
                 })}
-                <TextField size="small" label="Người review" value={roleReviewer} onChange={(event) => setRoleReviewer(event.target.value)} />
-                <TextField size="small" label="Ghi chú (tùy chọn)" value={roleNotes} onChange={(event) => setRoleNotes(event.target.value)} multiline minRows={2} />
-                <Button variant="contained" onClick={() => void saveCurrentRoleReview()} disabled={roleReviewSaving || !roleReviewer.trim()}>
-                  {roleReviewSaving ? 'Đang lưu…' : 'Lưu để kiểm tra chéo'}
+                <TextField disabled={roleDevFrozen} size="small" label="Người review" value={roleReviewer} onChange={(event) => setRoleReviewer(event.target.value)} />
+                <TextField disabled={roleDevFrozen} size="small" label="Ghi chú (tùy chọn)" value={roleNotes} onChange={(event) => setRoleNotes(event.target.value)} multiline minRows={2} />
+                <Button variant="contained" onClick={() => void saveCurrentRoleReview()} disabled={roleDevFrozen || roleReviewSaving || !roleReviewer.trim()}>
+                  {roleDevFrozen ? 'Đã khóa role_dev' : roleReviewSaving ? 'Đang lưu…' : 'Lưu để kiểm tra chéo'}
                 </Button>
               </Stack>
             </Box>

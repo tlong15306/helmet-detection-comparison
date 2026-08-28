@@ -59,6 +59,8 @@ def test_infer_image_contract(monkeypatch) -> None:
     assert payload["detections"][0]["detection_id"] == "detection_1"
     assert payload["rider_analysis"]["summary"]["unassigned_heads"] == 1
     assert payload["rider_analysis"]["summary"]["confirmed_driver_no_helmet"] == 0
+    assert payload["rider_analysis"]["version"] == "rider_role_rule_v2"
+    assert payload["rider_analysis"]["summary"]["driver_no_helmet_alerts"] == 0
     assert payload["latency_ms"] == 12.346
     assert payload["result_image"].startswith("data:image/png;base64,")
 
@@ -178,3 +180,42 @@ def test_role_review_endpoints_validate_and_save_manual_review(monkeypatch, tmp_
     assert saved.status_code == 200
     assert saved.json()["task"]["review"]["status"] == "needs_second_review"
     assert json.loads(tasks_path.read_text(encoding="utf-8"))["tasks"][0]["review"]["driver_head_annotation_id"] == 11
+
+
+def test_confirmed_role_dev_is_frozen_against_ui_edits(monkeypatch, tmp_path) -> None:
+    tasks_path = tmp_path / "role_dev.json"
+    tasks_path.write_text(
+        json.dumps(
+            {
+                "schema_version": "role_association_tasks_v1",
+                "team_confirmation": {"status": "confirmed_by_team"},
+                "tasks": [
+                    {
+                        "task_id": "role_dev_001",
+                        "image_id": 1,
+                        "heads": [{"annotation_id": 11, "helmet_status": "no_helmet"}],
+                        "review": {
+                            "status": "reviewed",
+                            "reviewer": "Long",
+                            "driver_head_annotation_id": 11,
+                            "head_roles": {"11": "driver"},
+                        },
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(api, "ROLE_TASKS_PATH", tasks_path)
+    response = TestClient(api.app).put(
+        "/api/role-review/tasks/role_dev_001",
+        json={
+            "reviewer": "Long",
+            "status": "needs_second_review",
+            "driver_head_annotation_id": None,
+            "head_roles": {"11": "unknown"},
+            "notes": None,
+        },
+    )
+    assert response.status_code == 409
+    assert response.json()["detail"]["code"] == "ROLE_DEV_FROZEN"

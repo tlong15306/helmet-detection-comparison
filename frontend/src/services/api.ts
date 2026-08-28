@@ -46,15 +46,22 @@ export interface RiderGroup {
   driver: {
     head_detection_id: string
     helmet_status: 'helmet' | 'no_helmet'
-    role: 'driver_candidate'
-    status: 'candidate_only'
+    role: 'driver_candidate' | 'driver'
+    status: 'candidate_only' | 'rule_based'
     reason: string
+    validation_evidence?: {
+      split: 'validation'
+      precision: number
+      recall: number
+      support: number
+      source_tasks: string
+    }
   } | null
 }
 
 export interface RiderAnalysis {
-  version: 'association_baseline_v1'
-  role_inference_status: 'candidate_only'
+  version: 'association_baseline_v1' | 'rider_role_rule_v2'
+  role_inference_status: 'candidate_only' | 'rule_based_with_abstention'
   rider_groups: RiderGroup[]
   unassigned_heads: Array<{ head_detection_id: string; helmet_status: string; reason: string }>
   ambiguous_heads: Array<{ head_detection_id: string; helmet_status: string; reason: string }>
@@ -66,6 +73,9 @@ export interface RiderAnalysis {
     ambiguous_heads: number
     driver_candidates: number
     driver_candidate_no_helmet: number
+    rule_based_drivers: number
+    driver_no_helmet_alerts: number
+    unknown_role_groups: number
     confirmed_driver_no_helmet: number
   }
   limitations: string[]

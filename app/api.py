@@ -28,7 +28,7 @@ from src.infer import (
     summarize_detections,
     validate_threshold,
 )
-from src.rider_association import analyze_rider_roles
+from src.rider_association import analyze_rider_roles, load_role_decision_config
 from src.role_annotations import VALID_REVIEW_STATUSES, VALID_ROLES, validate_role_tasks
 from src.utils import resolve_project_path
 
@@ -42,6 +42,7 @@ VIDEO_JOBS = VideoJobManager(DETECTOR_MANAGER)
 ROLE_TASKS_PATH = resolve_project_path("data/role_association/annotations/role_dev.pending.json")
 ROLE_IMAGE_ROOT = resolve_project_path("data/raw/edgevision/images")
 ROLE_TASKS_LOCK = threading.RLock()
+RIDER_ASSOCIATION_CONFIG, RIDER_ROLE_CONFIG = load_role_decision_config("configs/rider_association.yaml")
 
 app = FastAPI(
     title="Helmet Detection AI API",
@@ -198,6 +199,8 @@ def update_role_review(task_id: str, update: RoleReviewUpdate) -> dict[str, Any]
         with ROLE_TASKS_LOCK:
             payload = _read_role_tasks()
             task = _role_task(payload, task_id)
+            if payload.get("team_confirmation", {}).get("status") == "confirmed_by_team":
+                raise _api_error(409, "ROLE_DEV_FROZEN", "role_dev đã được nhóm xác nhận và khóa; không sửa qua giao diện")
             task["review"] = {
                 "status": update.status,
                 "reviewer": update.reviewer.strip(),
@@ -251,7 +254,7 @@ def infer_image(
             detector.default_threshold if threshold is None else float(threshold)
         )
         records = prediction_records(prediction, detector.class_names)
-        rider_analysis = analyze_rider_roles(records)
+        rider_analysis = analyze_rider_roles(records, RIDER_ASSOCIATION_CONFIG, RIDER_ROLE_CONFIG)
         return {
             "model": {
                 "id": detector.model_id,
