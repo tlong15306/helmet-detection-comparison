@@ -52,3 +52,14 @@ detector và không được dùng làm kết luận cuối cùng. Task ở tr�
 chỉnh quy tắc.
 
 Không thay đổi `data/splits/test.json` và không dùng Hard Subset để chọn quy tắc vai trò.
+
+## Quy tắc vai trò v2
+
+- Cấu hình chạy: `configs/rider_association.yaml`.
+- Bằng chứng chọn quy tắc: `metadata/role_rule_v2_selection.json`.
+- Một nhóm xe có đúng một đầu được trả về `driver` với trạng thái `rule_based`
+  vì quy tắc đạt Precision 96,23% trên 53 candidate `role_dev`.
+- Nhóm có nhiều đầu tiếp tục trả `unknown`; các chiến lược ép chọn đơn giản chỉ
+  đạt 44,44–66,67% trên 27 task nhiều đầu có tài xế.
+- Chỉ số trên là số phát triển bằng validation. Chưa có `role_test` nên không
+  được trình bày như kết quả tổng quát hoặc kết quả kiểm thử cuối.

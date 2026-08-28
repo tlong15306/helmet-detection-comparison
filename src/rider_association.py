@@ -9,8 +9,12 @@ vi phạm chính thức.
 
 from __future__ import annotations
 
+import hashlib
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Mapping, Sequence
+
+from src.utils import load_yaml, resolve_project_path
 
 
 VEHICLE_CLASS = "BikeWithRider"
@@ -32,6 +36,86 @@ class AssociationConfig:
 
 
 DEFAULT_ASSOCIATION_CONFIG = AssociationConfig()
+
+
+@dataclass(frozen=True)
+class RoleDecisionConfig:
+    """Điều kiện bật quy tắc vai trò đã được duyệt trên role_dev."""
+
+    enabled: bool = False
+    single_head_rule: bool = False
+    multihead_strategy: str = "abstain"
+    minimum_precision: float = 0.95
+    minimum_support: int = 50
+    observed_precision: float | None = None
+    observed_recall: float | None = None
+    observed_support: int = 0
+    source_split: str = "validation"
+    source_tasks: str | None = None
+    source_sha256: str | None = None
+
+    def __post_init__(self) -> None:
+        for name, value in (
+            ("minimum_precision", self.minimum_precision),
+            ("observed_precision", self.observed_precision),
+            ("observed_recall", self.observed_recall),
+        ):
+            if value is not None and not 0.0 <= value <= 1.0:
+                raise ValueError(f"{name} phải nằm trong [0, 1]")
+        if self.minimum_support < 1 or self.observed_support < 0:
+            raise ValueError("support của quy tắc vai trò không hợp lệ")
+        if self.multihead_strategy != "abstain":
+            raise ValueError("Phiên bản hiện tại chỉ hỗ trợ multihead_strategy=abstain")
+
+    @property
+    def single_head_ready(self) -> bool:
+        return bool(
+            self.enabled
+            and self.single_head_rule
+            and self.source_split == "validation"
+            and self.observed_precision is not None
+            and self.observed_precision >= self.minimum_precision
+            and self.observed_support >= self.minimum_support
+        )
+
+
+DEFAULT_ROLE_DECISION_CONFIG = RoleDecisionConfig()
+
+
+def load_role_decision_config(path: str | Path) -> tuple[AssociationConfig, RoleDecisionConfig]:
+    """Đọc cấu hình association/role và kiểm tra điều kiện an toàn."""
+    payload = load_yaml(path)
+    association = payload.get("association", {})
+    role = payload.get("role_decision", {})
+    if not isinstance(association, Mapping) or not isinstance(role, Mapping):
+        raise ValueError("Cấu hình rider_association cần hai mapping association và role_decision")
+    association_config = AssociationConfig(
+            min_head_coverage=float(association.get("min_head_coverage", 0.60)),
+            ambiguity_margin=float(association.get("ambiguity_margin", 0.08)),
+        )
+    role_config = RoleDecisionConfig(
+            enabled=bool(role.get("enabled", False)),
+            single_head_rule=bool(role.get("single_head_rule", False)),
+            multihead_strategy=str(role.get("multihead_strategy", "abstain")),
+            minimum_precision=float(role.get("minimum_precision", 0.95)),
+            minimum_support=int(role.get("minimum_support", 50)),
+            observed_precision=(float(role["observed_precision"]) if role.get("observed_precision") is not None else None),
+            observed_recall=(float(role["observed_recall"]) if role.get("observed_recall") is not None else None),
+            observed_support=int(role.get("observed_support", 0)),
+            source_split=str(role.get("source_split", "validation")),
+            source_tasks=(str(role["source_tasks"]) if role.get("source_tasks") else None),
+            source_sha256=(str(role["source_sha256"]) if role.get("source_sha256") else None),
+        )
+    if role_config.enabled:
+        if not role_config.source_tasks or not role_config.source_sha256:
+            raise ValueError("Quy tắc role bật nhưng thiếu source_tasks/source_sha256")
+        source_path = resolve_project_path(role_config.source_tasks)
+        if not source_path.is_file():
+            raise ValueError(f"Không tìm thấy role_dev đã đóng băng: {source_path}")
+        actual_hash = hashlib.sha256(source_path.read_bytes()).hexdigest()
+        if actual_hash.casefold() != role_config.source_sha256.casefold():
+            raise ValueError("SHA-256 role_dev không khớp cấu hình rider_association")
+    return association_config, role_config
 
 
 def _box(record: Mapping[str, Any]) -> tuple[float, float, float, float]:
@@ -106,6 +190,7 @@ def association_score(
 def analyze_rider_roles(
     detections: Sequence[Mapping[str, Any]],
     config: AssociationConfig = DEFAULT_ASSOCIATION_CONFIG,
+    role_config: RoleDecisionConfig = DEFAULT_ROLE_DECISION_CONFIG,
 ) -> dict[str, Any]:
     """Ghép đầu–xe theo hình học và trả schema an toàn cho API/frontend.
 
@@ -171,18 +256,39 @@ def analyze_rider_roles(
 
     rider_groups: list[dict[str, Any]] = []
     driver_candidate_no_helmet = 0
+    rule_based_drivers = 0
+    driver_no_helmet_alerts = 0
     for group_index, vehicle in enumerate(vehicles, start=1):
         attached_heads = sorted(group_heads[vehicle["detection_id"]], key=lambda item: item["head_detection_id"])
         driver: dict[str, Any] | None = None
         if len(attached_heads) == 1:
             candidate = attached_heads[0]
-            driver = {
-                "head_detection_id": candidate["head_detection_id"],
-                "helmet_status": candidate["helmet_status"],
-                "role": "driver_candidate",
-                "status": "candidate_only",
-                "reason": "single_head_associated_with_vehicle",
-            }
+            if role_config.single_head_ready:
+                driver = {
+                    "head_detection_id": candidate["head_detection_id"],
+                    "helmet_status": candidate["helmet_status"],
+                    "role": "driver",
+                    "status": "rule_based",
+                    "reason": "validated_single_head_rule",
+                    "validation_evidence": {
+                        "split": role_config.source_split,
+                        "precision": role_config.observed_precision,
+                        "recall": role_config.observed_recall,
+                        "support": role_config.observed_support,
+                        "source_tasks": role_config.source_tasks,
+                    },
+                }
+                rule_based_drivers += 1
+                if candidate["helmet_status"] == "no_helmet":
+                    driver_no_helmet_alerts += 1
+            else:
+                driver = {
+                    "head_detection_id": candidate["head_detection_id"],
+                    "helmet_status": candidate["helmet_status"],
+                    "role": "driver_candidate",
+                    "status": "candidate_only",
+                    "reason": "single_head_associated_with_vehicle",
+                }
             if candidate["helmet_status"] == "no_helmet":
                 driver_candidate_no_helmet += 1
         rider_groups.append(
@@ -197,8 +303,8 @@ def analyze_rider_roles(
         )
 
     return {
-        "version": "association_baseline_v1",
-        "role_inference_status": "candidate_only",
+        "version": "rider_role_rule_v2" if role_config.single_head_ready else "association_baseline_v1",
+        "role_inference_status": "rule_based_with_abstention" if role_config.single_head_ready else "candidate_only",
         "rider_groups": rider_groups,
         "unassigned_heads": unassigned_heads,
         "ambiguous_heads": ambiguous_heads,
@@ -210,11 +316,16 @@ def analyze_rider_roles(
             "ambiguous_heads": len(ambiguous_heads),
             "driver_candidates": sum(1 for group in rider_groups if group["driver"] is not None),
             "driver_candidate_no_helmet": driver_candidate_no_helmet,
+            "rule_based_drivers": rule_based_drivers,
+            "driver_no_helmet_alerts": driver_no_helmet_alerts,
+            "unknown_role_groups": sum(1 for group in rider_groups if group["heads"] and group["driver"] is None),
             "confirmed_driver_no_helmet": 0,
         },
         "limitations": [
             "Baseline chỉ ghép đầu với vùng xe bằng hình học.",
             "driver_candidate không phải kết luận chắc chắn về tài xế và không tạo cảnh báo vi phạm chính thức.",
             "Nhóm nhiều đầu hoặc ghép với nhiều xe được giữ ở trạng thái mơ hồ cho tới khi có nhãn role_dev.",
+            "Quy tắc một-đầu được chọn trên role_dev validation; số liệu quan sát không phải xác suất đúng của từng ảnh.",
+            "Chưa có role_test độc lập để báo cáo chất lượng cuối cùng.",
         ],
     }

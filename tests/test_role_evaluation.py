@@ -19,8 +19,12 @@ def _task(
         "task_id": task_id,
         "image_id": int(task_id[-1]),
         "heads": [
-            {"annotation_id": int(annotation_id), "helmet_status": "no_helmet"}
-            for annotation_id in roles
+            {
+                "annotation_id": int(annotation_id),
+                "helmet_status": "no_helmet",
+                "box_xyxy": [float(index * 20), 10.0, float(index * 20 + 10), 20.0],
+            }
+            for index, annotation_id in enumerate(roles)
         ],
         "proposed_driver_head_annotation_id": proposal,
         "review": {
@@ -55,6 +59,8 @@ def test_role_candidate_report_excludes_pending_and_reports_abstention() -> None
     assert diagnostic["abstentions"] == 1
     assert diagnostic["candidate_precision"] == 0.5
     assert diagnostic["candidate_recall"] == pytest.approx(1 / 3)
+    assert report["multihead_simple_rules"]["tasks_with_human_driver"] == 2
+    assert report["multihead_simple_rules"]["decision"] == "abstain_multihead"
 
 
 def test_role_candidate_report_rejects_pending_as_ground_truth() -> None:

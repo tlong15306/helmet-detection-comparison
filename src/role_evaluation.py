@@ -59,6 +59,8 @@ def evaluate_role_candidate_baseline(
     abstentions = 0
     task_outcomes: Counter[str] = Counter()
     role_counts: Counter[str] = Counter()
+    multihead_rule_counts: Counter[str] = Counter()
+    multihead_tasks_with_driver = 0
 
     for task in used:
         review = task["review"]
@@ -69,6 +71,26 @@ def evaluate_role_candidate_baseline(
 
         if actual_driver is not None:
             actual_driver_tasks += 1
+        if actual_driver is not None and len(task["heads"]) > 1:
+            multihead_tasks_with_driver += 1
+            heads = task["heads"]
+            strategies = {
+                "leftmost": min(heads, key=lambda head: (head["box_xyxy"][0] + head["box_xyxy"][2], head["annotation_id"])),
+                "rightmost": max(heads, key=lambda head: (head["box_xyxy"][0] + head["box_xyxy"][2], -head["annotation_id"])),
+                "highest": min(heads, key=lambda head: (head["box_xyxy"][1] + head["box_xyxy"][3], head["annotation_id"])),
+                "lowest": max(heads, key=lambda head: (head["box_xyxy"][1] + head["box_xyxy"][3], -head["annotation_id"])),
+                "largest_box": max(
+                    heads,
+                    key=lambda head: (
+                        (head["box_xyxy"][2] - head["box_xyxy"][0])
+                        * (head["box_xyxy"][3] - head["box_xyxy"][1]),
+                        -head["annotation_id"],
+                    ),
+                ),
+            }
+            for name, selected_head in strategies.items():
+                if selected_head["annotation_id"] == actual_driver:
+                    multihead_rule_counts[name] += 1
         if proposal is None:
             abstentions += 1
             task_outcomes["abstained"] += 1
@@ -126,6 +148,17 @@ def evaluate_role_candidate_baseline(
             "candidate_precision": _rate(correct_proposals, proposals),
             "candidate_recall": _rate(actual_driver_with_proposal, actual_driver_tasks),
             "task_outcomes": dict(sorted(task_outcomes.items())),
+        },
+        "multihead_simple_rules": {
+            "tasks_with_human_driver": multihead_tasks_with_driver,
+            "strategies": {
+                name: {
+                    "correct": multihead_rule_counts[name],
+                    "precision_if_forced": _rate(multihead_rule_counts[name], multihead_tasks_with_driver),
+                }
+                for name in ("leftmost", "rightmost", "highest", "lowest", "largest_box")
+            },
+            "decision": "abstain_multihead",
         },
         "team_confirmation": team_confirmation if has_team_confirmation else None,
         "limitations": limitations,

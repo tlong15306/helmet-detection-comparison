@@ -1,0 +1,38 @@
+{
+  "schema_version": "role_rule_selection_v2",
+  "selected_on": "2026-08-28",
+  "purpose": "development_rule_selection_only",
+  "source": {
+    "split": "validation",
+    "tasks": "data/role_association/annotations/role_dev.pending.json",
+    "sha256": "2944956a6dcc093d7e5d05eedb2148cea67325b1d58e8e0f6ad08b2685f4156b",
+    "status": "team_confirmed_role_dev"
+  },
+  "acceptance": {
+    "minimum_precision": 0.95,
+    "minimum_support": 50
+  },
+  "selected_rule": {
+    "name": "single_head_associated_with_vehicle",
+    "candidate_proposals": 53,
+    "correct_candidates": 51,
+    "precision": 0.962264,
+    "recall_over_tasks_with_driver": 0.653846,
+    "decision": "enable_as_rule_based_with_validation_disclaimer"
+  },
+  "rejected_multihead_rules": {
+    "tasks_with_human_driver": 27,
+    "leftmost_precision": 0.444444,
+    "rightmost_precision": 0.518519,
+    "highest_precision": 0.444444,
+    "lowest_precision": 0.555556,
+    "largest_box_precision": 0.666667,
+    "decision": "abstain_multihead"
+  },
+  "limitations": [
+    "Metric được chọn trên role_dev nên không phải kết quả kiểm thử cuối.",
+    "Hai task một-đầu thực tế chỉ chứa đầu người ngồi sau.",
+    "Chưa có role_test độc lập.",
+    "Precision quan sát của tập không phải xác suất đúng cho từng ảnh."
+  ]
+}

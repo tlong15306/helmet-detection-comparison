@@ -3,7 +3,7 @@
 ## 1. Trạng thái và phạm vi
 
 - **Mục tiêu:** xác định box `NoHelmet`/`Helmet` nào thuộc tài xế, box nào thuộc người ngồi sau, từ đó chỉ cảnh báo đúng trường hợp tài xế không đội mũ.
-- **Trạng thái:** Pha 0 và baseline Pha 1 cho ảnh đã hoàn thành; chưa có nhãn vai trò, chưa xác nhận tài xế/người ngồi sau và chưa train lại.
+- **Trạng thái:** Pha 0–1 và gán nhãn `role_dev` đã hoàn thành; nhóm đã xác nhận 80 task. Chưa có `role_test` độc lập và chưa train lại.
 - **Phạm vi hiện tại:** bổ sung tầng hậu xử lý quan hệ người–xe–mũ cho kết quả của Faster R-CNN và RetinaNet.
 - **Không thay đổi:** ba lớp gốc `BikeWithRider`, `NoHelmet`, `Helmet`, checkpoint hiện tại, split EdgeVision và giao thức so sánh hai mô hình.
 - **Nguyên tắc:** không gọi một người là tài xế nếu quan hệ chưa đủ chắc chắn; khi mơ hồ phải trả về `unknown` thay vì tạo cảnh báo sai.
@@ -15,7 +15,20 @@
 - Audit trên ground truth validation EdgeVision: 633/670 box đầu (94,48%) ghép được duy nhất, 28/670 (4,18%) mơ hồ và 9/670 (1,34%) chưa ghép. Đây là coverage hình học, không phải accuracy tài xế/người ngồi sau.
 - Báo cáo audit cục bộ: `outputs/role_association/edgevision_val_geometry_audit.json`; tái tạo bằng `python -m tools.audit_rider_association`.
 - Đã thêm unit/API test. Chưa triển khai video role analysis, chưa hoàn tất review `role_dev` và chưa đổi/huấn luyện lại detector.
-- Đã tạo `role_dev.pending.json` gồm 80 task validation đa dạng và màn review cục bộ trong web demo. Tất cả task hiện `pending`; chưa có nhãn role nào được dùng làm ground truth.
+- Đã tạo và review `role_dev.pending.json` gồm 80 task validation đa dạng. Nhóm xác nhận toàn bộ task ngày 28/08; metadata ghi rõ không có log vòng hai riêng cho từng task.
+- Baseline một-đầu tạo 53 candidate: 51 candidate trùng nhãn tài xế, tương ứng Precision 96,23%; Recall trên 78 task có tài xế là 65,38%. Đây là metric phát triển trên `role_dev`, không phải kết quả `role_test`.
+
+## Kế hoạch triển khai tiếp theo — quy tắc vai trò v2
+
+1. **Đóng băng bằng chứng phát triển:** lưu hash của annotation `role_dev`, support và metric dùng để duyệt quy tắc trong `configs/rider_association.yaml`.
+2. **Quy tắc một đầu:** khi một box đầu được ghép duy nhất với một vùng `BikeWithRider`, trả `driver` với trạng thái `rule_based`; API phải kèm Precision/support quan sát trên `role_dev`, không diễn giải như xác suất của từng ảnh.
+3. **Cảnh nhiều đầu:** tiếp tục trả `unknown`. Phân tích hiện tại cho thấy các quy tắc đơn giản như trái/phải, cao/thấp hoặc box lớn nhất không đủ ổn định để đạt mức Precision ưu tiên 0,95.
+4. **Cơ chế an toàn:** chỉ bật quy tắc khi metric trong cấu hình đạt `minimum_precision = 0.95` và `minimum_support = 50`; nếu cấu hình không đạt hoặc thiếu thì quay về `driver_candidate`.
+5. **API và giao diện:** giữ các trường cũ để tương thích, bổ sung số `rule_based_drivers`, `driver_no_helmet_alerts` và giải thích đây là cảnh báo theo quy tắc đã kiểm chứng trên validation.
+6. **Kiểm thử:** thêm ca bật/tắt quy tắc, cấu hình không đạt điều kiện, một đầu có/không mũ và nhóm nhiều đầu luôn abstain.
+7. **Đánh giá:** xuất so sánh baseline v1/v2 trên `role_dev`; chưa công bố metric cuối cho tới khi có `role_test` đóng băng.
+
+**Tiêu chí duyệt v2:** Precision phát triển của cảnh báo vai trò không thấp hơn 0,95; không cưỡng ép tài xế trong nhóm nhiều đầu; toàn bộ test backend/frontend qua; có commit riêng để rollback.
 
 ## 2. Vấn đề cần giải quyết
 

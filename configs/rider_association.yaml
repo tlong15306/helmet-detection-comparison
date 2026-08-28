@@ -1,0 +1,25 @@
+version: rider_role_rule_v2
+
+association:
+  min_head_coverage: 0.60
+  ambiguity_margin: 0.08
+
+role_decision:
+  enabled: true
+  single_head_rule: true
+  multihead_strategy: abstain
+  minimum_precision: 0.95
+  minimum_support: 50
+  observed_precision: 0.962264
+  observed_recall: 0.653846
+  observed_support: 53
+  source_split: validation
+  source_tasks: data/role_association/annotations/role_dev.pending.json
+  source_sha256: 2944956a6dcc093d7e5d05eedb2148cea67325b1d58e8e0f6ad08b2685f4156b
+  confirmation: team_confirmed_role_dev
+
+limitations:
+  - observed_precision_is_dataset_level_not_per_image_probability
+  - two_single_head_tasks_contained_only_a_passenger
+  - multihead_groups_remain_unknown
+  - role_test_not_available
