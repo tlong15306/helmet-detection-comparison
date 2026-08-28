@@ -53,15 +53,15 @@
       "task_id": "role_dev_001",
       "image_path": "data\\raw\\edgevision\\images\\Image_00016.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:12:33.840159+00:00",
+        "driver_head_annotation_id": 51,
         "head_roles": {
-          "51": null,
-          "52": null
+          "51": "driver",
+          "52": "unknown"
         },
-        "notes": null
+        "notes": "H52 ngồi sau nhưng không mũ"
       }
     },
     {
@@ -110,13 +110,13 @@
       "task_id": "role_dev_002",
       "image_path": "data\\raw\\edgevision\\images\\Image_00028.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:14:13.777768+00:00",
+        "driver_head_annotation_id": 97,
         "head_roles": {
-          "96": null,
-          "97": null
+          "96": "passenger",
+          "97": "driver"
         },
         "notes": null
       }
@@ -155,12 +155,12 @@
       "task_id": "role_dev_003",
       "image_path": "data\\raw\\edgevision\\images\\Image_00065.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:22:09.873548+00:00",
+        "driver_head_annotation_id": 232,
         "head_roles": {
-          "232": null
+          "232": "driver"
         },
         "notes": null
       }
@@ -199,12 +199,12 @@
       "task_id": "role_dev_004",
       "image_path": "data\\raw\\edgevision\\images\\Image_00086.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:14:29.936998+00:00",
+        "driver_head_annotation_id": 312,
         "head_roles": {
-          "312": null
+          "312": "driver"
         },
         "notes": null
       }
@@ -243,12 +243,12 @@
       "task_id": "role_dev_005",
       "image_path": "data\\raw\\edgevision\\images\\Image_00105.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:18:05.348159+00:00",
+        "driver_head_annotation_id": 413,
         "head_roles": {
-          "413": null
+          "413": "driver"
         },
         "notes": null
       }
@@ -287,12 +287,12 @@
       "task_id": "role_dev_006",
       "image_path": "data\\raw\\edgevision\\images\\Image_00127.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:18:13.791657+00:00",
+        "driver_head_annotation_id": 493,
         "head_roles": {
-          "493": null
+          "493": "driver"
         },
         "notes": null
       }
@@ -331,12 +331,12 @@
       "task_id": "role_dev_007",
       "image_path": "data\\raw\\edgevision\\images\\Image_00137.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:22:37.756933+00:00",
+        "driver_head_annotation_id": 527,
         "head_roles": {
-          "527": null
+          "527": "driver"
         },
         "notes": null
       }
@@ -376,12 +376,12 @@
       "task_id": "role_dev_008",
       "image_path": "data\\raw\\edgevision\\images\\Image_00138.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:22:48.891970+00:00",
         "driver_head_annotation_id": null,
         "head_roles": {
-          "532": null
+          "532": "passenger"
         },
         "notes": null
       }
@@ -420,12 +420,12 @@
       "task_id": "role_dev_009",
       "image_path": "data\\raw\\edgevision\\images\\Image_00148.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:22:55.615963+00:00",
+        "driver_head_annotation_id": 560,
         "head_roles": {
-          "560": null
+          "560": "driver"
         },
         "notes": null
       }
@@ -477,13 +477,13 @@
       "task_id": "role_dev_010",
       "image_path": "data\\raw\\edgevision\\images\\Image_00190.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:23:12.677883+00:00",
+        "driver_head_annotation_id": 700,
         "head_roles": {
-          "699": null,
-          "700": null
+          "699": "passenger",
+          "700": "driver"
         },
         "notes": null
       }
@@ -523,12 +523,12 @@
       "task_id": "role_dev_011",
       "image_path": "data\\raw\\edgevision\\images\\Image_00194.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:23:22.141239+00:00",
         "driver_head_annotation_id": null,
         "head_roles": {
-          "715": null
+          "715": "passenger"
         },
         "notes": null
       }
@@ -567,12 +567,12 @@
       "task_id": "role_dev_012",
       "image_path": "data\\raw\\edgevision\\images\\Image_00225.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:23:28.232370+00:00",
+        "driver_head_annotation_id": 816,
         "head_roles": {
-          "816": null
+          "816": "driver"
         },
         "notes": null
       }
@@ -622,13 +622,13 @@
       "task_id": "role_dev_013",
       "image_path": "data\\raw\\edgevision\\images\\Image_00241.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:23:48.671807+00:00",
+        "driver_head_annotation_id": 878,
         "head_roles": {
-          "877": null,
-          "878": null
+          "877": "passenger",
+          "878": "driver"
         },
         "notes": null
       }
@@ -667,12 +667,12 @@
       "task_id": "role_dev_014",
       "image_path": "data\\raw\\edgevision\\images\\Image_00253.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:23:55.782633+00:00",
+        "driver_head_annotation_id": 926,
         "head_roles": {
-          "926": null
+          "926": "driver"
         },
         "notes": null
       }
@@ -711,12 +711,12 @@
       "task_id": "role_dev_015",
       "image_path": "data\\raw\\edgevision\\images\\Image_00275.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:24:04.760029+00:00",
+        "driver_head_annotation_id": 1024,
         "head_roles": {
-          "1024": null
+          "1024": "driver"
         },
         "notes": null
       }
@@ -756,12 +756,12 @@
       "task_id": "role_dev_016",
       "image_path": "data\\raw\\edgevision\\images\\Image_00300.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:24:08.699403+00:00",
+        "driver_head_annotation_id": 1118,
         "head_roles": {
-          "1118": null
+          "1118": "driver"
         },
         "notes": null
       }
@@ -812,13 +812,13 @@
       "task_id": "role_dev_017",
       "image_path": "data\\raw\\edgevision\\images\\Image_00328.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:24:20.974344+00:00",
+        "driver_head_annotation_id": 1230,
         "head_roles": {
-          "1230": null,
-          "1236": null
+          "1230": "driver",
+          "1236": "passenger"
         },
         "notes": null
       }
@@ -858,12 +858,12 @@
       "task_id": "role_dev_018",
       "image_path": "data\\raw\\edgevision\\images\\Image_00334.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:24:24.701870+00:00",
+        "driver_head_annotation_id": 1258,
         "head_roles": {
-          "1258": null
+          "1258": "driver"
         },
         "notes": null
       }
@@ -913,13 +913,13 @@
       "task_id": "role_dev_019",
       "image_path": "data\\raw\\edgevision\\images\\Image_00367.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:24:37.787181+00:00",
+        "driver_head_annotation_id": 1369,
         "head_roles": {
-          "1369": null,
-          "1370": null
+          "1369": "driver",
+          "1370": "passenger"
         },
         "notes": null
       }
@@ -969,13 +969,13 @@
       "task_id": "role_dev_020",
       "image_path": "data\\raw\\edgevision\\images\\Image_00376.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:24:48.978942+00:00",
+        "driver_head_annotation_id": 1394,
         "head_roles": {
-          "1393": null,
-          "1394": null
+          "1393": "passenger",
+          "1394": "driver"
         },
         "notes": null
       }
@@ -1014,12 +1014,12 @@
       "task_id": "role_dev_021",
       "image_path": "data\\raw\\edgevision\\images\\Image_00416.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:24:55.179848+00:00",
+        "driver_head_annotation_id": 1537,
         "head_roles": {
-          "1537": null
+          "1537": "driver"
         },
         "notes": null
       }
@@ -1058,12 +1058,12 @@
       "task_id": "role_dev_022",
       "image_path": "data\\raw\\edgevision\\images\\Image_00465.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:24:59.756076+00:00",
+        "driver_head_annotation_id": 1717,
         "head_roles": {
-          "1717": null
+          "1717": "driver"
         },
         "notes": null
       }
@@ -1113,13 +1113,13 @@
       "task_id": "role_dev_023",
       "image_path": "data\\raw\\edgevision\\images\\Image_00490.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:25:22.774220+00:00",
+        "driver_head_annotation_id": 1813,
         "head_roles": {
-          "1813": null,
-          "1814": null
+          "1813": "driver",
+          "1814": "passenger"
         },
         "notes": null
       }
@@ -1159,12 +1159,12 @@
       "task_id": "role_dev_024",
       "image_path": "data\\raw\\edgevision\\images\\Image_00492.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:25:28.306955+00:00",
+        "driver_head_annotation_id": 1823,
         "head_roles": {
-          "1823": null
+          "1823": "driver"
         },
         "notes": null
       }
@@ -1215,13 +1215,13 @@
       "task_id": "role_dev_025",
       "image_path": "data\\raw\\edgevision\\images\\Image_00505.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:26:12.493821+00:00",
+        "driver_head_annotation_id": 1873,
         "head_roles": {
-          "1873": null,
-          "1874": null
+          "1873": "driver",
+          "1874": "passenger"
         },
         "notes": null
       }
@@ -1261,12 +1261,12 @@
       "task_id": "role_dev_026",
       "image_path": "data\\raw\\edgevision\\images\\Image_00532.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:26:17.305051+00:00",
+        "driver_head_annotation_id": 1986,
         "head_roles": {
-          "1986": null
+          "1986": "driver"
         },
         "notes": null
       }
@@ -1305,12 +1305,12 @@
       "task_id": "role_dev_027",
       "image_path": "data\\raw\\edgevision\\images\\Image_00538.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:26:24.176594+00:00",
+        "driver_head_annotation_id": 2011,
         "head_roles": {
-          "2011": null
+          "2011": "driver"
         },
         "notes": null
       }
@@ -1349,12 +1349,12 @@
       "task_id": "role_dev_028",
       "image_path": "data\\raw\\edgevision\\images\\Image_00541.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:26:29.315323+00:00",
+        "driver_head_annotation_id": 2021,
         "head_roles": {
-          "2021": null
+          "2021": "driver"
         },
         "notes": null
       }
@@ -1393,12 +1393,12 @@
       "task_id": "role_dev_029",
       "image_path": "data\\raw\\edgevision\\images\\Image_00549.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:26:32.816845+00:00",
+        "driver_head_annotation_id": 2056,
         "head_roles": {
-          "2056": null
+          "2056": "driver"
         },
         "notes": null
       }
@@ -1437,12 +1437,12 @@
       "task_id": "role_dev_030",
       "image_path": "data\\raw\\edgevision\\images\\Image_00602.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:26:43.346966+00:00",
+        "driver_head_annotation_id": 2227,
         "head_roles": {
-          "2227": null
+          "2227": "driver"
         },
         "notes": null
       }
@@ -1493,13 +1493,13 @@
       "task_id": "role_dev_031",
       "image_path": "data\\raw\\edgevision\\images\\Image_00706.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:26:57.566212+00:00",
+        "driver_head_annotation_id": 2719,
         "head_roles": {
-          "2717": null,
-          "2719": null
+          "2717": "passenger",
+          "2719": "driver"
         },
         "notes": null
       }
@@ -1538,12 +1538,12 @@
       "task_id": "role_dev_032",
       "image_path": "data\\raw\\edgevision\\images\\Image_00708.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:27:03.085950+00:00",
+        "driver_head_annotation_id": 2731,
         "head_roles": {
-          "2731": null
+          "2731": "driver"
         },
         "notes": null
       }
@@ -1594,13 +1594,13 @@
       "task_id": "role_dev_033",
       "image_path": "data\\raw\\edgevision\\images\\Image_00714.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:27:19.633441+00:00",
+        "driver_head_annotation_id": 2766,
         "head_roles": {
-          "2766": null,
-          "2767": null
+          "2766": "driver",
+          "2767": "passenger"
         },
         "notes": null
       }
@@ -1639,12 +1639,12 @@
       "task_id": "role_dev_034",
       "image_path": "data\\raw\\edgevision\\images\\Image_00723.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:27:35.937291+00:00",
+        "driver_head_annotation_id": 2831,
         "head_roles": {
-          "2831": null
+          "2831": "driver"
         },
         "notes": null
       }
@@ -1684,12 +1684,12 @@
       "task_id": "role_dev_035",
       "image_path": "data\\raw\\edgevision\\images\\Image_00725.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:27:50.243360+00:00",
+        "driver_head_annotation_id": 2843,
         "head_roles": {
-          "2843": null
+          "2843": "driver"
         },
         "notes": null
       }
@@ -1740,13 +1740,13 @@
       "task_id": "role_dev_036",
       "image_path": "data\\raw\\edgevision\\images\\Image_00737.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:28:05.744148+00:00",
+        "driver_head_annotation_id": 2900,
         "head_roles": {
-          "2900": null,
-          "2901": null
+          "2900": "driver",
+          "2901": "passenger"
         },
         "notes": null
       }
@@ -1808,14 +1808,14 @@
       "task_id": "role_dev_037",
       "image_path": "data\\raw\\edgevision\\images\\Image_00738.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:28:31.648483+00:00",
+        "driver_head_annotation_id": 2908,
         "head_roles": {
-          "2908": null,
-          "2909": null,
-          "2910": null
+          "2908": "driver",
+          "2909": "passenger",
+          "2910": "passenger"
         },
         "notes": null
       }
@@ -1855,12 +1855,12 @@
       "task_id": "role_dev_038",
       "image_path": "data\\raw\\edgevision\\images\\Image_00751.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:28:38.524745+00:00",
+        "driver_head_annotation_id": 2969,
         "head_roles": {
-          "2969": null
+          "2969": "driver"
         },
         "notes": null
       }
@@ -1911,13 +1911,13 @@
       "task_id": "role_dev_039",
       "image_path": "data\\raw\\edgevision\\images\\Image_00754.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:28:55.400442+00:00",
+        "driver_head_annotation_id": 2994,
         "head_roles": {
-          "2994": null,
-          "2996": null
+          "2994": "driver",
+          "2996": "passenger"
         },
         "notes": null
       }
@@ -1968,13 +1968,13 @@
       "task_id": "role_dev_040",
       "image_path": "data\\raw\\edgevision\\images\\Image_00925.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:29:08.287607+00:00",
+        "driver_head_annotation_id": 3458,
         "head_roles": {
-          "3458": null,
-          "3459": null
+          "3458": "driver",
+          "3459": "passenger"
         },
         "notes": null
       }
@@ -2013,12 +2013,12 @@
       "task_id": "role_dev_041",
       "image_path": "data\\raw\\edgevision\\images\\Image_00949.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:29:16.296611+00:00",
+        "driver_head_annotation_id": 3523,
         "head_roles": {
-          "3523": null
+          "3523": "driver"
         },
         "notes": null
       }
@@ -2068,13 +2068,13 @@
       "task_id": "role_dev_042",
       "image_path": "data\\raw\\edgevision\\images\\Image_00953.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:29:37.468610+00:00",
+        "driver_head_annotation_id": 3532,
         "head_roles": {
-          "3532": null,
-          "3533": null
+          "3532": "driver",
+          "3533": "passenger"
         },
         "notes": null
       }
@@ -2113,12 +2113,12 @@
       "task_id": "role_dev_043",
       "image_path": "data\\raw\\edgevision\\images\\Image_00960.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:29:42.406645+00:00",
+        "driver_head_annotation_id": 3559,
         "head_roles": {
-          "3559": null
+          "3559": "driver"
         },
         "notes": null
       }
@@ -2169,13 +2169,13 @@
       "task_id": "role_dev_044",
       "image_path": "data\\raw\\edgevision\\images\\Image_00998.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:30:00.270315+00:00",
+        "driver_head_annotation_id": 3683,
         "head_roles": {
-          "3683": null,
-          "3684": null
+          "3683": "driver",
+          "3684": "passenger"
         },
         "notes": null
       }
@@ -2226,13 +2226,13 @@
       "task_id": "role_dev_045",
       "image_path": "data\\raw\\edgevision\\images\\Image_01047.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:30:27.654006+00:00",
+        "driver_head_annotation_id": 3844,
         "head_roles": {
-          "3844": null,
-          "3845": null
+          "3844": "driver",
+          "3845": "passenger"
         },
         "notes": null
       }
@@ -2271,12 +2271,12 @@
       "task_id": "role_dev_046",
       "image_path": "data\\raw\\edgevision\\images\\Image_01232.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:30:33.827406+00:00",
+        "driver_head_annotation_id": 4381,
         "head_roles": {
-          "4381": null
+          "4381": "driver"
         },
         "notes": null
       }
@@ -2316,12 +2316,12 @@
       "task_id": "role_dev_047",
       "image_path": "data\\raw\\edgevision\\images\\Image_01309.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:30:40.238608+00:00",
+        "driver_head_annotation_id": 4615,
         "head_roles": {
-          "4615": null
+          "4615": "driver"
         },
         "notes": null
       }
@@ -2361,12 +2361,12 @@
       "task_id": "role_dev_048",
       "image_path": "data\\raw\\edgevision\\images\\Image_01327.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:30:48.857516+00:00",
+        "driver_head_annotation_id": 4668,
         "head_roles": {
-          "4668": null
+          "4668": "driver"
         },
         "notes": null
       }
@@ -2428,16 +2428,16 @@
       "task_id": "role_dev_049",
       "image_path": "data\\raw\\edgevision\\images\\Image_01349.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:32:18.585929+00:00",
+        "driver_head_annotation_id": 4744,
         "head_roles": {
-          "4741": null,
-          "4742": null,
-          "4744": null
+          "4741": "passenger",
+          "4742": "unknown",
+          "4744": "driver"
         },
-        "notes": null
+        "notes": "H4742 · Không mũ nhưng của xe khác"
       }
     },
     {
@@ -2475,12 +2475,12 @@
       "task_id": "role_dev_050",
       "image_path": "data\\raw\\edgevision\\images\\Image_01371.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:34:46.867461+00:00",
+        "driver_head_annotation_id": 4823,
         "head_roles": {
-          "4823": null
+          "4823": "driver"
         },
         "notes": null
       }
@@ -2519,12 +2519,12 @@
       "task_id": "role_dev_051",
       "image_path": "data\\raw\\edgevision\\images\\Image_01408.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:35:07.521614+00:00",
+        "driver_head_annotation_id": 4942,
         "head_roles": {
-          "4942": null
+          "4942": "driver"
         },
         "notes": null
       }
@@ -2608,12 +2608,12 @@
       "task_id": "role_dev_053",
       "image_path": "data\\raw\\edgevision\\images\\Image_01430.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:35:48.067593+00:00",
+        "driver_head_annotation_id": 5039,
         "head_roles": {
-          "5039": null
+          "5039": "driver"
         },
         "notes": null
       }
@@ -2653,12 +2653,12 @@
       "task_id": "role_dev_054",
       "image_path": "data\\raw\\edgevision\\images\\Image_01432.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:35:35.651417+00:00",
+        "driver_head_annotation_id": 5057,
         "head_roles": {
-          "5057": null
+          "5057": "driver"
         },
         "notes": null
       }
@@ -2698,12 +2698,12 @@
       "task_id": "role_dev_055",
       "image_path": "data\\raw\\edgevision\\images\\Image_01440.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:35:31.740293+00:00",
+        "driver_head_annotation_id": 5091,
         "head_roles": {
-          "5091": null
+          "5091": "driver"
         },
         "notes": null
       }
@@ -2743,12 +2743,12 @@
       "task_id": "role_dev_056",
       "image_path": "data\\raw\\edgevision\\images\\Image_01455.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:36:55.255918+00:00",
+        "driver_head_annotation_id": 5175,
         "head_roles": {
-          "5175": null
+          "5175": "driver"
         },
         "notes": null
       }
@@ -2789,12 +2789,12 @@
       "task_id": "role_dev_057",
       "image_path": "data\\raw\\edgevision\\images\\Image_01534.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:36:59.112191+00:00",
+        "driver_head_annotation_id": 5461,
         "head_roles": {
-          "5461": null
+          "5461": "driver"
         },
         "notes": null
       }
@@ -2845,13 +2845,13 @@
       "task_id": "role_dev_058",
       "image_path": "data\\raw\\edgevision\\images\\Image_01548.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:37:15.750403+00:00",
+        "driver_head_annotation_id": 5525,
         "head_roles": {
-          "5524": null,
-          "5525": null
+          "5524": "unknown",
+          "5525": "driver"
         },
         "notes": null
       }
@@ -2902,13 +2902,13 @@
       "task_id": "role_dev_059",
       "image_path": "data\\raw\\edgevision\\images\\Image_01552.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:37:30.717301+00:00",
+        "driver_head_annotation_id": 5547,
         "head_roles": {
-          "5547": null,
-          "5548": null
+          "5547": "driver",
+          "5548": "passenger"
         },
         "notes": null
       }
@@ -2947,12 +2947,12 @@
       "task_id": "role_dev_060",
       "image_path": "data\\raw\\edgevision\\images\\Image_01575.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:37:35.655400+00:00",
+        "driver_head_annotation_id": 5632,
         "head_roles": {
-          "5632": null
+          "5632": "driver"
         },
         "notes": null
       }
@@ -2992,12 +2992,12 @@
       "task_id": "role_dev_061",
       "image_path": "data\\raw\\edgevision\\images\\Image_01606.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:37:39.352700+00:00",
+        "driver_head_annotation_id": 5748,
         "head_roles": {
-          "5748": null
+          "5748": "driver"
         },
         "notes": null
       }
@@ -3037,12 +3037,12 @@
       "task_id": "role_dev_062",
       "image_path": "data\\raw\\edgevision\\images\\Image_01675.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:38:22.844935+00:00",
+        "driver_head_annotation_id": 5945,
         "head_roles": {
-          "5945": null
+          "5945": "driver"
         },
         "notes": null
       }
@@ -3104,16 +3104,16 @@
       "task_id": "role_dev_063",
       "image_path": "data\\raw\\edgevision\\images\\Image_01707.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:39:31.875920+00:00",
+        "driver_head_annotation_id": 6051,
         "head_roles": {
-          "6047": null,
-          "6050": null,
-          "6051": null
+          "6047": "passenger",
+          "6050": "unknown",
+          "6051": "driver"
         },
-        "notes": null
+        "notes": "H6050 · xác định sai"
       }
     },
     {
@@ -3151,12 +3151,12 @@
       "task_id": "role_dev_064",
       "image_path": "data\\raw\\edgevision\\images\\Image_01744.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:39:46.507863+00:00",
+        "driver_head_annotation_id": 6160,
         "head_roles": {
-          "6160": null
+          "6160": "driver"
         },
         "notes": null
       }
@@ -3206,13 +3206,13 @@
       "task_id": "role_dev_065",
       "image_path": "data\\raw\\edgevision\\images\\Image_01773.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:39:56.654901+00:00",
+        "driver_head_annotation_id": 6245,
         "head_roles": {
-          "6244": null,
-          "6245": null
+          "6244": "passenger",
+          "6245": "driver"
         },
         "notes": null
       }
@@ -3251,12 +3251,12 @@
       "task_id": "role_dev_066",
       "image_path": "data\\raw\\edgevision\\images\\Image_01908.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:40:01.573645+00:00",
+        "driver_head_annotation_id": 6660,
         "head_roles": {
-          "6660": null
+          "6660": "driver"
         },
         "notes": null
       }
@@ -3307,13 +3307,13 @@
       "task_id": "role_dev_067",
       "image_path": "data\\raw\\edgevision\\images\\Image_01961.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:40:12.631472+00:00",
+        "driver_head_annotation_id": 6823,
         "head_roles": {
-          "6822": null,
-          "6823": null
+          "6822": "passenger",
+          "6823": "driver"
         },
         "notes": null
       }
@@ -3352,12 +3352,12 @@
       "task_id": "role_dev_068",
       "image_path": "data\\raw\\edgevision\\images\\Image_02110.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:40:22.656474+00:00",
+        "driver_head_annotation_id": 7240,
         "head_roles": {
-          "7240": null
+          "7240": "driver"
         },
         "notes": null
       }
@@ -3408,15 +3408,15 @@
       "task_id": "role_dev_069",
       "image_path": "data\\raw\\edgevision\\images\\Image_02130.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:40:54.199914+00:00",
+        "driver_head_annotation_id": 7319,
         "head_roles": {
-          "7316": null,
-          "7319": null
+          "7316": "unknown",
+          "7319": "driver"
         },
-        "notes": null
+        "notes": "2 xe khác nhau và cả 2 đều là tài xế"
       }
     },
     {
@@ -3465,13 +3465,13 @@
       "task_id": "role_dev_070",
       "image_path": "data\\raw\\edgevision\\images\\Image_02145.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:41:30.157513+00:00",
+        "driver_head_annotation_id": 7382,
         "head_roles": {
-          "7382": null,
-          "7384": null
+          "7382": "driver",
+          "7384": "passenger"
         },
         "notes": null
       }
@@ -3511,12 +3511,12 @@
       "task_id": "role_dev_071",
       "image_path": "data\\raw\\edgevision\\images\\Image_02155.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:41:35.376972+00:00",
+        "driver_head_annotation_id": 7418,
         "head_roles": {
-          "7418": null
+          "7418": "driver"
         },
         "notes": null
       }
@@ -3556,12 +3556,12 @@
       "task_id": "role_dev_072",
       "image_path": "data\\raw\\edgevision\\images\\Image_02167.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:41:40.029447+00:00",
+        "driver_head_annotation_id": 7467,
         "head_roles": {
-          "7467": null
+          "7467": "driver"
         },
         "notes": null
       }
@@ -3601,12 +3601,12 @@
       "task_id": "role_dev_073",
       "image_path": "data\\raw\\edgevision\\images\\Image_02169.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:41:43.702706+00:00",
+        "driver_head_annotation_id": 7483,
         "head_roles": {
-          "7483": null
+          "7483": "driver"
         },
         "notes": null
       }
@@ -3647,12 +3647,12 @@
       "task_id": "role_dev_074",
       "image_path": "data\\raw\\edgevision\\images\\Image_02171.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:41:49.456072+00:00",
+        "driver_head_annotation_id": 7487,
         "head_roles": {
-          "7487": null
+          "7487": "driver"
         },
         "notes": null
       }
@@ -3703,13 +3703,13 @@
       "task_id": "role_dev_075",
       "image_path": "data\\raw\\edgevision\\images\\Image_02254.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:42:15.655877+00:00",
+        "driver_head_annotation_id": 7769,
         "head_roles": {
-          "7769": null,
-          "7771": null
+          "7769": "driver",
+          "7771": "passenger"
         },
         "notes": null
       }
@@ -3749,12 +3749,12 @@
       "task_id": "role_dev_076",
       "image_path": "data\\raw\\edgevision\\images\\Image_02255.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:42:51.191301+00:00",
+        "driver_head_annotation_id": 7775,
         "head_roles": {
-          "7775": null
+          "7775": "driver"
         },
         "notes": null
       }
@@ -3794,12 +3794,12 @@
       "task_id": "role_dev_077",
       "image_path": "data\\raw\\edgevision\\images\\Image_02264.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:42:57.518545+00:00",
+        "driver_head_annotation_id": 7817,
         "head_roles": {
-          "7817": null
+          "7817": "driver"
         },
         "notes": null
       }
@@ -3839,12 +3839,12 @@
       "task_id": "role_dev_078",
       "image_path": "data\\raw\\edgevision\\images\\Image_02278.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:43:06.560075+00:00",
+        "driver_head_annotation_id": 7887,
         "head_roles": {
-          "7887": null
+          "7887": "driver"
         },
         "notes": null
       }
@@ -3884,12 +3884,12 @@
       "task_id": "role_dev_079",
       "image_path": "data\\raw\\edgevision\\images\\Image_02321.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:43:13.129406+00:00",
+        "driver_head_annotation_id": 8038,
         "head_roles": {
-          "8038": null
+          "8038": "driver"
         },
         "notes": null
       }
@@ -3928,12 +3928,12 @@
       "task_id": "role_dev_080",
       "image_path": "data\\raw\\edgevision\\images\\Image_02366.jpg",
       "review": {
-        "status": "pending",
-        "reviewer": null,
-        "reviewed_at": null,
-        "driver_head_annotation_id": null,
+        "status": "needs_second_review",
+        "reviewer": "Long",
+        "reviewed_at": "2026-08-27T20:44:31.613398+00:00",
+        "driver_head_annotation_id": 8192,
         "head_roles": {
-          "8192": null
+          "8192": "driver"
         },
         "notes": null
       }

@@ -36,4 +36,19 @@ Không tạo nhãn vai trò bằng prediction của model. Nhãn phải được
 5. Bấm **Lưu để kiểm tra chéo**. Hệ thống lưu tên người review, thời gian và chuyển task sang `needs_second_review`.
 6. Sau khi hoàn tất, chạy validator trước khi dùng `role_dev` để chọn quy tắc.
 
+### Báo cáo chẩn đoán vòng một
+
+Sau khi có nhãn review, chạy:
+
+```powershell
+.venv\Scripts\python.exe -m tools.evaluate_role_association
+```
+
+Kết quả cục bộ nằm tại `outputs/role_association/role_dev_provisional_metrics.json`.
+Chỉ số `candidate_precision` và `candidate_recall` chỉ đánh giá gợi ý
+`driver_candidate` của quy tắc hình học trên `role_dev`; không phải mAP của
+detector và không được dùng làm kết luận cuối cùng. Task ở trạng thái
+`needs_second_review` vẫn cần người thứ hai kiểm tra trước khi dùng để điều
+chỉnh quy tắc.
+
 Không thay đổi `data/splits/test.json` và không dùng Hard Subset để chọn quy tắc vai trò.
