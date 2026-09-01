@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -81,6 +82,8 @@ def validate_splits(splits: dict[str, dict[str, Any]]) -> dict[str, Any]:
 
 
 def main() -> None:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="backslashreplace")
     args = parse_args()
     files = {
         "processed_annotations": args.processed,

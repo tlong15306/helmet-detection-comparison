@@ -1,29 +1,28 @@
 # Thư mục `configs/`
 
-## Mục đích
+Thư mục này chỉ giữ các cấu hình cần để tái lập baseline và chạy hai checkpoint
+Việt Nam đang xuất hiện trong demo.
 
-Lưu toàn bộ tham số điều khiển thí nghiệm. Đây là nguồn thông tin chính để biết một checkpoint đã được huấn luyện như thế nào.
+## Cấu hình công khai
 
-## Các tệp
+- `common.yaml`: lớp nhãn, dữ liệu, kích thước ảnh, seed và evaluator dùng chung.
+- `faster_rcnn.yaml`: baseline Faster R-CNN 20 epoch.
+- `retinanet.yaml`: baseline RetinaNet 20 epoch.
+- `pilot_faster_rcnn.yaml`, `pilot_retinanet.yaml`: smoke/pilot ngắn của pipeline.
+- `rider_association.yaml`: tham số ghép đầu với `BikeWithRider`.
+- `demo_thresholds.yaml`: threshold, fingerprint checkpoint và hậu xử lý demo.
+- `vietnam_v6_wikimedia_faster_rcnn.yaml`: checkpoint Faster R-CNN fine-tune
+  trên train gốc đã gộp dữ liệu Việt Nam được duyệt.
+- `vietnam_v6_wikimedia_retinanet.yaml`: cấu hình tương ứng của RetinaNet.
 
-- `common.yaml`: lớp nhãn, đường dẫn dữ liệu, kích thước ảnh, seed, augmentation, evaluator và cấu hình thiết bị dùng chung.
-- `faster_rcnn.yaml`: kiến trúc, optimizer, scheduler, epoch và đường dẫn đầu ra của Faster R-CNN.
-- `retinanet.yaml`: cấu hình tương ứng của RetinaNet.
-
-## Việc cần làm
-
-1. Xác nhận dataset và label mapping trong `common.yaml`.
-2. Chạy kiểm tra môi trường để xác nhận `device`, số worker và mixed precision.
-3. Chốt baseline dùng chung trước khi điều chỉnh riêng từng mô hình.
-4. Mỗi lần thay đổi cấu hình quan trọng phải tạo experiment ID mới và lưu bản cấu hình cùng kết quả.
-5. Khi viết báo cáo, lấy tham số từ các tệp này thay vì nhớ hoặc nhập lại bằng tay.
+Hai config Việt Nam v6 tự kế thừa trực tiếp `common.yaml`, không phụ thuộc các
+config thử nghiệm cũ. Checkpoint và dữ liệu vẫn là artifact cục bộ, không commit
+lên GitHub.
 
 ## Quy tắc
 
-- Không viết đường dẫn tuyệt đối phụ thuộc máy cá nhân.
-- Không chỉnh cấu hình dựa trên kết quả của tập test.
-- Mọi khác biệt giữa hai mô hình phải có lý do và được nêu trong báo cáo.
-- Giá trị hiện tại chỉ là baseline dự kiến, chưa phải cấu hình đã được kiểm chứng.
-- Với RetinaNet, `model.weights: DEFAULT` dùng COCO-pretrained weights; đặt
-  `NONE` chỉ cho smoke test ngoại tuyến, không tải COCO hoặc ImageNet backbone
-  weights. Không dùng kết quả smoke test để so sánh mô hình.
+- Không ghi đường dẫn tuyệt đối phụ thuộc máy cá nhân.
+- Không điều chỉnh cấu hình dựa trên tập test.
+- Không ghi đè checkpoint baseline khi chạy candidate.
+- Threshold báo cáo phải được chọn trên validation; hai checkpoint Việt Nam v6
+  đang mang nhãn thử nghiệm và dùng threshold kế thừa để kiểm tra trực quan.

@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import json
 import platform
+import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -31,6 +32,14 @@ from src.utils import load_config, resolve_project_path, set_seed
 
 
 BENCHMARK_SCHEMA_VERSION = "inference-benchmark-1.0"
+
+
+def _configure_console_encoding() -> None:
+    """Giữ CLI dùng được trên PowerShell Windows có code page cũ."""
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="backslashreplace")
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8", errors="backslashreplace")
 
 
 def parse_args() -> argparse.Namespace:
@@ -186,6 +195,7 @@ def benchmark(
 
 
 def main() -> None:
+    _configure_console_encoding()
     args = parse_args()
     result = benchmark(
         load_config(args.config),

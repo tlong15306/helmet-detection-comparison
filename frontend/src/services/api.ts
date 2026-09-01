@@ -1,6 +1,11 @@
 export const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8000'
 
-export type ModelId = 'faster_rcnn' | 'retinanet'
+export type ModelId =
+  | 'faster_rcnn'
+  | 'retinanet'
+  | 'high_accuracy'
+  | 'faster_rcnn_vietnam_v6'
+  | 'retinanet_vietnam_v6'
 
 export interface HealthResponse {
   status: 'ready'
@@ -18,7 +23,9 @@ export interface ModelMetadata {
   checkpoint: string
   checkpoint_available: boolean
   default_threshold: number
-  threshold_source: 'val'
+  default_thresholds: Record<string, number>
+  threshold_source: 'val' | 'exploratory'
+  inference_mode: 'standard' | 'horizontal_flip_tta'
   classes: Record<string, string>
 }
 
@@ -116,10 +123,20 @@ export interface InferenceResponse {
   device: { type: 'cuda' | 'cpu'; name: string }
   input: { filename: string; width: number; height: number }
   threshold: number
+  thresholds: Record<string, number>
   threshold_source: 'validation_default' | 'user_override'
   latency_ms: number
   summary: Record<string, number>
   detections: DetectionRecord[]
+  raw_detections: DetectionRecord[]
+  alerts: Array<{
+    status: 'driver_no_helmet'
+    severity: 'alert'
+    group_id: string
+    bike_detection_id: string
+    head_detection_id: string
+    message: string
+  }>
   rider_analysis: RiderAnalysis
   result_image: string
 }
@@ -131,6 +148,7 @@ export interface VideoJobResponse {
   updated_at: string
   model: { id: ModelId; name: string | null }
   threshold: number
+  thresholds?: Record<string, number> | null
   input: {
     filename: string
     width: number | null
@@ -174,12 +192,12 @@ export async function fetchModels(): Promise<ModelMetadata[]> {
 export async function inferImage(
   file: File,
   modelId: ModelId,
-  threshold: number,
+  thresholds: Record<string, number>,
 ): Promise<InferenceResponse> {
   const form = new FormData()
   form.append('file', file)
   form.append('model_id', modelId)
-  form.append('threshold', threshold.toString())
+  form.append('class_thresholds', JSON.stringify(thresholds))
   const response = await fetch(`${API_BASE_URL}/api/infer/image`, {
     method: 'POST',
     body: form,
@@ -191,12 +209,12 @@ export async function inferImage(
 export async function inferVideo(
   file: File,
   modelId: ModelId,
-  threshold: number,
+  thresholds: Record<string, number>,
 ): Promise<VideoJobResponse> {
   const form = new FormData()
   form.append('file', file)
   form.append('model_id', modelId)
-  form.append('threshold', threshold.toString())
+  form.append('class_thresholds', JSON.stringify(thresholds))
   const response = await fetch(`${API_BASE_URL}/api/infer/video`, {
     method: 'POST',
     body: form,

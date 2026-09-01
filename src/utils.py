@@ -46,7 +46,7 @@ def load_config(path: str | Path) -> dict[str, Any]:
     base_path = config.pop("base_config", None)
     if base_path is None:
         return config
-    return deep_merge(load_yaml(base_path), config)
+    return deep_merge(load_config(base_path), config)
 
 
 def set_seed(seed: int) -> None:

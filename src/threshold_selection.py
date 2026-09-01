@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import json
 import platform
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping, Sequence
@@ -35,6 +36,14 @@ from .utils import load_config, resolve_project_path, set_seed
 
 THRESHOLD_SELECTION_SCHEMA_VERSION = "demo-threshold-selection-1.0"
 DEFAULT_THRESHOLDS = tuple(round(value * 0.05, 2) for value in range(1, 20))
+
+
+def _configure_console_encoding() -> None:
+    """Giữ CLI dùng được trên PowerShell Windows có code page cũ."""
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="backslashreplace")
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8", errors="backslashreplace")
 
 
 def parse_thresholds(value: str) -> tuple[float, ...]:
@@ -223,7 +232,7 @@ def metrics_at_threshold(
 
 
 def select_best_threshold(candidates: Sequence[Mapping[str, Any]], target_class: str) -> Mapping[str, Any]:
-    """Ưu tiên F1 NoHelmet, sau đó Recall, Precision và threshold cao hơn."""
+    """Chọn threshold của một lớp theo F1, Recall, Precision và confidence."""
     if not candidates:
         raise ValueError("Cần ít nhất một threshold ứng viên")
     if any(target_class not in candidate["per_class"] for candidate in candidates):
@@ -239,6 +248,17 @@ def select_best_threshold(candidates: Sequence[Mapping[str, Any]], target_class:
     )
 
 
+def select_thresholds_per_class(
+    candidates: Sequence[Mapping[str, Any]], class_names: Mapping[int, str]
+) -> dict[str, Mapping[str, Any]]:
+    """Chọn độc lập threshold tối ưu trên validation cho từng lớp detector."""
+    return {
+        str(class_name): select_best_threshold(candidates, str(class_name))
+        for class_id, class_name in class_names.items()
+        if int(class_id) != 0
+    }
+
+
 def update_demo_config(path: Path, result: Mapping[str, Any]) -> None:
     """Ghi threshold theo từng model để demo nạp lại, không làm thay config đánh giá."""
     existing: dict[str, Any] = {}
@@ -249,17 +269,22 @@ def update_demo_config(path: Path, result: Mapping[str, Any]) -> None:
             raise ValueError("demo_config phải là YAML mapping")
     models = existing.setdefault("models", {})
     model_name = result["model"]["name"]
-    selected = result["selected_threshold"]
+    selected_thresholds = result["selected_thresholds"]
     models[model_name] = {
-        "confidence_threshold": selected["confidence_threshold"],
+        "confidence_thresholds": {
+            class_name: selection["confidence_threshold"]
+            for class_name, selection in selected_thresholds.items()
+        },
         "selection_split": "val",
-        "selection_target_class": result["selection_policy"]["target_class"],
+        "selection_target_class": "per_class",
         "selection_metric": "f1",
         "selection_iou_threshold": result["selection_policy"]["iou_threshold"],
         "checkpoint_sha256": result["checkpoint"]["sha256"],
     }
-    existing["schema_version"] = "demo-thresholds-1.0"
-    existing["note"] = "Các threshold được chọn trên validation; không dùng kết quả test."
+    existing["schema_version"] = "demo-thresholds-2.0"
+    existing["note"] = (
+        "Threshold riêng từng lớp được chọn trên validation; không dùng kết quả test."
+    )
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(yaml.safe_dump(existing, allow_unicode=True, sort_keys=False), encoding="utf-8")
 
@@ -298,7 +323,8 @@ def run_selection(
         )
         candidate["confidence_threshold"] = float(threshold)
         candidates.append(candidate)
-    selected = dict(select_best_threshold(candidates, target_class))
+    selected_thresholds = select_thresholds_per_class(candidates, class_names)
+    selected = dict(selected_thresholds[target_class])
     result = {
         "schema_version": THRESHOLD_SELECTION_SCHEMA_VERSION,
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -318,6 +344,7 @@ def run_selection(
         **context,
         "candidates": candidates,
         "selected_threshold": selected,
+        "selected_thresholds": selected_thresholds,
     }
     result_file = resolve_project_path(output_path)
     result_file.parent.mkdir(parents=True, exist_ok=True)
@@ -326,6 +353,7 @@ def run_selection(
 
 
 def main() -> None:
+    _configure_console_encoding()
     args = parse_args()
     config = load_config(args.config)
     result = run_selection(
@@ -341,11 +369,15 @@ def main() -> None:
     )
     demo_config = resolve_project_path(args.demo_config)
     update_demo_config(demo_config, result)
-    selected = result["selected_threshold"]
-    target_metrics = selected["per_class"][args.target_class]
+    selected_thresholds = result["selected_thresholds"]
+    threshold_text = ", ".join(
+        f"{class_name}={selection['confidence_threshold']:.2f}"
+        for class_name, selection in selected_thresholds.items()
+    )
+    target_metrics = result["selected_threshold"]["per_class"][args.target_class]
     print(
-        f"Đã chọn threshold={selected['confidence_threshold']:.2f} cho {result['model']['name']} "
-        f"trên validation: {args.target_class} F1={target_metrics['f1']:.4f}, "
+        f"Đã chọn threshold theo lớp cho {result['model']['name']} trên validation: "
+        f"{threshold_text}. {args.target_class} F1={target_metrics['f1']:.4f}, "
         f"Precision={target_metrics['precision']:.4f}, Recall={target_metrics['recall']:.4f}."
     )
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping
@@ -21,6 +22,14 @@ REQUIRED_PROTOCOL_KEYS = (
     "map_backend",
     "precision_recall",
 )
+
+
+def _configure_console_encoding() -> None:
+    """Giữ CLI dùng được trên PowerShell Windows có code page cũ."""
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="backslashreplace")
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8", errors="backslashreplace")
 
 
 def project_relative(path: Path) -> str:
@@ -171,6 +180,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
+    _configure_console_encoding()
     args = parse_args()
     comparison = compare_results(
         args.faster_rcnn,

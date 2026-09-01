@@ -48,6 +48,13 @@ import {
 import './App.css'
 
 type Mode = 'image' | 'video' | 'camera'
+type ClassThresholds = Record<'BikeWithRider' | 'NoHelmet' | 'Helmet', number>
+
+const CLASS_THRESHOLD_LABELS: Array<{ key: keyof ClassThresholds; label: string }> = [
+  { key: 'BikeWithRider', label: 'Xe và người lái' },
+  { key: 'NoHelmet', label: 'Không đội mũ' },
+  { key: 'Helmet', label: 'Có đội mũ' },
+]
 
 const modes: Array<{ id: Mode; label: string; icon: React.ReactElement }> = [
   { id: 'image', label: 'Hình ảnh', icon: <ImageRoundedIcon /> },
@@ -59,22 +66,22 @@ const modelOptions: Array<{
   id: ModelId
   name: string
   description: string
-  defaultThreshold: number
+  defaultThresholds: ClassThresholds
   accent: string
 }> = [
   {
-    id: 'faster_rcnn',
-    name: 'Faster R-CNN',
-    description: 'Mô hình phát hiện hai giai đoạn',
-    defaultThreshold: 0.85,
-    accent: '#2563EB',
+    id: 'faster_rcnn_vietnam_v6',
+    name: 'Faster R-CNN · thử nghiệm VN',
+    description: 'Fine-tune dữ liệu VN v6 · chỉ để bạn kiểm tra',
+    defaultThresholds: { BikeWithRider: 0.95, NoHelmet: 0.65, Helmet: 0.70 },
+    accent: '#B45309',
   },
   {
-    id: 'retinanet',
-    name: 'RetinaNet',
-    description: 'Mô hình phát hiện một giai đoạn',
-    defaultThreshold: 0.6,
-    accent: '#7C3AED',
+    id: 'retinanet_vietnam_v6',
+    name: 'RetinaNet · thử nghiệm VN',
+    description: 'Fine-tune dữ liệu VN v6 · chỉ để bạn kiểm tra',
+    defaultThresholds: { BikeWithRider: 0.65, NoHelmet: 0.40, Helmet: 0.40 },
+    accent: '#9A3412',
   },
 ]
 
@@ -91,9 +98,11 @@ const VIDEO_ACCEPT: Accept = {
 
 function App() {
   const [mode, setMode] = useState<Mode>('image')
-  const [modelId, setModelId] = useState<ModelId>('faster_rcnn')
+  // Giao diện demo chỉ hiển thị hai checkpoint VN mà người dùng đang kiểm tra.
+  // Baseline vẫn còn trong backend để có thể rollback, không bị ghi đè.
+  const [modelId, setModelId] = useState<ModelId>('faster_rcnn_vietnam_v6')
   const selectedModel = modelOptions.find((model) => model.id === modelId)!
-  const [threshold, setThreshold] = useState(selectedModel.defaultThreshold)
+  const [thresholds, setThresholds] = useState<ClassThresholds>(selectedModel.defaultThresholds)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [health, setHealth] = useState<HealthResponse | null>(null)
@@ -108,11 +117,11 @@ function App() {
   const cameraVideoRef = useRef<HTMLVideoElement | null>(null)
   const cameraStreamRef = useRef<MediaStream | null>(null)
   const apiModel = modelCatalog.find((model) => model.id === modelId)
-  const defaultThreshold = apiModel?.default_threshold ?? selectedModel.defaultThreshold
+  const defaultThresholds = (apiModel?.default_thresholds ?? selectedModel.defaultThresholds) as ClassThresholds
 
   useEffect(() => {
-    setThreshold(defaultThreshold)
-  }, [defaultThreshold])
+    setThresholds(defaultThresholds)
+  }, [modelId, defaultThresholds.BikeWithRider, defaultThresholds.NoHelmet, defaultThresholds.Helmet])
 
   const connectBackend = useCallback(async () => {
     setIsConnecting(true)
@@ -209,7 +218,14 @@ function App() {
     setResult(null)
     setVideoJob(null)
   }
-  const resetThreshold = () => setThreshold(defaultThreshold)
+  const resetThreshold = () => setThresholds(defaultThresholds)
+  const setClassThreshold = (key: keyof ClassThresholds, value: number) => {
+    setThresholds((current) => ({ ...current, [key]: value }))
+  }
+  const isValidationThresholds = CLASS_THRESHOLD_LABELS.every(
+    ({ key }) => thresholds[key] === defaultThresholds[key],
+  )
+  const isExperimentalModel = apiModel?.threshold_source === 'exploratory'
 
   const openCamera = async () => {
     setCameraError(null)
@@ -258,10 +274,10 @@ function App() {
     setApiError(null)
     try {
       if (mode === 'image' || mode === 'camera') {
-        const payload = await inferImage(selectedFile, modelId, threshold)
+        const payload = await inferImage(selectedFile, modelId, thresholds)
         setResult(payload)
       } else {
-        const job = await inferVideo(selectedFile, modelId, threshold)
+        const job = await inferVideo(selectedFile, modelId, thresholds)
         setVideoJob(job)
       }
       setHealth(await fetchHealth())
@@ -278,12 +294,14 @@ function App() {
     ? completedVideoUrl ?? previewUrl
     : result?.result_image ?? previewUrl
   const videoSummary = videoJob?.summary ?? {}
+  const videoDetectionTotal = Object.entries(videoSummary)
+    .filter(([className]) => className !== 'DriverNoHelmetAlert')
+    .reduce((total, [, count]) => total + count, 0)
   const isVideoComplete = mode === 'video' && videoJob?.status === 'completed'
   const metricCards = [
-    { label: mode === 'video' ? 'Tổng theo frame' : 'Tổng đối tượng', color: '#0F172A', value: mode === 'video' && videoJob ? String(Object.values(videoSummary).reduce((total, value) => total + value, 0)) : result ? String(result.detections.length) : '—', note: mode === 'video' ? 'lượt phát hiện' : result ? 'detection' : 'Chờ suy luận' },
-    { label: 'Không đội mũ', color: '#DC2626', value: mode === 'video' ? (videoJob ? String(videoSummary.NoHelmet ?? 0) : '—') : result ? String(result.summary.NoHelmet ?? 0) : '—', note: 'NoHelmet' },
+    { label: mode === 'video' ? 'Tổng theo frame' : 'Tổng đối tượng', color: '#0F172A', value: mode === 'video' && videoJob ? String(videoDetectionTotal) : result ? String(result.detections.length) : '—', note: mode === 'video' ? 'lượt phát hiện' : result ? 'detection hậu xử lý' : 'Chờ suy luận' },
+    { label: 'Cảnh báo đủ điều kiện', color: '#DC2626', value: mode === 'video' ? (videoJob ? String(videoSummary.DriverNoHelmetAlert ?? 0) : '—') : result ? String(result.alerts.length) : '—', note: 'tài xế không đội mũ' },
     { label: 'Có đội mũ', color: '#16A34A', value: mode === 'video' ? (videoJob ? String(videoSummary.Helmet ?? 0) : '—') : result ? String(result.summary.Helmet ?? 0) : '—', note: 'Helmet' },
-    { label: 'Xe và người lái', color: '#2563EB', value: mode === 'video' ? (videoJob ? String(videoSummary.BikeWithRider ?? 0) : '—') : result ? String(result.summary.BikeWithRider ?? 0) : '—', note: 'BikeWithRider' },
     { label: 'Độ trễ', color: '#7C3AED', value: mode === 'video' && videoJob?.average_latency_ms != null ? `${videoJob.average_latency_ms.toFixed(1)} ms` : result ? `${result.latency_ms.toFixed(1)} ms` : '—', note: mode === 'video' ? videoJob?.device_name ?? 'Chờ xử lý' : result ? result.device.name : 'Chờ suy luận' },
   ]
 
@@ -377,7 +395,7 @@ function App() {
                     <img className="media-preview" src={result.result_image} alt="Kết quả phát hiện từ camera" />
                     <Box className="file-overlay">
                       <Typography variant="body2" noWrap sx={{ fontWeight: 700 }}>Kết quả ảnh chụp · {result.model.name}</Typography>
-                      <Typography variant="caption">Threshold {result.threshold.toFixed(2)} · {result.detections.length} detection</Typography>
+                      <Typography variant="caption">{result.threshold_source === 'validation_default' ? 'Ngưỡng validation' : 'Ngưỡng tùy chỉnh'} · {result.detections.length} detection</Typography>
                     </Box>
                   </>
                 ) : cameraActive ? (
@@ -429,9 +447,9 @@ function App() {
                       </Typography>
                       <Typography variant="caption">
                         {mode === 'video' && videoJob
-                          ? `${videoJob.progress.processed_frames}${videoJob.progress.total_frames ? `/${videoJob.progress.total_frames}` : ''} frame · Threshold ${videoJob.threshold.toFixed(2)}`
+                          ? `${videoJob.progress.processed_frames}${videoJob.progress.total_frames ? `/${videoJob.progress.total_frames}` : ''} frame · NoHelmet ≥ ${videoJob.threshold.toFixed(2)}`
                           : result
-                          ? `Threshold ${result.threshold.toFixed(2)} · ${result.detections.length} detection`
+                          ? `${result.threshold_source === 'validation_default' ? 'Ngưỡng validation' : 'Ngưỡng tùy chỉnh'} · ${result.detections.length} detection`
                           : `${(selectedFile.size / 1024 / 1024).toFixed(2)} MB · Nhấn để đổi tệp`}
                       </Typography>
                     </Box>
@@ -526,7 +544,12 @@ function App() {
                 <Typography variant="h6">Cấu hình suy luận</Typography>
                 <Typography variant="body2" color="text.secondary">Áp dụng cho dữ liệu đang chọn</Typography>
               </Box>
-              <Chip label="Validation" size="small" color="success" variant="outlined" />
+              <Chip
+                label={isExperimentalModel ? 'Thử nghiệm' : isValidationThresholds ? 'Validation' : 'Tùy chỉnh'}
+                size="small"
+                color={isExperimentalModel ? 'warning' : isValidationThresholds ? 'success' : 'warning'}
+                variant="outlined"
+              />
             </Box>
 
             <Divider />
@@ -572,22 +595,33 @@ function App() {
             <Box className="control-section threshold-section">
               <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <Box>
-                  <Typography className="section-label">CONFIDENCE THRESHOLD</Typography>
-                  <Typography variant="body2" color="text.secondary">Ngưỡng lọc kết quả hiển thị</Typography>
+                  <Typography className="section-label">CONFIDENCE THRESHOLD THEO LỚP</Typography>
+                  <Typography variant="body2" color="text.secondary">Ngưỡng lọc chỉ ảnh hưởng demo</Typography>
                 </Box>
-                <Typography className="threshold-value">{threshold.toFixed(2)}</Typography>
               </Stack>
-              <Slider
-                value={threshold}
-                onChange={(_event, value) => setThreshold(value as number)}
-                min={0.05}
-                max={0.95}
-                step={0.05}
-                aria-label="Confidence threshold"
-                sx={{ color: selectedModel.accent }}
-              />
+              {CLASS_THRESHOLD_LABELS.map(({ key, label }) => (
+                <Box key={key} sx={{ mt: 1.25 }}>
+                  <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="caption" sx={{ fontWeight: 700 }}>{label}</Typography>
+                    <Typography className="threshold-value">{thresholds[key].toFixed(2)}</Typography>
+                  </Stack>
+                  <Slider
+                    value={thresholds[key]}
+                    onChange={(_event, value) => setClassThreshold(key, value as number)}
+                    min={0.05}
+                    max={0.95}
+                    step={0.05}
+                    aria-label={`Confidence threshold ${label}`}
+                    sx={{ color: selectedModel.accent, py: 0.5 }}
+                  />
+                </Box>
+              ))}
               <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
-                <Chip label={`Mặc định validation: ${defaultThreshold.toFixed(2)}`} size="small" className="validation-chip" />
+                <Chip
+                  label={isExperimentalModel ? 'Ngưỡng kế thừa baseline' : 'Mặc định validation'}
+                  size="small"
+                  className="validation-chip"
+                />
                 <Tooltip title="Đưa về ngưỡng đã chọn trên validation">
                   <IconButton aria-label="Khôi phục threshold mặc định" onClick={resetThreshold} size="small">
                     <RestartAltRoundedIcon fontSize="small" />
@@ -654,6 +688,13 @@ function App() {
             <Typography>{mode === 'video' ? 'TỔNG LƯỢT' : 'CONFIDENCE'}</Typography>
             <Typography>{mode === 'video' ? 'TRẠNG THÁI' : 'BOUNDING BOX'}</Typography>
           </Box>
+          {mode !== 'video' && result && result.alerts.length > 0 && (
+            <Stack spacing={1} sx={{ px: 2, pt: 1.5 }}>
+              {result.alerts.map((alert) => (
+                <Alert key={alert.group_id} severity="error">{alert.message}</Alert>
+              ))}
+            </Stack>
+          )}
           {mode === 'video' && videoJob && Object.keys(videoSummary).length > 0 ? (
             <Box className="detection-list">
               {Object.entries(videoSummary).map(([className, count]) => (

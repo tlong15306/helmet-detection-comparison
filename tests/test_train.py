@@ -10,11 +10,16 @@ from src.train import (
     build_detector_from_config,
     build_optimizer,
     build_scheduler,
+    configure_trainable_parameters,
     load_resume_checkpoint,
     save_checkpoint,
     train_one_epoch,
     validate_config,
+    image_sampling_weights,
     _checkpoint_payload,
+    validation_regressed,
+    VietnamPrioritySampler,
+    FocusedVietnamSampler,
 )
 from src import train as train_module
 from src.utils import load_config
@@ -182,6 +187,117 @@ def test_build_detector_uses_weights_from_config(monkeypatch):
     assert calls["kwargs"]["min_size"] == 512
 
 
+def test_image_sampling_weights_prioritize_nohelmet_and_small_heads():
+    class Dataset:
+        images = [
+            {"id": 1, "width": 100, "height": 100},
+            {"id": 2, "width": 100, "height": 100},
+        ]
+        annotations_by_image = {
+            1: [{"category_id": 1, "bbox": [0, 0, 50, 50], "area": 2500}],
+            2: [{"category_id": 2, "bbox": [0, 0, 5, 5], "area": 25}],
+        }
+
+    weights = image_sampling_weights(
+        Dataset(),
+        class_weights={2: 1.5},
+        small_object_ratio=0.005,
+        small_object_boost=0.4,
+    )
+
+    assert weights.tolist() == pytest.approx([1.0, 1.9])
+
+
+def test_vietnam_priority_sampler_keeps_all_vietnam_images_without_duplication():
+    images = [
+        *[{"source_dataset": "edgevision_train"} for _ in range(6)],
+        *[{"source_dataset": "vietnam_reviewed_train"} for _ in range(6)],
+    ]
+    sampler = VietnamPrioritySampler(
+        images,
+        vietnam_source_dataset="vietnam_reviewed_train",
+        vietnam_ratio=0.60,
+        seed=42,
+    )
+
+    indices = list(sampler)
+    vietnam_indices = [index for index in indices if index >= 6]
+    original_indices = [index for index in indices if index < 6]
+
+    assert len(indices) == 10
+    assert sorted(vietnam_indices) == list(range(6, 12))
+    assert len(original_indices) == len(set(original_indices)) == 4
+
+
+def test_focused_vietnam_sampler_keeps_only_target_class_images_without_duplication():
+    images = [
+        *[{"id": index, "source_dataset": "edgevision_train"} for index in range(6)],
+        *[
+            {"id": index, "source_dataset": "vietnam_reviewed_train"}
+            for index in range(6, 12)
+        ],
+    ]
+    annotations_by_image = {
+        6: [{"category_id": 2}],
+        7: [{"category_id": 3}],
+        8: [{"category_id": 2}],
+        9: [{"category_id": 1}],
+        10: [{"category_id": 2}],
+        11: [{"category_id": 3}],
+    }
+    sampler = FocusedVietnamSampler(
+        images,
+        annotations_by_image,
+        vietnam_source_dataset="vietnam_reviewed_train",
+        focus_category_id=2,
+        vietnam_ratio=0.5,
+        seed=42,
+    )
+
+    indices = list(sampler)
+    vietnam_indices = [index for index in indices if index >= 6]
+    original_indices = [index for index in indices if index < 6]
+
+    assert sorted(vietnam_indices) == [6, 8, 10]
+    assert len(original_indices) == len(set(original_indices)) == 3
+
+
+def test_configure_trainable_parameters_freezes_only_backbone_body():
+    class Detector(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.backbone = nn.Module()
+            self.backbone.body = nn.Linear(2, 2)
+            self.backbone.fpn = nn.Linear(2, 2)
+            self.head = nn.Linear(2, 1)
+
+    model = Detector()
+    counts = configure_trainable_parameters(model, {"freeze_backbone_body": True})
+
+    assert all(not parameter.requires_grad for parameter in model.backbone.body.parameters())
+    assert all(parameter.requires_grad for parameter in model.backbone.fpn.parameters())
+    assert all(parameter.requires_grad for parameter in model.head.parameters())
+    assert counts["frozen"] > 0
+    assert counts["trainable"] > 0
+
+
+def test_validation_regressed_protects_nohelmet_even_if_map_is_stable():
+    previous = {
+        "map_50_95": 0.60,
+        "per_class": {"NoHelmet": {"ap_50_95": 0.50}},
+    }
+    current = {
+        "map_50_95": 0.60,
+        "per_class": {"NoHelmet": {"ap_50_95": 0.49}},
+    }
+    assert validation_regressed(
+        previous,
+        current,
+        primary_metric="map_50_95",
+        protected_classes=["NoHelmet"],
+    )
+
+
 @pytest.mark.parametrize(
     ("config_path", "model_name", "output_directory"),
     [
@@ -196,3 +312,31 @@ def test_pilot_configs_are_isolated(config_path, model_name, output_directory):
     assert config["training"]["epochs"] == 3
     assert config["model"]["name"] == model_name
     assert config["output"]["directory"] == output_directory
+
+
+@pytest.mark.parametrize(
+    ("config_path", "model_name", "output_directory"),
+    [
+        (
+            "configs/vietnam_v6_wikimedia_faster_rcnn.yaml",
+            "fasterrcnn_resnet50_fpn_v2",
+            "outputs/vietnam_pilot_v6_wikimedia/faster_rcnn/stage1",
+        ),
+        (
+            "configs/vietnam_v6_wikimedia_retinanet.yaml",
+            "retinanet_resnet50_fpn_v2",
+            "outputs/vietnam_pilot_v6_wikimedia/retinanet/stage1",
+        ),
+    ],
+)
+def test_vietnam_v6_configs_are_self_contained_and_isolated(config_path, model_name, output_directory):
+    config = load_config(config_path)
+
+    assert config["model"]["name"] == model_name
+    assert config["data"]["image_root"] == "data"
+    assert config["sampling"]["enabled"] is False
+    assert config["augmentation"]["color_jitter_probability"] == 0.0
+    assert config["output"]["directory"] == output_directory
+    assert config["training"]["epochs"] == 1
+    assert config["training"]["freeze_backbone_body"] is True
+    assert config["training"]["early_stop"]["patience"] == 2

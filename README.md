@@ -1,7 +1,7 @@
 # Phát hiện người điều khiển xe máy không đội mũ bảo hiểm
 
 <p align="center">
-  Fine-tune, đánh giá công bằng và demo <strong>Faster R-CNN</strong> cùng <strong>RetinaNet</strong> trên ảnh giao thông.
+  So sánh <strong>Faster R-CNN</strong> và <strong>RetinaNet</strong>, đồng thời xây dựng demo phát hiện trên ảnh, video và camera.
 </p>
 
 <p align="center">
@@ -12,71 +12,53 @@
   <img alt="React" src="https://img.shields.io/badge/React-Frontend-61DAFB?logo=react&logoColor=black">
 </p>
 
-## Mục lục
+## Trạng thái hiện tại
 
-- [Tổng quan](#tổng-quan)
-- [Kết quả baseline](#kết-quả-baseline)
-- [Demo](#demo)
-- [Dữ liệu và giao thức đánh giá](#dữ-liệu-và-giao-thức-đánh-giá)
-- [Cài đặt và chạy nhanh](#cài-đặt-và-chạy-nhanh)
-- [Tái lập thí nghiệm](#tái-lập-thí-nghiệm)
-- [Cấu trúc dự án](#cấu-trúc-dự-án)
-- [Checkpoint và dữ liệu](#checkpoint-và-dữ-liệu)
-- [Giới hạn](#giới-hạn)
-- [Tài liệu liên quan](#tài-liệu-liên-quan)
+README phân biệt hai nhóm mô hình để tránh nhầm số liệu:
 
-## Tổng quan
+- **Baseline EdgeVision** là thí nghiệm gốc dùng để viết báo cáo và so sánh công bằng. Các metric test tại phần dưới thuộc **dataset EdgeVision cũ**, không phải kết quả của model đang hiển thị trên demo.
+- **Candidate Việt Nam v6** được fine-tune thêm từ checkpoint baseline. Giao diện hiện chỉ hiển thị hai candidate này để kiểm tra trực quan. Candidate chưa vượt deployment gate trên validation nên chưa thay thế baseline trong kết luận học thuật.
+- Checkpoint baseline vẫn được giữ nguyên trong backend để đối chiếu và rollback; không bị ghi đè bởi candidate.
 
-Bài toán đầu vào là ảnh giao thông; đầu ra gồm khung giới hạn (*bounding box*), nhãn lớp và độ tin cậy. Dự án sử dụng cùng dữ liệu, cùng cách chia tập, cùng evaluator và cùng điều kiện benchmark để so sánh hai kiến trúc:
+## Bài toán
+
+Đầu vào là ảnh giao thông. Đầu ra gồm khung giới hạn (*bounding box*), nhãn lớp và độ tin cậy cho ba lớp:
+
+| ID | Lớp | Ý nghĩa |
+| ---: | --- | --- |
+| 1 | `BikeWithRider` | Xe máy và người đang ngồi trên xe |
+| 2 | `NoHelmet` | Vùng đầu không đội mũ bảo hiểm |
+| 3 | `Helmet` | Vùng đầu có đội mũ bảo hiểm |
+
+Dự án dùng cùng pipeline dữ liệu và evaluator để so sánh:
 
 - **Faster R-CNN**: mô hình phát hiện đối tượng hai giai đoạn.
-- **RetinaNet**: mô hình phát hiện đối tượng một giai đoạn, sử dụng Focal Loss.
-
-Ứng dụng demo gồm FastAPI và React, hỗ trợ ảnh, video và camera snapshot. Video được xử lý tuần tự từng frame, không được xem là suy luận camera thời gian thực.
+- **RetinaNet**: mô hình phát hiện đối tượng một giai đoạn sử dụng Focal Loss.
 
 ```mermaid
 flowchart LR
     A[Ảnh / video / camera] --> B[FastAPI]
-    B --> C{Chọn mô hình}
+    B --> C{Chọn candidate Việt Nam v6}
     C --> D[Faster R-CNN]
     C --> E[RetinaNet]
-    D --> F[Bounding box · nhãn · confidence]
+    D --> F[Ghép đầu với BikeWithRider]
     E --> F
-    F --> G[React UI / video đã gắn nhãn]
+    F --> G[Loại xung đột Helmet / NoHelmet]
+    G --> H[Bounding box · nhãn · cảnh báo]
 ```
 
-## Kết quả baseline
+## Dữ liệu
 
-Hai baseline đã hoàn thành 20 epoch trên GPU **NVIDIA GeForce RTX 2050**, với `batch_size = 1`, kích thước ảnh từ 512 đến 768 px và trọng số khởi tạo Torchvision `DEFAULT`. Checkpoint được chọn theo mAP@0.5:0.95 trên validation; test chỉ dùng cho đánh giá cuối cùng.
+### Baseline EdgeVision cũ
 
-| Mô hình | Best epoch | Test mAP@0.5:0.95 ↑ | Test mAP@0.5 ↑ | Test mAP@0.75 ↑ | Latency trung bình ↓ | FPS ↑ |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Faster R-CNN | 9 | 0.6562 | 0.9070 | 0.7400 | 163.59 ms | 6.11 |
-| RetinaNet | 8 | 0.6472 | 0.8990 | 0.7457 | 75.24 ms | 13.29 |
+Baseline sử dụng [EdgeVision v1](https://doi.org/10.17632/j82bnw7gsr.1), annotation COCO JSON. Sau bước kiểm tra và chuẩn hóa, dữ liệu có **2.392 ảnh** và **8.275 annotation**:
 
-Kết quả mAP được tính trên **359 ảnh test** với COCO mAP@[IoU=0.50:0.95]. Tốc độ được đo trên validation với 20 ảnh warm-up và 100 ảnh đo, batch size 1; thời gian gồm chuyển tensor lên GPU, tiền xử lý nội bộ của detector, suy luận, hậu xử lý và NMS; không gồm đọc tệp hay render giao diện.
-
-Faster R-CNN cao hơn RetinaNet 0.0090 mAP@0.5:0.95 trong lần chạy này, trong khi RetinaNet nhanh hơn khoảng 2.17 lần theo latency trung bình. Đây là kết quả của cấu hình và phần cứng nêu trên, không phải khẳng định một mô hình luôn tốt hơn trong mọi điều kiện.
-
-Ngưỡng confidence mặc định cho demo được chọn **trên validation**, tối ưu F1 cho lớp `NoHelmet` tại IoU = 0.5: 0.85 cho Faster R-CNN và 0.60 cho RetinaNet. Tập test không được dùng để chọn ngưỡng.
-
-Nguồn số liệu cục bộ: `outputs/comparison/test_comparison.json`, cùng các `test_metrics.json`, `latency_validation.json` và `validation_threshold_selection.json` của từng mô hình. Các artifact này không được đưa lên GitHub theo chính sách lưu trữ của dự án.
-
-## Demo
-
-| Faster R-CNN | RetinaNet |
-| --- | --- |
-| ![Ví dụ Faster R-CNN](report_drafts/assets/demo/single_rider_faster_role_v2.png) | ![Ví dụ RetinaNet](report_drafts/assets/demo/single_rider_retina_role_v2.png) |
-
-Giao diện cho phép:
-
-- tải ảnh JPG/JPEG/PNG, chọn Faster R-CNN hoặc RetinaNet, rồi xem nhãn, khung giới hạn, confidence và latency;
-- tải video MP4/MOV/AVI tối đa 200 MB và 5 phút, theo dõi tiến độ và tải video MP4 đã gắn nhãn;
-- mở camera trên trình duyệt, chụp một frame rồi chạy suy luận ảnh.
-
-## Dữ liệu và giao thức đánh giá
-
-Baseline sử dụng EdgeVision v1 với annotation COCO JSON. Sau kiểm tra và chuẩn bị annotation, dữ liệu có **2.392 ảnh**, **8.275 annotation** và ba lớp:
+| Tập | Số ảnh | Số annotation |
+| --- | ---: | ---: |
+| Train | 1.673 | 5.801 |
+| Validation | 360 | 1.236 |
+| Test | 359 | 1.238 |
+| **Tổng** | **2.392** | **8.275** |
 
 | Lớp | Số annotation |
 | --- | ---: |
@@ -84,50 +66,125 @@ Baseline sử dụng EdgeVision v1 với annotation COCO JSON. Sau kiểm tra v�
 | `NoHelmet` | 2.810 |
 | `Helmet` | 1.672 |
 
-Split được đóng băng theo seed 42: 1.673 ảnh train, 360 ảnh validation và 359 ảnh test. Cả hai mô hình dùng cùng split, cùng mapping lớp và cùng evaluator. Precision/Recall theo ngưỡng IoU 0.5 sử dụng matching một-một, cùng lớp, sắp theo confidence giảm dần; mAP dùng pycocotools/TorchMetrics theo chuẩn COCO.
+Split được đóng băng theo seed 42. Faster R-CNN và RetinaNet dùng cùng train/validation/test, cùng mapping lớp và cùng evaluator. Tập test chỉ được dùng sau khi đã chọn checkpoint và cấu hình trên validation.
+
+### Dữ liệu candidate Việt Nam v6
+
+Candidate v6 không học từ dữ liệu mới riêng lẻ. Tập train được gộp từ **1.673 ảnh EdgeVision train**, **449 ảnh giao thông Việt Nam đã duyệt** và **4 ảnh Wikimedia đã duyệt trực quan**, tổng cộng **2.126 ảnh** với **7.224 annotation**.
+
+| Tập của candidate v6 | Số ảnh | `BikeWithRider` | `NoHelmet` | `Helmet` | Tổng box |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Train | 2.126 | 3.309 | 2.049 | 1.866 | 7.224 |
+| EdgeVision validation khóa | 360 | 566 | 420 | 250 | 1.236 |
+| EdgeVision test khóa | 359 | 566 | 422 | 250 | 1.238 |
+| `vn_validation` riêng | 118 | 192 | 31 | 188 | 411 |
+
+Validation và test EdgeVision được giữ nguyên byte/checksum so với baseline. `vn_validation` cũng được tách riêng; ảnh cùng nguồn/video không được chia ngẫu nhiên sang nhiều tập.
+
+Nguồn dữ liệu bổ sung:
+
+- [Helmet/NoHelmet/LP v24](https://universe.roboflow.com/cdio-zmfmj/helmet-lincense-plate-detection-gevlq/dataset/24), giấy phép CC BY 4.0. Lớp biển số `LP` không được dùng.
+- [Motobike v18](https://universe.roboflow.com/cdio-zmfmj/motobike-detection/dataset/18), giấy phép CC BY 4.0. Box `motobike` chỉ là gợi ý và không được tự động coi là `BikeWithRider` hoàn chỉnh.
+- [Kho mã nguồn của nhóm CDIO](https://github.com/ThanhSan97/Helmet-Violation-Detection-Using-YOLO-and-VGG16), dùng để đối chiếu nguồn công bố.
+- Một số ảnh Wikimedia Commons có giấy phép theo từng ảnh; provenance được lưu trong manifest dữ liệu cục bộ.
+
+Nguồn VietnameseHelmetDetection không có annotation đủ tin cậy đã bị loại, không được dùng làm dữ liệu âm hoặc ground truth.
+
+## Kết quả thực nghiệm
+
+### 1. Baseline trên dữ liệu EdgeVision cũ
+
+> **Lưu ý:** bảng này là kết quả lịch sử của hai baseline 20 epoch trên **EdgeVision test 359 ảnh**. Đây không phải metric của hai candidate Việt Nam v6 đang chạy trên giao diện.
+
+Hai baseline được huấn luyện trên GPU **NVIDIA GeForce RTX 2050**, `batch_size = 1`, kích thước ảnh từ 512 đến 768 px và trọng số khởi tạo Torchvision `DEFAULT`. Checkpoint được chọn theo validation mAP@0.5:0.95.
+
+| Mô hình baseline | Best epoch | Test mAP@0.5:0.95 ↑ | Test mAP@0.5 ↑ | Test mAP@0.75 ↑ | Latency validation ↓ | FPS validation ↑ |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Faster R-CNN | 9 | 0.6562 | 0.9070 | 0.7400 | 163,59 ms | 6,11 |
+| RetinaNet | 8 | 0.6472 | 0.8990 | 0.7457 | 75,24 ms | 13,29 |
+
+Trong lần chạy này, Faster R-CNN cao hơn 0,0090 mAP@0.5:0.95; RetinaNet có latency thấp hơn khoảng 2,17 lần. Kết luận này chỉ áp dụng cho split, cấu hình và phần cứng đã nêu.
+
+Latency được đo trên validation với 20 ảnh warm-up và 100 ảnh đo, batch size 1. Thời gian gồm chuyển tensor lên GPU, tiền xử lý nội bộ, suy luận, hậu xử lý và NMS; không gồm đọc tệp hoặc render giao diện.
+
+### 2. Candidate Việt Nam v6 trên EdgeVision validation khóa
+
+Mỗi candidate bắt đầu từ `best_map.pth` của baseline tương ứng, đóng băng thân backbone và fine-tune thêm **1 epoch** trên tập train gộp. Learning rate là `2.5e-5`, batch size 1, không dùng weighted sampling và không dùng color jitter mạnh.
+
+| Candidate v6 | Val mAP@0.5:0.95 | Val mAP@0.5 | Val mAP@0.75 | AP `BikeWithRider` | AP `NoHelmet` | AP `Helmet` |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Faster R-CNN v6 | 0.6512 | 0.9160 | 0.7350 | 0.7965 | 0.5219 | 0.6352 |
+| RetinaNet v6 | 0.6404 | 0.9059 | 0.7180 | 0.7865 | 0.5096 | 0.6251 |
+
+So với checkpoint baseline trên cùng EdgeVision validation khóa:
+
+| Mô hình | Baseline val mAP | Candidate v6 val mAP | Chênh lệch | Baseline AP `NoHelmet` | Candidate AP `NoHelmet` | Chênh lệch |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Faster R-CNN | 0.6519 | 0.6512 | -0.0007 | 0.5265 | 0.5219 | -0.0046 |
+| RetinaNet | 0.6443 | 0.6404 | -0.0039 | 0.5218 | 0.5096 | -0.0122 |
+
+Vì mAP và AP `NoHelmet` đều không tăng, hai candidate **chưa qua deployment gate định lượng**. Chúng được đưa vào demo theo yêu cầu kiểm tra trực quan và không được dùng để thay số liệu baseline trong báo cáo. Candidate chưa được đánh giá test để tránh sử dụng test trong quá trình lựa chọn.
+
+## Demo hiện tại
+
+| Faster R-CNN Việt Nam v6 | RetinaNet Việt Nam v6 |
+| --- | --- |
+| ![Ví dụ Faster R-CNN Việt Nam v6](report/figures/demo_faster_rcnn.png) | ![Ví dụ RetinaNet Việt Nam v6](report/figures/demo_retinanet.png) |
+
+Giao diện hiện chỉ hiển thị:
+
+- `Faster R-CNN · thử nghiệm VN`;
+- `RetinaNet · thử nghiệm VN`.
+
+Ứng dụng hỗ trợ ảnh JPG/JPEG/PNG, video MP4/MOV/AVI tối đa 200 MB và 5 phút, cùng camera snapshot. Video được xử lý tuần tự từng frame, không được xem là camera thời gian thực.
+
+Hậu xử lý dùng `BikeWithRider` để ghép vùng đầu với xe-người, loại xung đột `Helmet`/`NoHelmet` trên cùng vùng đầu và chỉ tạo cảnh báo khi quan hệ đủ rõ. Nhãn “Không xác định” không được hiển thị trên ảnh hoặc giao diện.
+
+Candidate đang kế thừa threshold theo lớp và horizontal-flip TTA của baseline để thử nghiệm trực quan:
+
+| Candidate | `BikeWithRider` | `NoHelmet` | `Helmet` |
+| --- | ---: | ---: | ---: |
+| Faster R-CNN v6 | 0.95 | 0.65 | 0.70 |
+| RetinaNet v6 | 0.65 | 0.40 | 0.40 |
+
+Các threshold này **chưa được chọn lại riêng cho candidate v6**, vì vậy không được mô tả là threshold tối ưu của model mới.
 
 ## Cài đặt và chạy nhanh
 
 ### 1. Điều kiện cần
 
-- Windows với Python 3.11.
+- Windows và Python 3.11.
 - Node.js và npm để chạy giao diện React.
-- GPU NVIDIA/CUDA là lựa chọn phù hợp để train và demo nhanh hơn; cài theo chế độ `cpu` nếu không có GPU.
-- Dataset EdgeVision và hai checkpoint `best_map.pth` do nhóm cung cấp; các tệp này không được lưu trong Git.
+- GPU NVIDIA/CUDA để train và demo nhanh hơn; có thể cài chế độ CPU nếu không có GPU.
+- Dataset và checkpoint do nhóm chia sẻ riêng; các tệp lớn này không được lưu trong Git.
 
 ### 2. Cài môi trường Python
 
-Mở PowerShell ở thư mục gốc dự án:
+Mở PowerShell tại thư mục gốc dự án:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\tools\setup_environment.ps1 -InstallMode gpu
 .\.venv\Scripts\python.exe .\tools\check_environment.py
 ```
 
-Xem chi tiết các chế độ `gpu`, `cpu` và `data` tại [`HUONG_DAN_CAI_DAT.md`](HUONG_DAN_CAI_DAT.md).
+Xem các chế độ `gpu`, `cpu` và `data` tại [`HUONG_DAN_CAI_DAT.md`](HUONG_DAN_CAI_DAT.md).
 
-### 3. Đặt checkpoint để chạy demo
-
-Sao chép hai checkpoint tốt nhất vào đúng đường dẫn sau:
+### 3. Đặt checkpoint
 
 ```text
 outputs/
 ├── faster_rcnn/checkpoints/best_map.pth
-└── retinanet/checkpoints/best_map.pth
+├── retinanet/checkpoints/best_map.pth
+└── vietnam_pilot_v6_wikimedia/
+    ├── faster_rcnn/stage1/checkpoints/best_map.pth
+    └── retinanet/stage1/checkpoints/best_map.pth
 ```
 
-Kiểm tra nhanh trước khi chạy:
-
-```powershell
-Test-Path .\outputs\faster_rcnn\checkpoints\best_map.pth
-Test-Path .\outputs\retinanet\checkpoints\best_map.pth
-```
-
-Cả hai lệnh phải trả về `True`.
+Hai checkpoint baseline cần được giữ để đối chiếu/rollback. Hai checkpoint v6 là model đang hiển thị trên demo.
 
 ### 4. Chạy backend và frontend
 
-Mở hai cửa sổ PowerShell ở thư mục dự án.
+Mở hai cửa sổ PowerShell tại thư mục dự án.
 
 **Cửa sổ 1 — FastAPI**
 
@@ -143,100 +200,96 @@ npm ci
 npm run dev
 ```
 
-Mở địa chỉ `http://127.0.0.1:5173/`. Frontend mặc định gọi backend tại `http://127.0.0.1:8000`; đặt `VITE_API_URL` nếu backend chạy ở địa chỉ khác.
+Mở `http://127.0.0.1:5173/`. Frontend mặc định gọi backend tại `http://127.0.0.1:8000`; đặt `VITE_API_URL` nếu backend chạy ở địa chỉ khác.
 
 ## Tái lập thí nghiệm
 
-> **Lưu ý:** các lệnh train ghi checkpoint vào `outputs/`. Hãy sao lưu artifact hiện có hoặc đổi `output.directory` trong config trước khi chạy lại để không ghi đè kết quả baseline.
+> Các lệnh train ghi checkpoint vào `outputs/`. Hãy sao lưu artifact hiện có hoặc đổi `output.directory` trước khi chạy để không ghi đè baseline.
 
-### Chuẩn bị dữ liệu và đóng băng split
-
-```powershell
-python tools\inspect_dataset.py --annotations data\raw\edgevision\annotations.json --images data\raw\edgevision\images --output outputs\dataset_report.json
-python tools\prepare_annotations.py --annotations data\raw\edgevision\annotations.json --images data\raw\edgevision\images --apply-exif-orientation --processed-output data\processed\edgevision\annotations.json --changes-output data\processed\edgevision\annotation_changes.json --problems-output outputs\dataset_quality\problem_annotations.json
-python tools\build_groups.py --annotations data\processed\edgevision\annotations.json --images data\raw\edgevision\images --output data\processed\edgevision\image_hashes.json --near-duplicate-output outputs\dataset_quality\near_duplicate_candidates.json
-python tools\create_splits.py --annotations data\processed\edgevision\annotations.json --groups data\processed\edgevision\image_hashes.json --output-dir data\splits --seed 42
-python tools\freeze_splits.py --seed 42
-```
-
-### Kiểm tra pipeline và huấn luyện
+### Baseline EdgeVision
 
 ```powershell
-# Smoke test một batch
+# Smoke test
 python -m src.train --config configs\faster_rcnn.yaml --smoke-test
 python -m src.train --config configs\retinanet.yaml --smoke-test
 
-# Pilot 3 epoch (không dùng test)
-python -m src.train --config configs\pilot_faster_rcnn.yaml --device cuda
-python -m src.train --config configs\pilot_retinanet.yaml --device cuda
-
-# Baseline 20 epoch
+# Train baseline
 python -m src.train --config configs\faster_rcnn.yaml --device cuda
 python -m src.train --config configs\retinanet.yaml --device cuda
-```
 
-### Đánh giá, chọn threshold và benchmark
-
-```powershell
-# Đánh giá cuối cùng trên test bằng best_map.pth
+# Chỉ đánh giá test sau khi đã chốt cấu hình
 python -m src.evaluate --config configs\faster_rcnn.yaml --split test
 python -m src.evaluate --config configs\retinanet.yaml --split test
-
-# Chọn confidence threshold trên validation, không dùng test
-python -m src.threshold_selection --config configs\faster_rcnn.yaml --output outputs\faster_rcnn\metrics\validation_threshold_selection.json
-python -m src.threshold_selection --config configs\retinanet.yaml --output outputs\retinanet\metrics\validation_threshold_selection.json
-
-# Đo latency/FPS trên validation
-python -m tools.benchmark_inference --config configs\faster_rcnn.yaml --checkpoint outputs\faster_rcnn\checkpoints\best_map.pth --output outputs\faster_rcnn\metrics\latency_validation.json --device cuda
-python -m tools.benchmark_inference --config configs\retinanet.yaml --checkpoint outputs\retinanet\checkpoints\best_map.pth --output outputs\retinanet\metrics\latency_validation.json --device cuda
-
-# So sánh hai file metric test
-python -m src.compare_models
 ```
+
+### Candidate Việt Nam v6
+
+```powershell
+# Smoke test
+python -m src.train --config configs\vietnam_v6_wikimedia_faster_rcnn.yaml --smoke-test
+python -m src.train --config configs\vietnam_v6_wikimedia_retinanet.yaml --smoke-test
+
+# Fine-tune 1 epoch từ baseline
+python -m src.train --config configs\vietnam_v6_wikimedia_faster_rcnn.yaml --device cuda
+python -m src.train --config configs\vietnam_v6_wikimedia_retinanet.yaml --device cuda
+```
+
+Candidate mới phải được so với baseline trên cùng validation bằng `tools/check_deployment_gate.py`. Không dùng test để điều chỉnh checkpoint hoặc threshold.
+
+## Checkpoint
+
+| Mô hình | Checkpoint | SHA-256 |
+| --- | --- | --- |
+| Faster R-CNN baseline | `outputs/faster_rcnn/checkpoints/best_map.pth` | `27fc925e68cd908e82b3865f3781ea01ee643c67674a392e62d7893d59f92682` |
+| RetinaNet baseline | `outputs/retinanet/checkpoints/best_map.pth` | `5f3e4cb963e2c079094254b261dec15e21b0b2784d5aa1fd34756ff006ed5ed5` |
+| Faster R-CNN Việt Nam v6 | `outputs/vietnam_pilot_v6_wikimedia/faster_rcnn/stage1/checkpoints/best_map.pth` | `6869faff03a30c497fd60d1a61ef624ae2cc41e261b55030efd8816a980f8348` |
+| RetinaNet Việt Nam v6 | `outputs/vietnam_pilot_v6_wikimedia/retinanet/stage1/checkpoints/best_map.pth` | `d02de4c3a4e76bb4a7898ff8ca04f40104085696532e60a1521f6fa08650263b` |
+
+`best_map.pth` là checkpoint có validation mAP@0.5:0.95 tốt nhất trong chính lần chạy đó. Dataset, checkpoint, log và artifact sinh tự động không được commit lên GitHub. Khi bàn giao, cần đối chiếu SHA-256 và manifest.
 
 ## Cấu trúc dự án
 
 ```text
 helmet_detection_project/
 ├── app/                 # FastAPI, nạp model và xử lý video
-├── configs/             # Cấu hình chung, Faster R-CNN, RetinaNet và demo
-├── data/                # Dataset cục bộ, annotation đã xử lý và split
-├── frontend/            # React + TypeScript giao diện demo
-├── outputs/             # Checkpoint, manifest, metric và prediction sinh ra
-├── report/              # Nội dung báo cáo, bảng, hình và tài liệu tham khảo
-├── report_drafts/       # Bản thảo và ảnh minh họa demo
-├── src/                 # Dataset, model, train, evaluate, inference và metric
+├── configs/             # Cấu hình train, candidate và demo
+├── data/                # Dataset cục bộ, annotation và split
+├── frontend/            # React + TypeScript
+├── outputs/             # Checkpoint, metric và log cục bộ
+├── report/              # Nội dung, bảng và hình dùng cho báo cáo
+├── src/                 # Dataset, model, train, evaluate và inference
 ├── tests/               # Kiểm thử tự động
-└── tools/               # Thiết lập môi trường, xử lý dữ liệu và benchmark
+└── tools/               # Xử lý dữ liệu, benchmark và deployment gate
 ```
 
-## Checkpoint và dữ liệu
+## Kiểm thử
 
-Checkpoint lưu trọng số đã học. `best_map.pth` là checkpoint có validation mAP@0.5:0.95 tốt nhất và là file dùng cho demo/đánh giá test; `last.pth` là checkpoint epoch cuối, chỉ cần khi tiếp tục train.
+```powershell
+.\.venv\Scripts\python.exe -m pytest
+Set-Location .\frontend
+npm run build
+```
 
-| Mô hình | Checkpoint dùng cho demo | SHA-256 |
-| --- | --- | --- |
-| Faster R-CNN | `outputs/faster_rcnn/checkpoints/best_map.pth` | `27fc925e68cd908e82b3865f3781ea01ee643c67674a392e62d7893d59f92682` |
-| RetinaNet | `outputs/retinanet/checkpoints/best_map.pth` | `5f3e4cb963e2c079094254b261dec15e21b0b2784d5aa1fd34756ff006ed5ed5` |
-
-Dataset, checkpoint, log và artifact sinh tự động không được commit lên GitHub. Khi bàn giao, nhóm chia sẻ riêng hai file `best_map.pth`, đối chiếu SHA-256 và lưu đường dẫn/phiên bản trong manifest. Không thêm checkpoint trực tiếp vào Git thông thường.
+Lần kiểm tra gần nhất của mã nguồn hiện tại: **132 test passed, 1 skipped**; frontend build thành công. Đây là kiểm thử phần mềm, không thay thế đánh giá chất lượng mô hình trên validation/test.
 
 ## Giới hạn
 
-- Kết quả chỉ có ý nghĩa với EdgeVision v1, split đã đóng băng và cấu hình/phần cứng đã nêu.
-- So sánh benchmark là batch size 1 trên RTX 2050; không suy rộng thành cam kết thời gian thực cho mọi camera hoặc thiết bị.
-- Video demo chạy nối tiếp theo frame, có hàng đợi cục bộ và không nhận thêm tác vụ trong khi GPU đang bận.
-- Hệ thống là công cụ hỗ trợ minh họa và cần kiểm tra con người trước khi dùng cho mục đích giám sát hay xử phạt.
+- Metric baseline chỉ áp dụng cho EdgeVision v1 và split đã đóng băng.
+- Candidate v6 chưa vượt baseline trên EdgeVision validation và chưa có kết quả test chính thức.
+- Dữ liệu Việt Nam còn ít, đặc biệt `NoHelmet` trong `vn_validation`; chưa đủ để khẳng định khả năng tổng quát trên mọi camera giao thông Việt Nam.
+- Threshold candidate hiện kế thừa từ baseline và vẫn đang ở trạng thái thử nghiệm.
+- Benchmark dùng batch size 1 trên RTX 2050; không suy rộng thành cam kết thời gian thực cho mọi thiết bị.
+- Hệ thống chỉ phục vụ học tập và minh họa. Kết quả cần được con người kiểm tra trước khi sử dụng cho giám sát hoặc xử phạt.
 
 ## Tài liệu liên quan
 
-- [`HUONG_DAN_CAI_DAT.md`](HUONG_DAN_CAI_DAT.md): cài đặt môi trường theo vai trò.
-- [`configs/README.md`](configs/README.md): ý nghĩa các cấu hình thí nghiệm.
-- [`app/README.md`](app/README.md): cấu trúc ứng dụng.
-- [`frontend/README.md`](frontend/README.md): phát triển và build frontend.
-- [`report/experiment_manifest.md`](report/experiment_manifest.md): manifest báo cáo; cần đồng bộ khi có lần chạy mới.
-- [`report/2.1.2_huan_luyen_va_danh_gia.md`](report/2.1.2_huan_luyen_va_danh_gia.md): nội dung phương pháp huấn luyện và đánh giá.
+- [`HUONG_DAN_CAI_DAT.md`](HUONG_DAN_CAI_DAT.md): cài đặt môi trường.
+- [`configs/README.md`](configs/README.md): cấu hình thí nghiệm đang công khai.
+- [`app/README.md`](app/README.md): cấu trúc backend và model demo.
+- [`frontend/README.md`](frontend/README.md): phát triển frontend.
+- [`report/experiment_manifest.md`](report/experiment_manifest.md): manifest baseline dùng trong báo cáo.
+- [`report/2.1.2_huan_luyen_va_danh_gia.md`](report/2.1.2_huan_luyen_va_danh_gia.md): phương pháp huấn luyện và đánh giá.
 
 ## Đóng góp
 
-Dự án được thực hiện trong học phần Trí tuệ nhân tạo. Khi thay đổi pipeline hoặc chạy thí nghiệm mới, hãy lưu config, split hash, checkpoint hash, metric và điều kiện phần cứng để kết quả có thể đối chiếu.
+Dự án được thực hiện trong học phần Trí tuệ nhân tạo. Mỗi lần thay đổi dữ liệu hoặc huấn luyện lại phải lưu config, split hash, checkpoint hash, metric và điều kiện phần cứng để kết quả có thể kiểm tra và tái lập ở mức hợp lý.

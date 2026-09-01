@@ -9,7 +9,7 @@ import warnings
 from datetime import UTC, datetime
 from io import BytesIO
 from pathlib import Path
-from typing import Annotated, Any
+from typing import Annotated, Any, Mapping
 
 import torch
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
@@ -24,11 +24,11 @@ from src.infer import (
     draw_detections,
     encode_png,
     normalize_pil_image,
-    prediction_records,
     summarize_detections,
     validate_threshold,
 )
-from src.rider_association import analyze_rider_roles, load_role_decision_config
+from src.postprocess import postprocess_detections
+from src.rider_association import load_role_decision_config
 from src.role_annotations import VALID_REVIEW_STATUSES, VALID_ROLES, validate_role_tasks
 from src.utils import resolve_project_path
 
@@ -134,6 +134,34 @@ def decode_uploaded_image(content: bytes) -> Image.Image:
         raise ValueError("Không thể đọc tệp như ảnh JPG hoặc PNG hợp lệ") from error
 
 
+def parse_class_thresholds(
+    raw_value: str | None,
+    model_id: str,
+    scalar_threshold: float | None,
+) -> float | dict[int, float] | None:
+    """Đọc override threshold theo lớp, đồng thời giữ tương thích API cũ."""
+    if raw_value is None or not raw_value.strip():
+        return scalar_threshold
+    try:
+        payload = json.loads(raw_value)
+    except json.JSONDecodeError as error:
+        raise ValueError("class_thresholds phải là JSON object hợp lệ") from error
+    if not isinstance(payload, Mapping):
+        raise ValueError("class_thresholds phải là object theo tên lớp")
+    metadata = next((item for item in list_model_metadata() if item["id"] == model_id), None)
+    if metadata is None:
+        raise ValueError(f"Model không được hỗ trợ: {model_id}")
+    result: dict[int, float] = {}
+    for raw_class_id, class_name in metadata["classes"].items():
+        class_id = int(raw_class_id)
+        if class_id == 0:
+            continue
+        if class_name not in payload:
+            raise ValueError(f"Thiếu threshold cho lớp {class_name}")
+        result[class_id] = validate_threshold(float(payload[class_name]))
+    return result
+
+
 @app.get("/api/health")
 def health() -> dict[str, Any]:
     cuda_available = torch.cuda.is_available()
@@ -225,6 +253,7 @@ def infer_image(
     file: Annotated[UploadFile, File(description="Ảnh JPG hoặc PNG")],
     model_id: Annotated[str, Form()],
     threshold: Annotated[float | None, Form()] = None,
+    class_thresholds: Annotated[str | None, Form()] = None,
 ) -> dict[str, Any]:
     if file.content_type not in ALLOWED_IMAGE_TYPES | GENERIC_UPLOAD_TYPES:
         raise _api_error(415, "UNSUPPORTED_IMAGE_TYPE", "Chỉ hỗ trợ ảnh JPG, JPEG hoặc PNG")
@@ -233,6 +262,10 @@ def infer_image(
             threshold = validate_threshold(threshold)
         except ValueError as error:
             raise _api_error(422, "INVALID_THRESHOLD", str(error)) from error
+    try:
+        requested_thresholds = parse_class_thresholds(class_thresholds, model_id, threshold)
+    except ValueError as error:
+        raise _api_error(422, "INVALID_CLASS_THRESHOLDS", str(error)) from error
 
     try:
         content = file.file.read(MAX_UPLOAD_BYTES + 1)
@@ -243,18 +276,43 @@ def infer_image(
         file.file.close()
 
     try:
-        detector, prediction, latency_ms = DETECTOR_MANAGER.predict(
+        detector, raw_prediction, latency_ms = DETECTOR_MANAGER.predict(
             model_id=model_id,
             image=image,
-            confidence_threshold=threshold,
+            confidence_threshold=requested_thresholds,
         )
-        rendered = draw_detections(image, prediction, detector.class_names)
+        postprocess_config = getattr(
+            detector,
+            "postprocess_config",
+            {"head_conflict_iou_threshold": 0.70, "head_confidence_margin": 0.10},
+        )
+        processed = postprocess_detections(
+            raw_prediction,
+            detector.class_names,
+            RIDER_ASSOCIATION_CONFIG,
+            RIDER_ROLE_CONFIG,
+            head_conflict_iou_threshold=float(postprocess_config["head_conflict_iou_threshold"]),
+            head_confidence_margin=float(postprocess_config["head_confidence_margin"]),
+        )
+        rendered = draw_detections(
+            image,
+            processed["prediction"],
+            detector.class_names,
+            display_annotations=processed["display_annotations"],
+        )
         rendered_png = encode_png(rendered)
-        effective_threshold = (
-            detector.default_threshold if threshold is None else float(threshold)
+        effective_thresholds = (
+            dict(getattr(detector, "default_thresholds", {}))
+            if requested_thresholds is None
+            else ({class_id: float(requested_thresholds) for class_id in detector.class_names if class_id != 0}
+                  if isinstance(requested_thresholds, float) else dict(requested_thresholds))
         )
-        records = prediction_records(prediction, detector.class_names)
-        rider_analysis = analyze_rider_roles(records, RIDER_ASSOCIATION_CONFIG, RIDER_ROLE_CONFIG)
+        if not effective_thresholds:
+            effective_thresholds = {
+                int(class_id): float(detector.default_threshold)
+                for class_id in detector.class_names
+                if int(class_id) != 0
+            }
         return {
             "model": {
                 "id": detector.model_id,
@@ -274,15 +332,21 @@ def infer_image(
                 "width": image.width,
                 "height": image.height,
             },
-            "threshold": effective_threshold,
+            "threshold": effective_thresholds.get(2, float(detector.default_threshold)),
+            "thresholds": {
+                detector.class_names[int(class_id)]: value
+                for class_id, value in effective_thresholds.items()
+            },
             "threshold_source": (
-                "validation_default" if threshold is None or threshold == detector.default_threshold
+                "validation_default" if requested_thresholds is None
                 else "user_override"
             ),
             "latency_ms": round(latency_ms, 3),
-            "summary": summarize_detections(prediction, detector.class_names),
-            "detections": records,
-            "rider_analysis": rider_analysis,
+            "summary": summarize_detections(processed["prediction"], detector.class_names),
+            "detections": processed["detections"],
+            "raw_detections": processed["raw_detections"],
+            "rider_analysis": processed["rider_analysis"],
+            "alerts": processed["alerts"],
             "result_image": "data:image/png;base64," + base64.b64encode(rendered_png).decode("ascii"),
         }
     except ValueError as error:
@@ -300,6 +364,7 @@ def infer_video(
     file: Annotated[UploadFile, File(description="Video MP4, MOV hoặc AVI")],
     model_id: Annotated[str, Form()],
     threshold: Annotated[float | None, Form()] = None,
+    class_thresholds: Annotated[str | None, Form()] = None,
 ) -> dict[str, Any]:
     suffix = Path(file.filename or "").suffix.lower()
     if suffix not in ALLOWED_VIDEO_SUFFIXES:
@@ -310,13 +375,20 @@ def infer_video(
         except ValueError as error:
             raise _api_error(422, "INVALID_THRESHOLD", str(error)) from error
     try:
+        requested_thresholds = parse_class_thresholds(class_thresholds, model_id, threshold)
+    except ValueError as error:
+        raise _api_error(422, "INVALID_CLASS_THRESHOLDS", str(error)) from error
+    try:
         content = file.file.read(MAX_VIDEO_BYTES + 1)
-        effective_threshold = (
-            threshold
-            if threshold is not None
-            else next(model["default_threshold"] for model in list_model_metadata() if model["id"] == model_id)
-        )
-        job = VIDEO_JOBS.submit(content, file.filename or "video.mp4", model_id, effective_threshold)
+        metadata = next(model for model in list_model_metadata() if model["id"] == model_id)
+        effective_thresholds = requested_thresholds
+        if effective_thresholds is None:
+            effective_thresholds = {
+                int(class_id): float(metadata["default_thresholds"][class_name])
+                for class_id, class_name in metadata["classes"].items()
+                if int(class_id) != 0
+            }
+        job = VIDEO_JOBS.submit(content, file.filename or "video.mp4", model_id, effective_thresholds)
         return VIDEO_JOBS.payload(job.job_id) or {}
     except StopIteration as error:
         raise _api_error(422, "INVALID_REQUEST", f"Model không được hỗ trợ: {model_id}") from error

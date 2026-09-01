@@ -24,7 +24,7 @@ def test_health_and_models_endpoints() -> None:
     assert client.get("/api/health").status_code == 200
     response = client.get("/api/models")
     assert response.status_code == 200
-    assert len(response.json()["models"]) == 2
+    assert len(response.json()["models"]) == 5
 
 
 def test_infer_image_contract(monkeypatch) -> None:
@@ -55,6 +55,13 @@ def test_infer_image_contract(monkeypatch) -> None:
     assert response.status_code == 200
     payload = response.json()
     assert payload["summary"]["NoHelmet"] == 1
+    assert payload["raw_detections"][0]["class_name"] == "NoHelmet"
+    assert payload["alerts"] == []
+    assert payload["thresholds"] == {
+        "BikeWithRider": 0.85,
+        "NoHelmet": 0.85,
+        "Helmet": 0.85,
+    }
     assert payload["detections"][0]["confidence"] == 0.91
     assert payload["detections"][0]["detection_id"] == "detection_1"
     assert payload["rider_analysis"]["summary"]["unassigned_heads"] == 1

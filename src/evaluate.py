@@ -10,6 +10,7 @@ import argparse
 import hashlib
 import json
 import platform
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping
@@ -26,6 +27,14 @@ from .utils import PROJECT_ROOT, load_config, resolve_project_path, set_seed
 
 
 EVALUATION_PROTOCOL_VERSION = "1.0"
+
+
+def _configure_console_encoding() -> None:
+    """Giữ CLI dùng được trên PowerShell Windows có code page cũ."""
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="backslashreplace")
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8", errors="backslashreplace")
 
 
 def file_sha256(path: Path) -> str:
@@ -307,6 +316,7 @@ def evaluate(
 
 
 def main() -> None:
+    _configure_console_encoding()
     args = parse_args()
     if args.split == "challenge" and args.annotations is None:
         raise ValueError("--annotations là bắt buộc khi --split challenge")

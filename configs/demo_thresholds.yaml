@@ -1,17 +1,77 @@
+schema_version: demo-thresholds-2.0
+note: >-
+  Hai checkpoint baseline được giữ nguyên. Faster R-CNN và RetinaNet dùng
+  horizontal-flip TTA vì đều vượt baseline trên validation; threshold theo
+  lớp cũng được chọn lại trên validation, không dùng test để hiệu chỉnh.
 models:
   fasterrcnn_resnet50_fpn_v2:
-    confidence_threshold: 0.85
+    confidence_thresholds:
+      BikeWithRider: 0.95
+      NoHelmet: 0.65
+      Helmet: 0.70
     selection_split: val
     selection_target_class: NoHelmet
     selection_metric: f1
     selection_iou_threshold: 0.5
     checkpoint_sha256: 27fc925e68cd908e82b3865f3781ea01ee643c67674a392e62d7893d59f92682
+    inference_mode: horizontal_flip_tta
+    fusion_iou_threshold: 0.55
+    max_detections: 100
   retinanet_resnet50_fpn_v2:
-    confidence_threshold: 0.6
+    confidence_thresholds:
+      BikeWithRider: 0.65
+      NoHelmet: 0.40
+      Helmet: 0.40
     selection_split: val
     selection_target_class: NoHelmet
     selection_metric: f1
     selection_iou_threshold: 0.5
     checkpoint_sha256: 5f3e4cb963e2c079094254b261dec15e21b0b2784d5aa1fd34756ff006ed5ed5
-schema_version: demo-thresholds-1.0
-note: Các threshold được chọn trên validation; không dùng kết quả test.
+    inference_mode: horizontal_flip_tta
+    fusion_iou_threshold: 0.55
+    max_detections: 100
+  fasterrcnn_retinanet_ensemble_v1:
+    confidence_thresholds:
+      BikeWithRider: 0.55
+      NoHelmet: 0.45
+      Helmet: 0.45
+    selection_split: val
+    selection_target_class: per_class
+    selection_metric: f1
+    selection_iou_threshold: 0.5
+    fusion_iou_threshold: 0.55
+    max_detections: 100
+    checkpoint_sha256s:
+      fasterrcnn_resnet50_fpn_v2: 27fc925e68cd908e82b3865f3781ea01ee643c67674a392e62d7893d59f92682
+      retinanet_resnet50_fpn_v2: 5f3e4cb963e2c079094254b261dec15e21b0b2784d5aa1fd34756ff006ed5ed5
+  fasterrcnn_resnet50_fpn_v2_vietnam_v6:
+    confidence_thresholds:
+      BikeWithRider: 0.95
+      NoHelmet: 0.65
+      Helmet: 0.70
+    selection_split: exploratory
+    experimental: true
+    note: >-
+      Ngưỡng kế thừa từ Faster R-CNN baseline; candidate v6 không qua
+      deployment gate, chỉ xuất hiện trong demo để kiểm tra trực quan.
+    checkpoint_sha256: 6869faff03a30c497fd60d1a61ef624ae2cc41e261b55030efd8816a980f8348
+    inference_mode: horizontal_flip_tta
+    fusion_iou_threshold: 0.55
+    max_detections: 100
+  retinanet_resnet50_fpn_v2_vietnam_v6:
+    confidence_thresholds:
+      BikeWithRider: 0.65
+      NoHelmet: 0.40
+      Helmet: 0.40
+    selection_split: exploratory
+    experimental: true
+    note: >-
+      Ngưỡng kế thừa từ RetinaNet baseline; candidate v6 không qua
+      deployment gate, chỉ xuất hiện trong demo để kiểm tra trực quan.
+    checkpoint_sha256: d02de4c3a4e76bb4a7898ff8ca04f40104085696532e60a1521f6fa08650263b
+    inference_mode: horizontal_flip_tta
+    fusion_iou_threshold: 0.55
+    max_detections: 100
+postprocess:
+  head_conflict_iou_threshold: 0.70
+  head_confidence_margin: 0.10

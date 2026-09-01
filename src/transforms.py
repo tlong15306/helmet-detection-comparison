@@ -7,6 +7,7 @@ from collections.abc import Callable
 from typing import Any
 
 import torch
+from torchvision.transforms import ColorJitter
 from torchvision.transforms import functional as F
 
 
@@ -50,10 +51,55 @@ class RandomHorizontalFlip:
         return image, target
 
 
-def build_transforms(train: bool, horizontal_flip_probability: float = 0.5) -> Compose:
-    """Tạo pipeline augmentation tối thiểu và an toàn cho baseline."""
+class RandomColorJitter:
+    """Biến đổi ánh sáng/màu nhẹ để giảm phụ thuộc điều kiện chụp."""
+
+    def __init__(
+        self,
+        probability: float = 0.8,
+        brightness: float = 0.2,
+        contrast: float = 0.2,
+        saturation: float = 0.15,
+        hue: float = 0.02,
+    ) -> None:
+        if not 0.0 <= probability <= 1.0:
+            raise ValueError("probability phải nằm trong [0, 1]")
+        self.probability = probability
+        self.transform = ColorJitter(
+            brightness=brightness,
+            contrast=contrast,
+            saturation=saturation,
+            hue=hue,
+        )
+
+    def __call__(self, image: Any, target: dict[str, torch.Tensor]):
+        if random.random() < self.probability:
+            image = self.transform(image)
+        return image, target
+
+
+def build_transforms(
+    train: bool,
+    horizontal_flip_probability: float = 0.5,
+    color_jitter_probability: float = 0.0,
+    brightness: float = 0.2,
+    contrast: float = 0.2,
+    saturation: float = 0.15,
+    hue: float = 0.02,
+) -> Compose:
+    """Tạo augmentation hình học và quang học, không làm lệch bounding box."""
     operations: list[Callable[..., Any]] = []
     if train:
         operations.append(RandomHorizontalFlip(horizontal_flip_probability))
+        if color_jitter_probability > 0:
+            operations.append(
+                RandomColorJitter(
+                    probability=color_jitter_probability,
+                    brightness=brightness,
+                    contrast=contrast,
+                    saturation=saturation,
+                    hue=hue,
+                )
+            )
     operations.append(ToFloatTensor())
     return Compose(operations)

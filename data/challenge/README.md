@@ -24,4 +24,4 @@ Không đặt ảnh/video có nguồn hoặc giấy phép không rõ ràng vào 
 
 - Pha A: thu thập và đánh giá challenge set độc lập.
 - Chưa có ảnh chính thức, chưa có annotation và chưa train lại.
-- Kế hoạch đầy đủ: [`KE_HOACH_BO_SUNG_TAP_ANH_KHO.md`](../../KE_HOACH_BO_SUNG_TAP_ANH_KHO.md).
+- Quy tắc chọn và gán nhãn: [`annotations/label_policy.md`](annotations/label_policy.md).

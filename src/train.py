@@ -13,19 +13,21 @@ import hashlib
 import json
 import math
 import platform
+import random
 import subprocess
+import sys
 import time
 from contextlib import nullcontext
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Iterable, Mapping, Sequence
 
 import torch
 import torchvision
 from torch import nn
 from torch.optim import Optimizer
 from torch.optim.lr_scheduler import LRScheduler
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Sampler, WeightedRandomSampler
 
 from .dataset import CocoBoxDataset, collate_fn
 from .metrics import DetectionEvaluator
@@ -35,7 +37,15 @@ from .utils import load_config, resolve_project_path, set_seed
 
 
 CHECKPOINT_FORMAT_VERSION = 1
-SUPPORTED_RUN_TYPES = {"baseline", "pilot", "smoke"}
+SUPPORTED_RUN_TYPES = {"baseline", "pilot", "finetune", "smoke"}
+
+
+def _configure_console_encoding() -> None:
+    """Cho phép log tiếng Việt khi chạy từ PowerShell Windows dùng CP1252."""
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="backslashreplace")
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8", errors="backslashreplace")
 
 
 def parse_args() -> argparse.Namespace:
@@ -94,6 +104,56 @@ def validate_config(config: dict[str, Any]) -> None:
         raise ValueError("training.epochs và training.batch_size phải lớn hơn 0")
     if int(training.get("gradient_accumulation_steps", 1)) < 1:
         raise ValueError("gradient_accumulation_steps phải lớn hơn 0")
+    initial_checkpoint = training.get("initial_checkpoint")
+    if initial_checkpoint is not None and not isinstance(initial_checkpoint, str):
+        raise ValueError("training.initial_checkpoint phải là đường dẫn chuỗi nếu được khai báo")
+    if not isinstance(training.get("freeze_backbone_body", False), bool):
+        raise ValueError("training.freeze_backbone_body phải là true hoặc false")
+    early_stop = training.get("early_stop")
+    if early_stop is not None:
+        if not isinstance(early_stop, dict):
+            raise ValueError("training.early_stop phải là mapping nếu được khai báo")
+        if int(early_stop.get("patience", 2)) < 1:
+            raise ValueError("training.early_stop.patience phải lớn hơn 0")
+        if float(early_stop.get("tolerance", 0.0)) < 0:
+            raise ValueError("training.early_stop.tolerance không được âm")
+        protected = early_stop.get("protected_classes", ["NoHelmet"])
+        if not isinstance(protected, list) or not all(isinstance(name, str) for name in protected):
+            raise ValueError("training.early_stop.protected_classes phải là list chuỗi")
+    source_mix = config.get("source_mix")
+    if source_mix is not None:
+        if not isinstance(source_mix, dict):
+            raise ValueError("source_mix phải là mapping nếu được cấu hình")
+        if bool(source_mix.get("enabled", False)):
+            ratio = float(source_mix.get("vietnam_ratio", 0.0))
+            if not 0.0 < ratio < 1.0:
+                raise ValueError("source_mix.vietnam_ratio phải nằm trong (0, 1)")
+            if not isinstance(source_mix.get("vietnam_source_dataset"), str):
+                raise ValueError("source_mix.vietnam_source_dataset phải là chuỗi")
+            if bool(config.get("sampling", {}).get("enabled", False)):
+                raise ValueError("Không thể bật đồng thời source_mix và weighted sampling")
+    targeted_source_mix = config.get("targeted_source_mix")
+    if targeted_source_mix is not None:
+        if not isinstance(targeted_source_mix, dict):
+            raise ValueError("targeted_source_mix phải là mapping nếu được cấu hình")
+        if bool(targeted_source_mix.get("enabled", False)):
+            ratio = float(targeted_source_mix.get("vietnam_ratio", 0.0))
+            if not 0.0 < ratio < 1.0:
+                raise ValueError("targeted_source_mix.vietnam_ratio phải nằm trong (0, 1)")
+            if not isinstance(targeted_source_mix.get("vietnam_source_dataset"), str):
+                raise ValueError(
+                    "targeted_source_mix.vietnam_source_dataset phải là chuỗi"
+                )
+            if int(targeted_source_mix.get("focus_category_id", 0)) < 1:
+                raise ValueError(
+                    "targeted_source_mix.focus_category_id phải là số nguyên dương"
+                )
+            if bool(source_mix and source_mix.get("enabled", False)):
+                raise ValueError("Không thể bật đồng thời source_mix và targeted_source_mix")
+            if bool(config.get("sampling", {}).get("enabled", False)):
+                raise ValueError(
+                    "Không thể bật đồng thời targeted_source_mix và weighted sampling"
+                )
     if int(runtime.get("num_workers", 0)) < 0:
         raise ValueError("runtime.num_workers không được âm")
     if not output.get("best_checkpoint") or not output.get("last_checkpoint"):
@@ -102,8 +162,8 @@ def validate_config(config: dict[str, Any]) -> None:
     if run and not isinstance(run, dict):
         raise ValueError("run phải là mapping nếu được khai báo")
     run_type = str(run.get("type", "baseline")).lower()
-    if run_type not in {"baseline", "pilot"}:
-        raise ValueError("run.type chỉ có thể là baseline hoặc pilot")
+    if run_type not in {"baseline", "pilot", "finetune"}:
+        raise ValueError("run.type chỉ có thể là baseline, pilot hoặc finetune")
     if int(run.get("progress_every_batches", 0)) < 0:
         raise ValueError("run.progress_every_batches không được âm")
 
@@ -142,6 +202,186 @@ def build_detector_from_config(config: dict[str, Any]) -> nn.Module:
     )
 
 
+def image_sampling_weights(
+    dataset: CocoBoxDataset,
+    *,
+    class_weights: dict[int, float],
+    small_object_ratio: float = 0.005,
+    small_object_boost: float = 0.4,
+    max_weight: float = 2.5,
+) -> torch.Tensor:
+    """Tạo trọng số ảnh để ưu tiên lớp hiếm và vùng đầu nhỏ trong train.
+
+    Trọng số chỉ quyết định tần suất lấy ảnh, không sửa annotation. Mỗi ảnh
+    nhận trọng số lớp lớn nhất trong ảnh và thêm boost một lần nếu chứa
+    Helmet/NoHelmet có diện tích tương đối nhỏ.
+    """
+    if small_object_ratio < 0 or small_object_boost < 0 or max_weight <= 0:
+        raise ValueError("Thông số sampling phải không âm và max_weight > 0")
+    if any(float(weight) <= 0 for weight in class_weights.values()):
+        raise ValueError("class_weights phải lớn hơn 0")
+
+    weights: list[float] = []
+    for image_info in dataset.images:
+        image_id = int(image_info["id"])
+        annotations = dataset.annotations_by_image.get(image_id, [])
+        weight = 1.0
+        has_small_head = False
+        image_area = float(image_info.get("width", 0)) * float(
+            image_info.get("height", 0)
+        )
+        for annotation in annotations:
+            class_id = int(annotation["category_id"])
+            weight = max(weight, float(class_weights.get(class_id, 1.0)))
+            if class_id not in {2, 3} or image_area <= 0:
+                continue
+            x, y, width, height = map(float, annotation["bbox"])
+            del x, y
+            area = float(annotation.get("area", width * height))
+            if area / image_area < small_object_ratio:
+                has_small_head = True
+        if has_small_head:
+            weight += small_object_boost
+        weights.append(min(weight, max_weight))
+    return torch.tensor(weights, dtype=torch.double)
+
+
+class VietnamPrioritySampler(Sampler[int]):
+    """Giữ toàn bộ ảnh Việt Nam, luân phiên một phần ảnh gốc mỗi epoch.
+
+    Sampler không lặp ảnh Việt Nam trong một epoch và không dùng weighted
+    sampling. Ảnh EdgeVision được chọn lại theo seed ở mỗi epoch để mô hình vẫn
+    nhìn thấy dữ liệu gốc đa dạng, trong khi tỷ lệ Việt Nam được ưu tiên.
+    """
+
+    def __init__(
+        self,
+        images: Sequence[Mapping[str, Any]],
+        *,
+        vietnam_source_dataset: str,
+        vietnam_ratio: float,
+        seed: int,
+    ) -> None:
+        if not 0.0 < vietnam_ratio < 1.0:
+            raise ValueError("vietnam_ratio phải nằm trong (0, 1)")
+        self.vietnam_indices = [
+            index
+            for index, image in enumerate(images)
+            if str(image.get("source_dataset")) == vietnam_source_dataset
+        ]
+        self.original_indices = [
+            index
+            for index, image in enumerate(images)
+            if str(image.get("source_dataset")) != vietnam_source_dataset
+        ]
+        if not self.vietnam_indices or not self.original_indices:
+            raise ValueError(
+                "VietnamPrioritySampler cần có cả ảnh Việt Nam và ảnh gốc"
+            )
+        self.vietnam_count = len(self.vietnam_indices)
+        self.original_count = max(
+            1, round(self.vietnam_count * (1.0 - vietnam_ratio) / vietnam_ratio)
+        )
+        if self.original_count > len(self.original_indices):
+            raise ValueError(
+                "Không đủ ảnh gốc để đạt vietnam_ratio mà không lặp ảnh gốc"
+            )
+        self.seed = int(seed)
+        self._epoch = 0
+
+    def __len__(self) -> int:
+        return self.vietnam_count + self.original_count
+
+    def __iter__(self):
+        rng = random.Random(self.seed + self._epoch)
+        self._epoch += 1
+        vietnam = list(self.vietnam_indices)
+        original = rng.sample(self.original_indices, self.original_count)
+        rng.shuffle(vietnam)
+        rng.shuffle(original)
+
+        vietnam_used = original_used = 0
+        for position in range(1, len(self) + 1):
+            expected_vietnam = round(position * self.vietnam_count / len(self))
+            if vietnam_used < expected_vietnam:
+                yield vietnam[vietnam_used]
+                vietnam_used += 1
+            else:
+                yield original[original_used]
+                original_used += 1
+
+
+class FocusedVietnamSampler(Sampler[int]):
+    """Chỉ lấy ảnh Việt Nam có một lớp đích, không lặp lại ảnh trong epoch.
+
+    Dùng khi dữ liệu Việt Nam bị lệch mạnh về lớp Helmet: toàn bộ ảnh Việt Nam
+    chứa lớp đích được đưa vào một epoch, còn ảnh EdgeVision được lấy ngẫu nhiên
+    không hoàn lại để giữ tỷ lệ dữ liệu gốc. Đây không phải weighted sampling.
+    """
+
+    def __init__(
+        self,
+        images: Sequence[Mapping[str, Any]],
+        annotations_by_image: Mapping[int, Sequence[Mapping[str, Any]]],
+        *,
+        vietnam_source_dataset: str,
+        focus_category_id: int,
+        vietnam_ratio: float,
+        seed: int,
+    ) -> None:
+        if not 0.0 < vietnam_ratio < 1.0:
+            raise ValueError("vietnam_ratio phải nằm trong (0, 1)")
+        self.vietnam_indices = [
+            index
+            for index, image in enumerate(images)
+            if str(image.get("source_dataset")) == vietnam_source_dataset
+            and any(
+                int(annotation["category_id"]) == focus_category_id
+                for annotation in annotations_by_image.get(int(image["id"]), [])
+            )
+        ]
+        self.original_indices = [
+            index
+            for index, image in enumerate(images)
+            if str(image.get("source_dataset")) != vietnam_source_dataset
+        ]
+        if not self.vietnam_indices or not self.original_indices:
+            raise ValueError(
+                "FocusedVietnamSampler cần có ảnh Việt Nam lớp đích và ảnh gốc"
+            )
+        self.vietnam_count = len(self.vietnam_indices)
+        self.original_count = max(
+            1, round(self.vietnam_count * (1.0 - vietnam_ratio) / vietnam_ratio)
+        )
+        if self.original_count > len(self.original_indices):
+            raise ValueError(
+                "Không đủ ảnh gốc để đạt vietnam_ratio mà không lặp ảnh gốc"
+            )
+        self.seed = int(seed)
+        self._epoch = 0
+
+    def __len__(self) -> int:
+        return self.vietnam_count + self.original_count
+
+    def __iter__(self):
+        rng = random.Random(self.seed + self._epoch)
+        self._epoch += 1
+        vietnam = list(self.vietnam_indices)
+        original = rng.sample(self.original_indices, self.original_count)
+        rng.shuffle(vietnam)
+        rng.shuffle(original)
+
+        vietnam_used = original_used = 0
+        for position in range(1, len(self) + 1):
+            expected_vietnam = round(position * self.vietnam_count / len(self))
+            if vietnam_used < expected_vietnam:
+                yield vietnam[vietnam_used]
+                vietnam_used += 1
+            else:
+                yield original[original_used]
+                original_used += 1
+
+
 def build_loaders(config: dict[str, Any], smoke_test: bool = False) -> tuple[DataLoader, DataLoader]:
     """Tạo train/validation loader cùng image root và không đọc tập test."""
     data = config["data"]
@@ -165,6 +405,13 @@ def build_loaders(config: dict[str, Any], smoke_test: bool = False) -> tuple[Dat
             horizontal_flip_probability=float(
                 augmentation.get("horizontal_flip_probability", 0.5)
             ),
+            color_jitter_probability=float(
+                augmentation.get("color_jitter_probability", 0.0)
+            ),
+            brightness=float(augmentation.get("brightness", 0.2)),
+            contrast=float(augmentation.get("contrast", 0.2)),
+            saturation=float(augmentation.get("saturation", 0.15)),
+            hue=float(augmentation.get("hue", 0.02)),
         ),
     )
     val_dataset = CocoBoxDataset(
@@ -180,8 +427,49 @@ def build_loaders(config: dict[str, Any], smoke_test: bool = False) -> tuple[Dat
         "pin_memory": torch.cuda.is_available(),
         "collate_fn": collate_fn,
     }
+    sampling = config.get("sampling", {})
+    source_mix = config.get("source_mix", {})
+    targeted_source_mix = config.get("targeted_source_mix", {})
+    sampler = None
+    if bool(targeted_source_mix.get("enabled", False)):
+        sampler = FocusedVietnamSampler(
+            train_dataset.images,
+            train_dataset.annotations_by_image,
+            vietnam_source_dataset=str(targeted_source_mix["vietnam_source_dataset"]),
+            focus_category_id=int(targeted_source_mix["focus_category_id"]),
+            vietnam_ratio=float(targeted_source_mix["vietnam_ratio"]),
+            seed=int(config.get("project", {}).get("seed", 42)),
+        )
+    elif bool(source_mix.get("enabled", False)):
+        sampler = VietnamPrioritySampler(
+            train_dataset.images,
+            vietnam_source_dataset=str(source_mix["vietnam_source_dataset"]),
+            vietnam_ratio=float(source_mix["vietnam_ratio"]),
+            seed=int(config.get("project", {}).get("seed", 42)),
+        )
+    elif bool(sampling.get("enabled", False)) and not smoke_test:
+        configured_class_weights = {
+            int(class_id): float(weight)
+            for class_id, weight in sampling.get("class_weights", {}).items()
+        }
+        weights = image_sampling_weights(
+            train_dataset,
+            class_weights=configured_class_weights,
+            small_object_ratio=float(sampling.get("small_object_ratio", 0.005)),
+            small_object_boost=float(sampling.get("small_object_boost", 0.4)),
+            max_weight=float(sampling.get("max_weight", 2.5)),
+        )
+        generator = torch.Generator().manual_seed(
+            int(config.get("project", {}).get("seed", 42))
+        )
+        sampler = WeightedRandomSampler(
+            weights,
+            num_samples=len(train_dataset),
+            replacement=True,
+            generator=generator,
+        )
     return (
-        DataLoader(train_dataset, shuffle=True, **common),
+        DataLoader(train_dataset, shuffle=sampler is None, sampler=sampler, **common),
         DataLoader(val_dataset, shuffle=False, **common),
     )
 
@@ -204,6 +492,22 @@ def build_optimizer(model: nn.Module, training: dict[str, Any]) -> Optimizer:
     raise ValueError(f"Optimizer không được hỗ trợ: {name}")
 
 
+def configure_trainable_parameters(model: nn.Module, training: dict[str, Any]) -> dict[str, int]:
+    """Đóng băng phần thân backbone cho pilot, vẫn học FPN và detection heads."""
+    if bool(training.get("freeze_backbone_body", False)):
+        backbone = getattr(model, "backbone", None)
+        body = getattr(backbone, "body", None)
+        if body is None:
+            raise ValueError("Model không có backbone.body để đóng băng")
+        for parameter in body.parameters():
+            parameter.requires_grad = False
+    trainable = sum(parameter.numel() for parameter in model.parameters() if parameter.requires_grad)
+    frozen = sum(parameter.numel() for parameter in model.parameters() if not parameter.requires_grad)
+    if trainable == 0:
+        raise ValueError("Không còn tham số trainable sau khi áp dụng cấu hình đóng băng")
+    return {"trainable": trainable, "frozen": frozen}
+
+
 def build_scheduler(
     optimizer: Optimizer, training: dict[str, Any]
 ) -> LRScheduler | None:
@@ -218,6 +522,34 @@ def build_scheduler(
             gamma=float(training["scheduler_gamma"]),
         )
     raise ValueError(f"Scheduler không được hỗ trợ: {name}")
+
+
+def validation_regressed(
+    previous: Mapping[str, Any] | None,
+    current: Mapping[str, Any] | None,
+    *,
+    primary_metric: str,
+    protected_classes: Sequence[str],
+    tolerance: float = 0.0,
+) -> bool:
+    """True khi mAP hoặc AP lớp bảo vệ giảm so với lần validation trước.
+
+    Dùng riêng cho early-stop của fine-tune. Checkpoint tốt nhất vẫn được chọn
+    độc lập theo primary metric; hàm này không đọc hay động tới test split.
+    """
+    if previous is None or current is None:
+        return False
+    if float(current[primary_metric]) + tolerance < float(previous[primary_metric]):
+        return True
+    for class_name in protected_classes:
+        try:
+            before = float(previous["per_class"][class_name]["ap_50_95"])
+            after = float(current["per_class"][class_name]["ap_50_95"])
+        except KeyError as error:
+            raise ValueError(f"early_stop không tìm thấy metric lớp {class_name}") from error
+        if after + tolerance < before:
+            return True
+    return False
 
 
 def _move_targets(targets: Iterable[dict[str, torch.Tensor]], device: torch.device):
@@ -392,6 +724,30 @@ def load_resume_checkpoint(
     return int(payload["epoch"]) + 1
 
 
+def load_initial_checkpoint(
+    path: str | Path,
+    model: nn.Module,
+    device: torch.device,
+    expected_model_name: str,
+) -> dict[str, Any]:
+    """Nạp riêng trọng số model cho fine-tune, không khôi phục optimizer/epoch."""
+    checkpoint_path = resolve_project_path(path)
+    if not checkpoint_path.is_file():
+        raise FileNotFoundError(f"Không tìm thấy checkpoint khởi tạo: {checkpoint_path}")
+    payload = torch.load(checkpoint_path, map_location=device, weights_only=False)
+    if payload.get("format_version") != CHECKPOINT_FORMAT_VERSION:
+        raise ValueError("Checkpoint khởi tạo không đúng định dạng pipeline")
+    if payload.get("model_name") != expected_model_name:
+        raise ValueError("Checkpoint khởi tạo thuộc kiến trúc khác với config hiện tại")
+    model.load_state_dict(payload["model_state_dict"], strict=True)
+    return {
+        "path": str(checkpoint_path),
+        "sha256": _file_sha256(checkpoint_path),
+        "source_epoch": payload.get("epoch"),
+        "source_run_type": payload.get("run_type"),
+    }
+
+
 def _read_checkpoint_metric(path: Path, metric_name: str, device: torch.device) -> float:
     """Lấy metric tốt nhất đã lưu để resume không ghi đè checkpoint tốt hơn."""
     if not path.exists():
@@ -464,7 +820,8 @@ def _training_data_hashes(config: dict[str, Any]) -> dict[str, str | None]:
         "processed_annotations": data.get("processed_annotations"),
         "train_annotations": data["train_annotations"],
         "val_annotations": data["val_annotations"],
-        "frozen_split_manifest": "data/splits/frozen_manifest.json",
+        "frozen_split_manifest": data.get("frozen_manifest", "data/splits/frozen_manifest.json"),
+        "initial_checkpoint": config["training"].get("initial_checkpoint"),
     }
     hashes: dict[str, str | None] = {}
     for key, relative_path in tracked_files.items():
@@ -482,7 +839,9 @@ def _validate_frozen_training_inputs(config: dict[str, Any]) -> None:
     Hàm này cố ý không đọc test split; frozen manifest đã được tạo bởi công cụ
     kiểm tra đầy đủ ba split trước thời điểm huấn luyện.
     """
-    manifest_path = resolve_project_path("data/splits/frozen_manifest.json")
+    manifest_path = resolve_project_path(
+        config["data"].get("frozen_manifest", "data/splits/frozen_manifest.json")
+    )
     if not manifest_path.is_file():
         raise FileNotFoundError(
             "Thiếu frozen split manifest. Chạy tools/freeze_splits.py trước khi train."
@@ -648,7 +1007,9 @@ def run_training(
     started_monotonic = time.perf_counter()
     smoke_dir: Path | None = None
     if smoke_test:
-        frozen_manifest = resolve_project_path("data/splits/frozen_manifest.json")
+        frozen_manifest = resolve_project_path(
+            config["data"].get("frozen_manifest", "data/splits/frozen_manifest.json")
+        )
         if not frozen_manifest.is_file():
             raise FileNotFoundError(
                 "Thiếu frozen split manifest. Chạy tools/freeze_splits.py trước smoke test."
@@ -660,6 +1021,22 @@ def run_training(
         torch.cuda.empty_cache()
         torch.cuda.reset_peak_memory_stats(device)
     model = build_detector_from_config(config).to(device)
+    initial_checkpoint = config["training"].get("initial_checkpoint")
+    if resume and initial_checkpoint:
+        print("Resume từ checkpoint hiện có; bỏ qua training.initial_checkpoint.")
+    elif initial_checkpoint:
+        initialization = load_initial_checkpoint(
+            initial_checkpoint,
+            model,
+            device,
+            str(config["model"]["name"]),
+        )
+        print(f"Khởi tạo fine-tune từ {initialization['path']}")
+    parameter_counts = configure_trainable_parameters(model, config["training"])
+    print(
+        "Tham số: "
+        f"trainable={parameter_counts['trainable']:,}, frozen={parameter_counts['frozen']:,}"
+    )
     optimizer = build_optimizer(model, config["training"])
     scheduler = build_scheduler(optimizer, config["training"])
     use_amp = bool(config["runtime"].get("mixed_precision", False)) and device.type == "cuda"
@@ -698,6 +1075,29 @@ def run_training(
     stop_epoch = start_epoch + epochs - 1 if smoke_test else epochs
     validation_every = int(config["training"].get("validate_every_epochs", 1))
     progress_every_batches = int(config.get("run", {}).get("progress_every_batches", 0))
+    early_stop_config = config["training"].get("early_stop") or {}
+    early_stop_enabled = bool(early_stop_config.get("enabled", False)) and not smoke_test
+    early_stop_patience = int(early_stop_config.get("patience", 2))
+    early_stop_tolerance = float(early_stop_config.get("tolerance", 0.0))
+    early_stop_classes = list(early_stop_config.get("protected_classes", ["NoHelmet"]))
+    previous_validation: Mapping[str, Any] | None = None
+    regression_streak = 0
+    for prior_record in history:
+        prior_validation = prior_record.get("validation")
+        if prior_validation is None:
+            continue
+        if validation_regressed(
+            previous_validation,
+            prior_validation,
+            primary_metric=primary_metric,
+            protected_classes=early_stop_classes,
+            tolerance=early_stop_tolerance,
+        ):
+            regression_streak += 1
+        else:
+            regression_streak = 0
+        previous_validation = prior_validation
+    early_stop_triggered = False
 
     print(f"Huấn luyện {config['model']['name']} trên {device.type}; AMP={use_amp}")
     for epoch in range(start_epoch, stop_epoch + 1):
@@ -715,6 +1115,7 @@ def run_training(
             progress_every_batches=progress_every_batches if not smoke_test else 0,
         )
         validation: dict[str, Any] | None = None
+        regressed = False
         if epoch % validation_every == 0 or epoch == stop_epoch:
             validation = validate(
                 model,
@@ -742,6 +1143,16 @@ def run_training(
                             run_type=run_type,
                         ),
                     )
+            regressed = validation_regressed(
+                previous_validation,
+                validation,
+                primary_metric=primary_metric,
+                protected_classes=early_stop_classes,
+                tolerance=early_stop_tolerance,
+            )
+            regression_streak = regression_streak + 1 if regressed else 0
+            previous_validation = validation
+            early_stop_triggered = early_stop_enabled and regression_streak >= early_stop_patience
 
         # Smoke test chỉ xác nhận forward/backward/validation/checkpoint trong
         # một batch. AMP có thể bỏ qua optimizer step đầu tiên khi tự điều chỉnh
@@ -756,6 +1167,15 @@ def run_training(
             **train_summary,
             "validation": validation,
         }
+        if early_stop_enabled:
+            record["early_stop"] = {
+                "enabled": True,
+                "regressed": regressed,
+                "regression_streak": regression_streak,
+                "patience": early_stop_patience,
+                "triggered": early_stop_triggered,
+                "protected_classes": early_stop_classes,
+            }
         history.append(record)
         if not smoke_test:
             save_checkpoint(
@@ -776,6 +1196,12 @@ def run_training(
             f", {primary_metric}={validation[primary_metric]:.5f}" if validation else ""
         )
         print(f"Epoch {epoch}/{stop_epoch}: {loss_text}{metric_text}")
+        if early_stop_triggered:
+            print(
+                "Dừng sớm: validation mAP hoặc AP lớp bảo vệ giảm "
+                f"{regression_streak} lần liên tiếp."
+            )
+            break
 
     if smoke_dir is not None and smoke_checkpoint is not None:
         final_validation = history[-1].get("validation") if history else None
@@ -814,11 +1240,11 @@ def run_training(
             },
         )
 
-    if run_type in {"pilot", "baseline"}:
+    if run_type in {"pilot", "baseline", "finetune"}:
         manifest = _run_manifest(
             config,
             run_type=run_type,
-            status="completed",
+            status="completed_early_stop" if early_stop_triggered else "completed",
             device=device,
             started_at_utc=started_at_utc,
             duration_seconds=time.perf_counter() - started_monotonic,
@@ -843,6 +1269,7 @@ def run_training(
 
 
 def main() -> None:
+    _configure_console_encoding()
     args = parse_args()
     config = load_config(args.config)
     run_training(

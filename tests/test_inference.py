@@ -30,6 +30,13 @@ def test_filter_predictions_is_inclusive_and_keeps_alignment() -> None:
     assert filtered["scores"].tolist() == pytest.approx([0.85])
 
 
+def test_filter_predictions_supports_threshold_per_class() -> None:
+    filtered = filter_predictions(sample_prediction(), {2: 0.80, 3: 0.55})
+    assert filtered["labels"].tolist() == [2, 3]
+    filtered = filter_predictions(sample_prediction(), {2: 0.90, 3: 0.55})
+    assert filtered["labels"].tolist() == [3]
+
+
 def test_filter_predictions_handles_empty_result() -> None:
     filtered = filter_predictions(sample_prediction(), 0.9)
     assert filtered["boxes"].shape == (0, 4)

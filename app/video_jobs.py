@@ -9,7 +9,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping
 
 import cv2
 import numpy as np
@@ -18,12 +18,15 @@ from PIL import Image
 
 from app.model_loader import DetectorManager
 from src.infer import draw_detections, normalize_pil_image, summarize_detections
+from src.postprocess import postprocess_detections
+from src.rider_association import load_role_decision_config
 from src.utils import resolve_project_path
 
 
 MAX_VIDEO_BYTES = 200 * 1024 * 1024
 MAX_VIDEO_DURATION_SECONDS = 5 * 60
 ALLOWED_VIDEO_SUFFIXES = {".mp4", ".mov", ".avi"}
+VIDEO_ASSOCIATION_CONFIG, VIDEO_ROLE_CONFIG = load_role_decision_config("configs/rider_association.yaml")
 
 
 def _utc_now() -> str:
@@ -34,7 +37,7 @@ def _utc_now() -> str:
 class VideoJob:
     job_id: str
     model_id: str
-    threshold: float
+    threshold: float | dict[int, float]
     input_filename: str
     input_path: Path
     output_path: Path
@@ -70,7 +73,7 @@ class VideoJobManager:
         content: bytes,
         filename: str,
         model_id: str,
-        threshold: float,
+        threshold: float | Mapping[int, float],
     ) -> VideoJob:
         safe_name = Path(filename or "video.mp4").name
         suffix = Path(safe_name).suffix.lower()
@@ -96,7 +99,11 @@ class VideoJobManager:
         job = VideoJob(
             job_id=job_id,
             model_id=model_id,
-            threshold=float(threshold),
+            threshold=(
+                {int(class_id): float(value) for class_id, value in threshold.items()}
+                if isinstance(threshold, Mapping)
+                else float(threshold)
+            ),
             input_filename=safe_name,
             input_path=input_path,
             output_path=output_path,
@@ -121,7 +128,16 @@ class VideoJobManager:
                 "created_at": job.created_at,
                 "updated_at": job.updated_at,
                 "model": {"id": job.model_id, "name": job.model_name},
-                "threshold": job.threshold,
+                "threshold": (
+                    job.threshold.get(2, next(iter(job.threshold.values())))
+                    if isinstance(job.threshold, dict)
+                    else job.threshold
+                ),
+                "thresholds": (
+                    {str(class_id): value for class_id, value in job.threshold.items()}
+                    if isinstance(job.threshold, dict)
+                    else None
+                ),
                 "input": {
                     "filename": job.input_filename,
                     "width": job.width,
@@ -224,14 +240,29 @@ class VideoJobManager:
                     prediction, latency_ms = self.detector_manager.predict_loaded(
                         detector, image, job.threshold
                     )
-                    rendered = draw_detections(image, prediction, detector.class_names)
+                    postprocess = postprocess_detections(
+                        prediction,
+                        detector.class_names,
+                        VIDEO_ASSOCIATION_CONFIG,
+                        VIDEO_ROLE_CONFIG,
+                        head_conflict_iou_threshold=float(detector.postprocess_config["head_conflict_iou_threshold"]),
+                        head_confidence_margin=float(detector.postprocess_config["head_confidence_margin"]),
+                    )
+                    rendered = draw_detections(
+                        image,
+                        postprocess["prediction"],
+                        detector.class_names,
+                        display_annotations=postprocess["display_annotations"],
+                    )
                     output_frame = cv2.cvtColor(np.asarray(rendered), cv2.COLOR_RGB2BGR)
                     writer.write(output_frame)
                     frame_count += 1
                     latency_total += latency_ms
-                    frame_summary = summarize_detections(prediction, detector.class_names)
+                    frame_summary = summarize_detections(postprocess["prediction"], detector.class_names)
                     for key, value in frame_summary.items():
                         accumulated[key] += value
+                    accumulated.setdefault("DriverNoHelmetAlert", 0)
+                    accumulated["DriverNoHelmetAlert"] += len(postprocess["alerts"])
                     percent = (frame_count / total_frames * 100.0) if total_frames else 0.0
                     self._update(
                         job,

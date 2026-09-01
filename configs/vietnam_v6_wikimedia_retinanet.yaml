@@ -1,0 +1,51 @@
+base_config: configs/common.yaml
+
+run:
+  type: finetune
+  experiment_id: vietnam_v6_wikimedia_retinanet
+  progress_every_batches: 100
+
+data:
+  image_root: data
+  processed_annotations: data/processed/vietnam_pilot_v6_wikimedia/processed_annotations.json
+  train_annotations: data/processed/vietnam_pilot_v6_wikimedia/train.json
+  val_annotations: data/processed/vietnam_pilot_v6_wikimedia/val.json
+  test_annotations: data/processed/vietnam_pilot_v6_wikimedia/test.json
+  frozen_manifest: data/processed/vietnam_pilot_v6_wikimedia/frozen_manifest.json
+
+model:
+  name: retinanet_resnet50_fpn_v2
+  weights: NONE
+  num_classes: 4
+  trainable_backbone_layers: 3
+
+augmentation:
+  horizontal_flip_probability: 0.5
+  color_jitter_probability: 0.0
+
+sampling:
+  enabled: false
+
+training:
+  initial_checkpoint: outputs/retinanet/checkpoints/best_map.pth
+  epochs: 1
+  batch_size: 1
+  optimizer: sgd
+  learning_rate: 0.000025
+  momentum: 0.9
+  weight_decay: 0.0005
+  scheduler: none
+  gradient_accumulation_steps: 1
+  validate_every_epochs: 1
+  freeze_backbone_body: true
+  early_stop:
+    enabled: true
+    patience: 2
+    tolerance: 0.0
+    protected_classes: [NoHelmet]
+
+output:
+  directory: outputs/vietnam_pilot_v6_wikimedia/retinanet/stage1
+  best_checkpoint: outputs/vietnam_pilot_v6_wikimedia/retinanet/stage1/checkpoints/best_map.pth
+  last_checkpoint: outputs/vietnam_pilot_v6_wikimedia/retinanet/stage1/checkpoints/last.pth
+  smoke_directory: outputs/smoke/vietnam_pilot_v6_wikimedia/retinanet

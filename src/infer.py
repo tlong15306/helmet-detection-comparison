@@ -48,10 +48,14 @@ def validate_threshold(confidence_threshold: float) -> float:
 
 
 def filter_predictions(
-    prediction: Mapping[str, torch.Tensor], confidence_threshold: float
+    prediction: Mapping[str, torch.Tensor],
+    confidence_threshold: float | Mapping[int, float],
 ) -> dict[str, torch.Tensor]:
-    """Lọc đồng bộ boxes, labels và scores theo điều kiện score >= threshold."""
-    threshold = validate_threshold(confidence_threshold)
+    """Lọc đồng bộ boxes, labels và scores theo ngưỡng chung hoặc từng lớp.
+
+    Mapping dùng class id làm khóa. Việc lọc chỉ phục vụ suy luận/demo; nó không
+    thay đổi đầu ra dùng để tính mAP của pipeline đánh giá.
+    """
     required = ("boxes", "labels", "scores")
     missing = [key for key in required if key not in prediction]
     if missing:
@@ -69,7 +73,25 @@ def filter_predictions(
     if not (len(boxes) == len(labels) == len(scores)):
         raise ValueError("boxes, labels và scores phải có cùng số phần tử")
 
-    keep = scores >= threshold
+    if isinstance(confidence_threshold, Mapping):
+        thresholds: dict[int, float] = {}
+        for raw_class_id, raw_threshold in confidence_threshold.items():
+            class_id = int(raw_class_id)
+            if class_id <= 0:
+                raise ValueError("Threshold theo lớp không áp dụng cho background")
+            thresholds[class_id] = validate_threshold(float(raw_threshold))
+        missing_classes = sorted({int(label) for label in labels.tolist()} - set(thresholds))
+        if missing_classes:
+            raise ValueError(f"Thiếu threshold cho class id: {missing_classes}")
+        per_prediction_threshold = torch.tensor(
+            [thresholds[int(label)] for label in labels.tolist()],
+            device=scores.device,
+            dtype=scores.dtype,
+        )
+        keep = scores >= per_prediction_threshold
+    else:
+        threshold = validate_threshold(confidence_threshold)
+        keep = scores >= threshold
     return {
         "boxes": boxes[keep].detach().cpu(),
         "labels": labels[keep].detach().cpu(),
@@ -81,14 +103,20 @@ def predict_image(
     model: torch.nn.Module,
     image: Image.Image,
     device: torch.device,
-    confidence_threshold: float,
+    confidence_threshold: float | Mapping[int, float],
 ) -> tuple[dict[str, torch.Tensor], float]:
     """Chạy inference batch size 1 và trả prediction đã lọc cùng latency mili-giây.
 
     Latency bao gồm chuyển tensor lên thiết bị, model forward và hậu xử lý NMS
     của Torchvision; không bao gồm đọc tệp hoặc vẽ giao diện.
     """
-    threshold = validate_threshold(confidence_threshold)
+    if isinstance(confidence_threshold, Mapping):
+        threshold: float | Mapping[int, float] = {
+            int(class_id): validate_threshold(float(value))
+            for class_id, value in confidence_threshold.items()
+        }
+    else:
+        threshold = validate_threshold(confidence_threshold)
     tensor = image_to_tensor(image)
     model.eval()
 
@@ -160,8 +188,13 @@ def draw_detections(
     prediction: Mapping[str, torch.Tensor],
     class_names: Mapping[int, str],
     colors: Mapping[int, tuple[int, int, int]] | None = None,
+    display_annotations: Mapping[str, Mapping[str, Any]] | None = None,
 ) -> Image.Image:
-    """Vẽ bounding box, tên lớp và confidence trên bản sao ảnh RGB."""
+    """Vẽ detection đã hậu xử lý.
+
+    ``display_annotations`` chỉ thay đổi cách trình bày của demo (màu/nhãn),
+    không thay đổi label hay confidence do detector trả về.
+    """
     result = normalize_pil_image(image).copy()
     draw = ImageDraw.Draw(result)
     palette = dict(CLASS_COLORS if colors is None else colors)
@@ -169,16 +202,22 @@ def draw_detections(
     font = _load_font(font_size)
     line_width = max(2, round(min(result.size) * 0.004))
 
-    for box, label, score in zip(
+    for index, (box, label, score) in enumerate(zip(
         prediction["boxes"].tolist(),
         prediction["labels"].tolist(),
         prediction["scores"].tolist(),
         strict=True,
-    ):
+    ), start=1):
         class_id = int(label)
         if class_id not in class_names:
             raise ValueError(f"Prediction có nhãn không xác định: {class_id}")
-        color = palette.get(class_id, (245, 158, 11))
+        annotation = (display_annotations or {}).get(f"detection_{index}", {})
+        raw_color = annotation.get("color")
+        color = (
+            tuple(int(value) for value in raw_color)
+            if isinstance(raw_color, (list, tuple)) and len(raw_color) == 3
+            else palette.get(class_id, (245, 158, 11))
+        )
         x1, y1, x2, y2 = [float(value) for value in box]
         x1 = max(0.0, min(x1, result.width - 1))
         y1 = max(0.0, min(y1, result.height - 1))
@@ -186,7 +225,8 @@ def draw_detections(
         y2 = max(y1, min(y2, result.height - 1))
         draw.rectangle((x1, y1, x2, y2), outline=color, width=line_width)
 
-        text = f"{class_names[class_id]} {float(score):.2f}"
+        display_name = str(annotation.get("label", class_names[class_id]))
+        text = f"{display_name} {float(score):.2f}"
         text_box = draw.textbbox((0, 0), text, font=font, stroke_width=0)
         text_width = text_box[2] - text_box[0]
         text_height = text_box[3] - text_box[1]
@@ -195,6 +235,7 @@ def draw_detections(
         label_right = min(float(result.width), x1 + text_width + 2 * pad_x)
         draw.rectangle((x1, label_top, label_right, y1), fill=color)
         draw.text((x1 + pad_x, label_top + pad_y), text, fill="white", font=font)
+
     return result
 
 

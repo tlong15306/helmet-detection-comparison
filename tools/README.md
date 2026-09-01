@@ -1,56 +1,33 @@
 # Thư mục `tools/`
 
-## Mục đích
+Chỉ giữ các công cụ tái lập pipeline, kiểm tra dữ liệu, đánh giá và chạy demo.
+Các script duyệt nhãn/pseudo-label dùng một lần được giữ local và không đưa lên
+GitHub.
 
-Chứa các công cụ hỗ trợ chuẩn bị và kiểm tra dự án. Các tệp ở đây không phải lõi mô hình nhưng tạo bằng chứng cần thiết cho báo cáo.
+## Chuẩn bị và kiểm tra dữ liệu
 
-## Công cụ và thứ tự sử dụng
+1. `check_environment.py`: ghi nhận Python, PyTorch, CUDA và GPU.
+2. `inspect_dataset.py`: kiểm tra COCO, ảnh hỏng, bbox và category.
+3. `prepare_annotations.py`: tạo annotation đã làm sạch mà không sửa dữ liệu raw.
+4. `build_groups.py`: tính hash và hỗ trợ phát hiện ảnh trùng.
+5. `create_splits.py`: tạo train/validation/test theo group và seed.
+6. `freeze_splits.py`: khóa fingerprint và kiểm tra rò rỉ giữa các split.
+7. `visualize_annotations.py`: vẽ mẫu annotation để rà trực quan.
 
-1. `check_environment.py`
-   - Chạy trước tiên.
-   - Ghi phiên bản Python/PyTorch/Torchvision, CUDA, GPU và VRAM.
-2. `inspect_dataset.py`
-   - Chạy sau khi có ảnh và annotation COCO.
-   - Kiểm tra cấu trúc COCO, ID, category, bounding box, ảnh thiếu/hỏng,
-     kích thước ảnh và các tệp ảnh không được annotation tham chiếu.
-   - Lưu báo cáo bằng tùy chọn `--output outputs/dataset_report.json`.
-3. `visualize_annotations.py`
-   - Vẽ bounding box lên ảnh mẫu.
-   - Dùng để phát hiện category mapping hoặc tọa độ sai.
-4. `prepare_annotations.py`
-   - Tạo bản annotation processed và nhật ký thay đổi, không sửa `data/raw/`.
-   - Chỉ clip bbox vượt biên nhỏ; bbox lỗi nghiêm trọng được loại và ghi rõ để xem lại.
-5. `build_groups.py`
-   - Tính SHA-256, tìm ảnh trùng chính xác và xuất ứng viên gần trùng lặp.
-   - Manifest chỉ tự nhóm ảnh trùng chính xác; nhóm cảnh/video cần được người phụ trách duyệt.
-6. `create_splits.py`
-   - Tạo split cố định theo `group_id`, seed và tỷ lệ đã xác nhận.
-7. `freeze_splits.py`
-   - Kiểm tra giao nhau, category/bbox và lưu SHA-256 của processed annotation cùng ba split.
-   - Chạy ngay trước smoke test hoặc train chính thức.
-8. `benchmark_speed.py`
-   - Chạy sau khi có checkpoint tốt nhất.
-   - Đo latency/FPS của hai mô hình theo cùng giao thức.
-9. `src.threshold_selection`
-   - Chạy suy luận một lần trên validation, quét threshold từ 0,05 đến 0,95.
-   - Chọn threshold có F1 cao nhất cho lớp `NoHelmet`; khi bằng nhau ưu tiên Recall,
-     rồi Precision và threshold cao hơn.
-   - Lưu artifact vào `outputs/<model>/metrics/validation_threshold_selection.json`
-     và cập nhật `configs/demo_thresholds.yaml` cho demo dùng lại.
+## Đánh giá và demo
 
-## Quy tắc
+- `benchmark_inference.py`, `benchmark_speed.py`: đo latency/FPS theo giao thức
+  cố định.
+- `check_deployment_gate.py`: so candidate với baseline trên validation.
+- `evaluate_fusion.py`: đánh giá hợp nhất Faster R-CNN và RetinaNet.
+- `profile_validation_thresholds.py`: phân tích threshold trên validation và từ
+  chối tệp có tên chứa `test`.
+- `run_local_demo_image_batch.py`: gửi một thư mục ảnh tới API demo cục bộ.
+- `build_challenge_contact_sheet.py`, `select_edgevision_hard_subset.py` và
+  `dedupe_challenge_images.py`: chuẩn bị tập ảnh khó phục vụ phân tích lỗi.
 
-- Công cụ không được âm thầm sửa `data/raw/`.
-- Mọi tệp tạo ra phải có đường dẫn đầu ra rõ ràng.
-- Nếu phát hiện lỗi dữ liệu, lưu minh chứng vào `data/samples/invalid_examples/`.
-- Benchmark phải ghi phần cứng, kích thước ảnh, warm-up, số lượt đo và phạm vi thời gian được tính.
-- Tập test không được đọc bởi công cụ chọn threshold cho demo.
-# Benchmark tốc độ suy luận
+## Nguyên tắc
 
-`benchmark_inference.py` đo latency/FPS công bằng cho hai checkpoint tốt nhất.
-Nó luôn dùng ảnh validation, 20 ảnh warm-up và 100 ảnh đo mặc định; test split
-không được dùng để điều chỉnh tốc độ hoặc ngưỡng confidence.
-
-```powershell
-python -m tools.benchmark_inference --config configs/faster_rcnn.yaml --checkpoint outputs/faster_rcnn/checkpoints/best_map.pth --output outputs/faster_rcnn/metrics/latency_validation.json --device cuda
-```
+- Không dùng tập test để chọn threshold hoặc quyết định candidate.
+- Không dùng pseudo-label chưa duyệt làm ground truth báo cáo.
+- Artifact sinh ra được ghi vào `outputs/` hoặc `data/processed/` và không commit.

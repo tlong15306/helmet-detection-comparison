@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -12,6 +13,14 @@ from PIL import Image, UnidentifiedImageError
 
 
 SUPPORTED_IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
+
+
+def _configure_console_encoding() -> None:
+    """Giữ CLI dùng được trên PowerShell Windows có code page cũ."""
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="backslashreplace")
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8", errors="backslashreplace")
 
 
 def parse_args() -> argparse.Namespace:
@@ -294,6 +303,7 @@ def inspect_image_files(
 
 
 def main() -> None:
+    _configure_console_encoding()
     args = parse_args()
     if args.max_error_samples < 0:
         raise ValueError("--max-error-samples không được âm")
