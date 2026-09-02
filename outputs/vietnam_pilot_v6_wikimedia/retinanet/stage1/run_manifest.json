@@ -1,0 +1,135 @@
+{
+  "schema_version": "training-run-1.0",
+  "run_type": "finetune",
+  "status": "completed",
+  "started_at_utc": "2026-09-01T08:58:22.924536+00:00",
+  "finished_at_utc": "2026-09-01T09:03:25.691235+00:00",
+  "duration_seconds": 302.767,
+  "git_commit": "0f9876b520f299751d64b011930fc51682777a59",
+  "model": {
+    "name": "retinanet_resnet50_fpn_v2",
+    "weights": "NONE",
+    "num_classes": 4,
+    "trainable_backbone_layers": 3
+  },
+  "image": {
+    "min_size": 512,
+    "max_size": 768
+  },
+  "training": {
+    "initial_checkpoint": "outputs/retinanet/checkpoints/best_map.pth",
+    "epochs": 1,
+    "batch_size": 1,
+    "optimizer": "sgd",
+    "learning_rate": 2.5e-05,
+    "momentum": 0.9,
+    "weight_decay": 0.0005,
+    "scheduler": "none",
+    "gradient_accumulation_steps": 1,
+    "validate_every_epochs": 1,
+    "freeze_backbone_body": true,
+    "early_stop": {
+      "enabled": true,
+      "patience": 2,
+      "tolerance": 0.0,
+      "protected_classes": [
+        "NoHelmet"
+      ]
+    }
+  },
+  "runtime": {
+    "device": "cuda",
+    "amp": true,
+    "python": "3.11.9",
+    "torch": "2.5.1+cu121",
+    "torchvision": "0.20.1+cu121",
+    "gpu_name": "NVIDIA GeForce RTX 2050"
+  },
+  "data_hashes": {
+    "processed_annotations": "fcc1975c8e159957432603135e92bf89d17132ba0eb3eb8d738ddf9568a038f9",
+    "train_annotations": "77ed9948a6e20a54a6cd4e42d52e9efa4d47c5e007136ea2ebcb430402a5b938",
+    "val_annotations": "fe756d6fe3450493a1eb4db0e3505f4a695f0b96862320a4c7a8deb2a8f4574b",
+    "frozen_split_manifest": "0c5c4ddddefb046634a7b851293050a0a33f9f8457f744adc29d5facca3e41b4",
+    "initial_checkpoint": "5f3e4cb963e2c079094254b261dec15e21b0b2784d5aa1fd34756ff006ed5ed5"
+  },
+  "checkpoints": {
+    "best": {
+      "path": "C:\\Users\\choqu\\OneDrive\\Desktop\\New folder\\helmet_detection_project\\outputs\\vietnam_pilot_v6_wikimedia\\retinanet\\stage1\\checkpoints\\best_map.pth",
+      "sha256": "d02de4c3a4e76bb4a7898ff8ca04f40104085696532e60a1521f6fa08650263b"
+    },
+    "last": {
+      "path": "C:\\Users\\choqu\\OneDrive\\Desktop\\New folder\\helmet_detection_project\\outputs\\vietnam_pilot_v6_wikimedia\\retinanet\\stage1\\checkpoints\\last.pth",
+      "sha256": "e5a18e8748cf520757f083241c3559c20b5ae1d99bc9873278a3e43a2ea0789c"
+    }
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "learning_rate": 2.5e-05,
+      "epoch_seconds": 301.463,
+      "cuda_memory_bytes": {
+        "peak_allocated": 653508608,
+        "peak_reserved": 1732247552
+      },
+      "train_loss": 0.11895053952000159,
+      "train_batches": 2126.0,
+      "validation": {
+        "images_evaluated": 360,
+        "iou_threshold_for_precision_recall": 0.5,
+        "confidence_threshold_for_precision_recall": null,
+        "map_50_95": 0.6404058337211609,
+        "map_50": 0.9059353470802307,
+        "map_75": 0.7180333733558655,
+        "mar_100": 0.7361029386520386,
+        "per_class": {
+          "BikeWithRider": {
+            "class_id": 1,
+            "tp": 560,
+            "fp": 2593,
+            "fn": 6,
+            "precision": 0.17760862670472566,
+            "recall": 0.9893992932862191,
+            "ap_50_95": 0.7864790558815002,
+            "ap_50": null
+          },
+          "NoHelmet": {
+            "class_id": 2,
+            "tp": 396,
+            "fp": 2747,
+            "fn": 24,
+            "precision": 0.12599427298759147,
+            "recall": 0.9428571428571428,
+            "ap_50_95": 0.5096383690834045,
+            "ap_50": null
+          },
+          "Helmet": {
+            "class_id": 3,
+            "tp": 244,
+            "fp": 1902,
+            "fn": 6,
+            "precision": 0.11369990680335508,
+            "recall": 0.976,
+            "ap_50_95": 0.6251001358032227,
+            "ap_50": null
+          }
+        },
+        "validation_batches": 360
+      },
+      "early_stop": {
+        "enabled": true,
+        "regressed": false,
+        "regression_streak": 0,
+        "patience": 2,
+        "triggered": false,
+        "protected_classes": [
+          "NoHelmet"
+        ]
+      }
+    }
+  ],
+  "cuda_memory_bytes": {
+    "peak_allocated": 653508608,
+    "peak_reserved": 1732247552
+  },
+  "error": null
+}

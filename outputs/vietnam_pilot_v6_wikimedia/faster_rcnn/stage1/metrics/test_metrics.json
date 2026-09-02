@@ -1,0 +1,86 @@
+{
+  "schema_version": "evaluation-result-1.0",
+  "created_at_utc": "2026-09-02T11:54:22.662578+00:00",
+  "model": {
+    "name": "fasterrcnn_resnet50_fpn_v2",
+    "num_classes": 4,
+    "min_size": 512,
+    "max_size": 768
+  },
+  "evaluation_protocol": {
+    "version": "1.0",
+    "split": "test",
+    "annotation_path": "data/processed/vietnam_pilot_v6_wikimedia/test.json",
+    "annotation_sha256": "e167245ac00969a4f4f342a8cd112c11e87786cfa4a41ede992ffca0f92f9243",
+    "class_names": {
+      "1": "BikeWithRider",
+      "2": "NoHelmet",
+      "3": "Helmet"
+    },
+    "map": "COCO mAP@[IoU=0.50:0.95, step=0.05] via TorchMetrics/pycocotools",
+    "map_backend": "pycocotools",
+    "precision_recall": {
+      "matching": "greedy one-to-one, score descending, same class",
+      "iou_threshold": 0.5,
+      "confidence_threshold": null
+    }
+  },
+  "runtime": {
+    "device": "cuda",
+    "torch_version": "2.5.1+cu121",
+    "torchvision_version": "0.20.1+cu121",
+    "python_version": "3.11.9",
+    "batch_size": 1,
+    "num_workers": 2,
+    "seed": 42
+  },
+  "checkpoint": {
+    "path": "outputs/vietnam_pilot_v6_wikimedia/faster_rcnn/stage1/checkpoints/best_map.pth",
+    "sha256": "6869faff03a30c497fd60d1a61ef624ae2cc41e261b55030efd8816a980f8348",
+    "partial_load": false,
+    "missing_keys": [],
+    "unexpected_keys": [],
+    "epoch": 1
+  },
+  "metrics": {
+    "images_evaluated": 359,
+    "iou_threshold_for_precision_recall": 0.5,
+    "confidence_threshold_for_precision_recall": null,
+    "map_50_95": 0.6603653430938721,
+    "map_50": 0.9071612358093262,
+    "map_75": 0.7563948035240173,
+    "mar_100": 0.7362884879112244,
+    "per_class": {
+      "BikeWithRider": {
+        "class_id": 1,
+        "tp": 548,
+        "fp": 118,
+        "fn": 18,
+        "precision": 0.8228228228228228,
+        "recall": 0.9681978798586572,
+        "ap_50_95": 0.8054847121238708,
+        "ap_50": null
+      },
+      "NoHelmet": {
+        "class_id": 2,
+        "tp": 392,
+        "fp": 194,
+        "fn": 30,
+        "precision": 0.6689419795221843,
+        "recall": 0.9289099526066351,
+        "ap_50_95": 0.5597640872001648,
+        "ap_50": null
+      },
+      "Helmet": {
+        "class_id": 3,
+        "tp": 231,
+        "fp": 153,
+        "fn": 19,
+        "precision": 0.6015625,
+        "recall": 0.924,
+        "ap_50_95": 0.615847110748291,
+        "ap_50": null
+      }
+    }
+  }
+}

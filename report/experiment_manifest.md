@@ -30,18 +30,19 @@ v6 được ghi riêng trong README; không thay số liệu baseline học thu�
 
 Hai candidate bắt đầu từ checkpoint baseline tương ứng, đóng băng backbone và
 fine-tune thêm một epoch trên train gồm 1.673 ảnh EdgeVision, 449 ảnh Việt Nam
-đã duyệt và 4 ảnh Wikimedia. Candidate được kiểm tra trên EdgeVision validation
-khóa, chưa được dùng thay baseline trong báo cáo và không đánh giá test.
+đã duyệt và 4 ảnh Wikimedia. Candidate chưa được dùng thay baseline trong báo
+cáo; sau khi chốt cho demo, hai checkpoint được đánh giá một lần trên cùng
+EdgeVision test để lưu artifact so sánh.
 
-| Candidate v6 | Val mAP@0.5:0.95 | AP `NoHelmet` | Checkpoint SHA-256 |
-| --- | ---: | ---: | --- |
-| Faster R-CNN | 0,6512 | 0,5219 | `6869faff03a30c497fd60d1a61ef624ae2cc41e261b55030efd8816a980f8348` |
-| RetinaNet | 0,6404 | 0,5096 | `d02de4c3a4e76bb4a7898ff8ca04f40104085696532e60a1521f6fa08650263b` |
+| Candidate v6 | Val mAP@0.5:0.95 | Test mAP@0.5:0.95 | Test AP `NoHelmet` | Checkpoint SHA-256 |
+| --- | ---: | ---: | ---: | --- |
+| Faster R-CNN | 0,6512 | 0,6604 | 0,5598 | `6869faff03a30c497fd60d1a61ef624ae2cc41e261b55030efd8816a980f8348` |
+| RetinaNet | 0,6404 | 0,6508 | 0,5405 | `d02de4c3a4e76bb4a7898ff8ca04f40104085696532e60a1521f6fa08650263b` |
 
 ## Lưu ý diễn giải
 
 - Checkpoint baseline được chọn trên validation; tập test chỉ dùng cho đánh giá cuối cùng.
-- Candidate v6 chưa vượt baseline trên EdgeVision validation; demo v6 phục vụ kiểm tra trực quan theo yêu cầu.
+- Candidate v6 chưa vượt baseline trên EdgeVision validation; evaluation test v6 được chạy sau khi chốt candidate và không dùng để tinh chỉnh.
 - Latency gồm chuyển tensor CPU–GPU, biến đổi nội bộ, forward và NMS; không gồm đọc tệp, giao diện hoặc ghi kết quả.
 - Checkpoint, dataset, log và JSON metric là artifact cục bộ; không commit lên GitHub. Cần đối chiếu SHA-256 khi bàn giao.
 
@@ -52,3 +53,6 @@ khóa, chưa được dùng thay baseline trong báo cáo và không đánh giá
 - `outputs/faster_rcnn/metrics/latency_validation.json`, `outputs/retinanet/metrics/latency_validation.json`
 - `outputs/vietnam_pilot_v6_wikimedia/faster_rcnn/stage1/checkpoints/best_map.pth`
 - `outputs/vietnam_pilot_v6_wikimedia/retinanet/stage1/checkpoints/best_map.pth`
+- `outputs/vietnam_pilot_v6_wikimedia/faster_rcnn/stage1/metrics/test_metrics.json`
+- `outputs/vietnam_pilot_v6_wikimedia/retinanet/stage1/metrics/test_metrics.json`
+- `outputs/vietnam_pilot_v6_wikimedia/comparison/test_comparison.json`

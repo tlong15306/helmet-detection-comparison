@@ -83,14 +83,19 @@ Benchmark dùng 20 ảnh warm-up và 100 ảnh validation, batch size 1. Thời 
 
 ### Fine-tune Việt Nam v6
 
-Mỗi candidate bắt đầu từ `best_map.pth` baseline tương ứng, đóng băng backbone và fine-tune một epoch với learning rate `2.5e-5`. Bảng dưới là validation EdgeVision khóa; candidate không được đánh giá test để tránh dùng test trong lựa chọn.
+Mỗi candidate bắt đầu từ `best_map.pth` baseline tương ứng, đóng băng backbone và fine-tune một epoch với learning rate `2.5e-5`. Bảng dưới là validation EdgeVision khóa.
 
 | Candidate | Val mAP@0.5:0.95 | Val mAP@0.5 | AP `NoHelmet` |
 | --- | ---: | ---: | ---: |
 | Faster R-CNN v6 | 0.6512 | 0.9160 | 0.5219 |
 | RetinaNet v6 | 0.6404 | 0.9059 | 0.5096 |
 
-Candidate v6 chưa vượt baseline định lượng trên validation; việc hiển thị chúng trên demo chỉ phục vụ kiểm tra trực quan.
+Candidate v6 chưa vượt baseline định lượng trên validation; việc hiển thị chúng trên demo chỉ phục vụ kiểm tra trực quan. Sau khi chốt v6 cho demo, nhóm chạy một lượt evaluation trên EdgeVision test chỉ để lưu artifact so sánh, không dùng kết quả này để điều chỉnh checkpoint hoặc threshold.
+
+| Candidate v6 trên EdgeVision test | mAP@0.5:0.95 | mAP@0.5 | AP@0.5:0.95 `NoHelmet` |
+| --- | ---: | ---: | ---: |
+| Faster R-CNN | 0.6604 | 0.9072 | 0.5598 |
+| RetinaNet | 0.6508 | 0.9049 | 0.5405 |
 
 ## Demo
 
@@ -177,7 +182,7 @@ npm run build
 ## Giới hạn
 
 - Kết quả test chính chỉ có ý nghĩa với EdgeVision test 359 ảnh đã khóa.
-- Fine-tune VN v6 chưa vượt baseline trên validation và không có kết quả test chính thức.
+- Fine-tune VN v6 chưa vượt baseline trên validation; kết quả test v6 chỉ là lượt đánh giá sau khi chốt candidate, không dùng để tinh chỉnh.
 - Benchmark là batch size 1 trên RTX 2050; không phải cam kết thời gian thực cho mọi thiết bị.
 - Hệ thống dùng cho học tập/minh họa; cần con người kiểm tra trước khi áp dụng cho giám sát hoặc xử phạt.
 

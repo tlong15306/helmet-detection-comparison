@@ -1,0 +1,56 @@
+{
+  "schema_version": "inference-benchmark-1.0",
+  "created_at_utc": "2026-09-02T11:57:09.317251+00:00",
+  "model": {
+    "name": "fasterrcnn_resnet50_fpn_v2",
+    "num_classes": 4,
+    "min_size": 512,
+    "max_size": 768
+  },
+  "checkpoint": {
+    "path": "outputs/vietnam_pilot_v6_wikimedia/faster_rcnn/stage1/checkpoints/best_map.pth",
+    "sha256": "6869faff03a30c497fd60d1a61ef624ae2cc41e261b55030efd8816a980f8348",
+    "partial_load": false,
+    "missing_keys": [],
+    "unexpected_keys": [],
+    "epoch": 1
+  },
+  "protocol": {
+    "data_split": "val",
+    "annotation_path": "data/processed/vietnam_pilot_v6_wikimedia/val.json",
+    "annotation_sha256": "fe756d6fe3450493a1eb4db0e3505f4a695f0b96862320a4c7a8deb2a8f4574b",
+    "warmup_images": 20,
+    "measure_images": 100,
+    "batch_size": 1,
+    "timing_includes": [
+      "CPU-to-device tensor transfer",
+      "Torchvision detector internal transform",
+      "model forward pass",
+      "Torchvision post-processing and NMS"
+    ],
+    "timing_excludes": [
+      "disk image decoding",
+      "visualization and file writing"
+    ]
+  },
+  "runtime": {
+    "device": "cuda",
+    "python_version": "3.11.9",
+    "torch_version": "2.5.1+cu121",
+    "torchvision_version": "0.20.1+cu121",
+    "gpu_name": "NVIDIA GeForce RTX 2050"
+  },
+  "latency": {
+    "mean_ms": 163.68275700006052,
+    "median_ms": 163.15595000924077,
+    "p95_ms": 172.98659500665963,
+    "min_ms": 145.61730000423267,
+    "max_ms": 176.0711000097217,
+    "fps_from_mean_latency": 6.109379010518684
+  },
+  "predictions_after_model_threshold": 510,
+  "cuda_memory_bytes": {
+    "peak_allocated": 498990080,
+    "peak_reserved": 1015021568
+  }
+}

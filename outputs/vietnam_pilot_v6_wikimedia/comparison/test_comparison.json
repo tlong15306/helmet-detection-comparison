@@ -1,0 +1,83 @@
+{
+  "schema_version": "model-comparison-1.0",
+  "created_at_utc": "2026-09-02T11:56:25.432357+00:00",
+  "comparison_status": "comparable",
+  "evaluation_protocol": {
+    "version": "1.0",
+    "split": "test",
+    "annotation_path": "data/processed/vietnam_pilot_v6_wikimedia/test.json",
+    "annotation_sha256": "e167245ac00969a4f4f342a8cd112c11e87786cfa4a41ede992ffca0f92f9243",
+    "class_names": {
+      "1": "BikeWithRider",
+      "2": "NoHelmet",
+      "3": "Helmet"
+    },
+    "map": "COCO mAP@[IoU=0.50:0.95, step=0.05] via TorchMetrics/pycocotools",
+    "map_backend": "pycocotools",
+    "precision_recall": {
+      "matching": "greedy one-to-one, score descending, same class",
+      "iou_threshold": 0.5,
+      "confidence_threshold": null
+    }
+  },
+  "protocol_differences": {},
+  "inputs": {
+    "faster_rcnn": {
+      "path": "outputs/vietnam_pilot_v6_wikimedia/faster_rcnn/stage1/metrics/test_metrics.json",
+      "sha256": "d4dd92c31781db446a069d117fca99a797bff3259ecf9c49c5cacd198283a82d",
+      "model": {
+        "name": "fasterrcnn_resnet50_fpn_v2",
+        "num_classes": 4,
+        "min_size": 512,
+        "max_size": 768
+      }
+    },
+    "retinanet": {
+      "path": "outputs/vietnam_pilot_v6_wikimedia/retinanet/stage1/metrics/test_metrics.json",
+      "sha256": "7dfce8601242757501255ebfa23d92edf491ca9a8bbc04c725fd832804d944bc",
+      "model": {
+        "name": "retinanet_resnet50_fpn_v2",
+        "num_classes": 4,
+        "min_size": 512,
+        "max_size": 768
+      }
+    }
+  },
+  "metrics": {
+    "map_50_95": {
+      "faster_rcnn": 0.6603653430938721,
+      "retinanet": 0.650799572467804,
+      "retinanet_minus_faster_rcnn": -0.009565770626068115
+    },
+    "map_50": {
+      "faster_rcnn": 0.9071612358093262,
+      "retinanet": 0.9048754572868347,
+      "retinanet_minus_faster_rcnn": -0.002285778522491455
+    },
+    "map_75": {
+      "faster_rcnn": 0.7563948035240173,
+      "retinanet": 0.7424321174621582,
+      "retinanet_minus_faster_rcnn": -0.01396268606185913
+    },
+    "mar_100": {
+      "faster_rcnn": 0.7362884879112244,
+      "retinanet": 0.7467790842056274,
+      "retinanet_minus_faster_rcnn": 0.010490596294403076
+    },
+    "no_helmet_precision": {
+      "faster_rcnn": 0.6689419795221843,
+      "retinanet": 0.14250785888927697,
+      "retinanet_minus_faster_rcnn": -0.5264341206329073
+    },
+    "no_helmet_recall": {
+      "faster_rcnn": 0.9289099526066351,
+      "retinanet": 0.966824644549763,
+      "retinanet_minus_faster_rcnn": 0.03791469194312791
+    },
+    "no_helmet_ap_50_95": {
+      "faster_rcnn": 0.5597640872001648,
+      "retinanet": 0.5405229330062866,
+      "retinanet_minus_faster_rcnn": -0.019241154193878174
+    }
+  }
+}
