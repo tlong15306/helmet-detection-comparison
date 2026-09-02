@@ -2,9 +2,8 @@
 
 ## Mục đích
 
-Ứng dụng demo cho phép chọn Faster R-CNN hoặc RetinaNet baseline gộp và chạy
-suy luận trên ảnh, video hoặc camera. Hai model dùng cùng tập train gộp
-EdgeVision với dữ liệu Việt Nam đã duyệt, sau đó được train hoàn chỉnh 20 epoch.
+Ứng dụng demo cho phép chọn Faster R-CNN hoặc RetinaNet phiên bản fine-tune
+Việt Nam v6 và chạy suy luận trên ảnh, video hoặc camera.
 
 ## Thành phần
 
@@ -15,9 +14,13 @@ EdgeVision với dữ liệu Việt Nam đã duyệt, sau đó được train ho
 
 ## Checkpoint demo đang triển khai
 
-Giao diện đang dùng hai checkpoint trong `outputs/final_combined/`. Checkpoint
-EdgeVision cũ và candidate v6 vẫn có thể giữ cục bộ để đối chiếu/rollback,
-nhưng không xuất hiện trên giao diện và không thay thế baseline gộp.
+Giao diện đang dùng hai checkpoint trong
+`outputs/vietnam_pilot_v6_wikimedia/`. Checkpoint baseline EdgeVision và
+candidate train gộp vẫn được giữ cục bộ để đối chiếu/rollback, nhưng không xuất
+hiện trên giao diện.
+
+Hai checkpoint v6 được đưa vào giao diện để kiểm tra trực quan theo yêu cầu;
+chúng không thay thế bảng baseline học thuật nếu chưa qua deployment gate.
 
 ## Điều kiện trước khi triển khai
 

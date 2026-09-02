@@ -1,51 +1,53 @@
-# Experiment Manifest — baseline gộp hoàn chỉnh
+# Experiment Manifest
 
-Manifest này tổng hợp lần train baseline chính thức trên tập train EdgeVision gộp ảnh giao thông Việt Nam đã duyệt. Số liệu chỉ lấy từ run manifest, metric test, benchmark và artifact chọn threshold cục bộ.
+Manifest này tổng hợp **lần baseline EdgeVision đã hoàn thành** từ run manifest,
+metric test, benchmark và artifact chọn threshold. Candidate fine-tune Việt Nam
+v6 được ghi riêng trong README; không thay số liệu baseline học thuật.
 
 | Trường | Faster R-CNN | RetinaNet |
 | --- | --- | --- |
 | Loại lần chạy | `baseline` | `baseline` |
-| Thời gian chạy UTC+07:00 | 02-09-2026, 00:04–03:28 | 02-09-2026, 03:43–06:23 |
-| Config | `configs/final_combined_faster_rcnn.yaml` | `configs/final_combined_retinanet.yaml` |
-| Git commit khi train | `65c7bcb5c1f60eb7aa8a764d0fd2db3d24c739bc` | `65c7bcb5c1f60eb7aa8a764d0fd2db3d24c739bc` |
-| Train / validation / test | 2.126 / 360 / 359 ảnh | 2.126 / 360 / 359 ảnh |
-| Train gộp | 1.673 EdgeVision + 449 Việt Nam đã duyệt + 4 Wikimedia Việt Nam | Giống Faster R-CNN |
-| Frozen manifest SHA-256 | `0c5c4ddddefb046634a7b851293050a0a33f9f8457f744adc29d5facca3e41b4` | Giống Faster R-CNN |
-| Cấu hình chung | 20 epoch, batch size 1, SGD, LR 0,0025, ảnh 512–768 px, AMP | Giống Faster R-CNN |
-| Checkpoint tốt nhất | Epoch 8, `outputs/final_combined/faster_rcnn/checkpoints/best_map.pth` | Epoch 8, `outputs/final_combined/retinanet/checkpoints/best_map.pth` |
-| SHA-256 checkpoint tốt nhất | `e81f73ba8cfe46b543d9141e211d4922548e07f7429ba523a70d228808997f55` | `f93c48cbf1c9cf4afcc25d7d2fafb767040c9cdb412c6ac170ffaf1f72951f1f` |
-| Validation mAP@0.5:0.95 tại best epoch | 0,6548 | 0,6403 |
-| Test mAP@0.5:0.95 | 0,6599 | 0,6425 |
-| Test mAP@0.5 / mAP@0.75 / mAR@100 | 0,9078 / 0,7581 / 0,7371 | 0,8965 / 0,7276 / 0,7413 |
-| Test AP `NoHelmet` | 0,5613 | 0,5325 |
-| Threshold demo theo lớp | BikeWithRider 0,80; NoHelmet 0,70; Helmet 0,65 | BikeWithRider 0,60; NoHelmet 0,55; Helmet 0,60 |
-| Latency trung bình / FPS | 162,70 ms / 6,15 FPS | 72,25 ms / 13,84 FPS |
+| Thời gian chạy (UTC+07:00) | 26-08-2026, 14:47–17:23 | 26-08-2026, 19:35–21:50 |
+| Config | `configs/faster_rcnn.yaml` | `configs/retinanet.yaml` |
+| Git commit khi train | `3504cee686e1277e57ff4ac958bc71374022016e` | Giống Faster R-CNN |
+| Dataset | EdgeVision v1 cục bộ, annotation COCO đã xử lý | Giống Faster R-CNN |
+| Train / validation / test | 1.673 / 360 / 359 ảnh | Giống Faster R-CNN |
+| Frozen split manifest SHA-256 | `a00370c5ee6413aa4a7f6f88da7dcdec16b0e04e1e63c1c40c961e775a947854` | Giống Faster R-CNN |
+| Cấu hình chung | 20 epoch, batch size 1, SGD, LR 0,0025, ảnh 512–768 px | Giống Faster R-CNN |
+| Checkpoint tốt nhất | Epoch 9, `outputs/faster_rcnn/checkpoints/best_map.pth` | Epoch 8, `outputs/retinanet/checkpoints/best_map.pth` |
+| SHA-256 checkpoint tốt nhất | `27fc925e68cd908e82b3865f3781ea01ee643c67674a392e62d7893d59f92682` | `5f3e4cb963e2c079094254b261dec15e21b0b2784d5aa1fd34756ff006ed5ed5` |
+| Validation mAP@0.5:0.95 tại best epoch | 0,6519 | 0,6443 |
+| Test mAP@0.5:0.95 | 0,6562 | 0,6472 |
+| Test mAP@0.5 / mAP@0.75 / mAR@100 | 0,9070 / 0,7400 / 0,7317 | 0,8990 / 0,7457 / 0,7436 |
+| Confidence threshold cho demo | BikeWithRider 0,95; NoHelmet 0,65; Helmet 0,70 | BikeWithRider 0,65; NoHelmet 0,40; Helmet 0,40 |
+| Latency trung bình / FPS | 163,59 ms / 6,11 FPS | 75,24 ms / 13,29 FPS |
 | Giao thức benchmark | 20 warm-up + 100 ảnh validation, batch size 1 | Giống Faster R-CNN |
 | Phần cứng | NVIDIA GeForce RTX 2050 | NVIDIA GeForce RTX 2050 |
 | Phần mềm | Python 3.11.9, PyTorch 2.5.1+cu121, Torchvision 0.20.1+cu121 | Giống Faster R-CNN |
 
-## Kiểm tra ngoài train trên `vn_validation`
+## Fine-tune Việt Nam v6 đang dùng cho demo
 
-Tập `vn_validation` có 118 ảnh Việt Nam, được giữ ngoài train và không dùng để chọn checkpoint/threshold. Đây là đánh giá bổ sung, không thay thế EdgeVision test chính thức.
+Hai candidate bắt đầu từ checkpoint baseline tương ứng, đóng băng backbone và
+fine-tune thêm một epoch trên train gồm 1.673 ảnh EdgeVision, 449 ảnh Việt Nam
+đã duyệt và 4 ảnh Wikimedia. Candidate được kiểm tra trên EdgeVision validation
+khóa, chưa được dùng thay baseline trong báo cáo và không đánh giá test.
 
-| Mô hình | mAP@0.5:0.95 | mAP@0.5 | AP `NoHelmet` | AP `Helmet` |
-| --- | ---: | ---: | ---: | ---: |
-| Faster R-CNN | 0,8023 | 0,8814 | 0,7076 | 0,7443 |
-| RetinaNet | 0,8136 | 0,9055 | 0,7363 | 0,7754 |
+| Candidate v6 | Val mAP@0.5:0.95 | AP `NoHelmet` | Checkpoint SHA-256 |
+| --- | ---: | ---: | --- |
+| Faster R-CNN | 0,6512 | 0,5219 | `6869faff03a30c497fd60d1a61ef624ae2cc41e261b55030efd8816a980f8348` |
+| RetinaNet | 0,6404 | 0,5096 | `d02de4c3a4e76bb4a7898ff8ca04f40104085696532e60a1521f6fa08650263b` |
 
 ## Lưu ý diễn giải
 
-- Checkpoint và threshold được chọn trên EdgeVision validation; test được chạy sau khi hai lượt train hoàn tất.
-- Faster R-CNN cao hơn 0,0174 mAP@0.5:0.95 và 0,0289 AP `NoHelmet` trên EdgeVision test. RetinaNet nhanh hơn khoảng 2,25 lần theo latency trung bình.
-- `vn_validation` có ít box `NoHelmet` (31), vì vậy không đủ để khẳng định khả năng tổng quát cho mọi bối cảnh giao thông Việt Nam.
-- Latency gồm chuyển tensor CPU–GPU, transform nội bộ, forward và NMS; không gồm đọc tệp, giao diện hoặc ghi kết quả.
-- Checkpoint, dataset, log và JSON metric là artifact cục bộ; không commit lên GitHub. Khi bàn giao cần đối chiếu SHA-256.
+- Checkpoint baseline được chọn trên validation; tập test chỉ dùng cho đánh giá cuối cùng.
+- Candidate v6 chưa vượt baseline trên EdgeVision validation; demo v6 phục vụ kiểm tra trực quan theo yêu cầu.
+- Latency gồm chuyển tensor CPU–GPU, biến đổi nội bộ, forward và NMS; không gồm đọc tệp, giao diện hoặc ghi kết quả.
+- Checkpoint, dataset, log và JSON metric là artifact cục bộ; không commit lên GitHub. Cần đối chiếu SHA-256 khi bàn giao.
 
 ## Nguồn artifact cục bộ
 
-- `outputs/final_combined/faster_rcnn/run_manifest.json`, `outputs/final_combined/retinanet/run_manifest.json`
-- `outputs/final_combined/faster_rcnn/metrics/test_metrics.json`, `outputs/final_combined/retinanet/metrics/test_metrics.json`
-- `outputs/final_combined/faster_rcnn/metrics/vn_validation_metrics.json`, `outputs/final_combined/retinanet/metrics/vn_validation_metrics.json`
-- `outputs/final_combined/faster_rcnn/metrics/latency_validation.json`, `outputs/final_combined/retinanet/metrics/latency_validation.json`
-- `outputs/final_combined/faster_rcnn/metrics/validation_threshold_selection.json`, `outputs/final_combined/retinanet/metrics/validation_threshold_selection.json`
-- `outputs/final_combined/comparison/test_comparison.json`
+- `outputs/faster_rcnn/run_manifest.json`, `outputs/retinanet/run_manifest.json`
+- `outputs/faster_rcnn/metrics/test_metrics.json`, `outputs/retinanet/metrics/test_metrics.json`
+- `outputs/faster_rcnn/metrics/latency_validation.json`, `outputs/retinanet/metrics/latency_validation.json`
+- `outputs/vietnam_pilot_v6_wikimedia/faster_rcnn/stage1/checkpoints/best_map.pth`
+- `outputs/vietnam_pilot_v6_wikimedia/retinanet/stage1/checkpoints/best_map.pth`
