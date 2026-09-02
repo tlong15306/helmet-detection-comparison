@@ -6,6 +6,8 @@ export type ModelId =
   | 'high_accuracy'
   | 'faster_rcnn_vietnam_v6'
   | 'retinanet_vietnam_v6'
+  | 'faster_rcnn_final_combined'
+  | 'retinanet_final_combined'
 
 export interface HealthResponse {
   status: 'ready'

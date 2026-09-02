@@ -47,6 +47,16 @@ MODEL_SPECS: dict[str, dict[str, str]] = {
         "config": "configs/vietnam_v6_wikimedia_retinanet.yaml",
         "threshold_key": "retinanet_resnet50_fpn_v2_vietnam_v6",
     },
+    "faster_rcnn_final_combined": {
+        "display_name": "Faster R-CNN · baseline gộp",
+        "config": "configs/final_combined_faster_rcnn.yaml",
+        "threshold_key": "fasterrcnn_resnet50_fpn_v2_final_combined",
+    },
+    "retinanet_final_combined": {
+        "display_name": "RetinaNet · baseline gộp",
+        "config": "configs/final_combined_retinanet.yaml",
+        "threshold_key": "retinanet_resnet50_fpn_v2_final_combined",
+    },
 }
 
 ENSEMBLE_ARCHITECTURE = "fasterrcnn_retinanet_ensemble_v1"
@@ -166,6 +176,8 @@ def model_metadata(model_id: str) -> dict[str, Any]:
             if model_id == "high_accuracy"
             else "Fine-tune bổ sung dữ liệu Việt Nam v6; chỉ để kiểm tra"
             if model_id.endswith("_vietnam_v6")
+            else "Baseline hoàn chỉnh trên dữ liệu EdgeVision gộp với dữ liệu Việt Nam đã duyệt"
+            if model_id.endswith("_final_combined")
             else "Mô hình phát hiện hai giai đoạn"
             if model_id == "faster_rcnn"
             else "Mô hình phát hiện một giai đoạn"

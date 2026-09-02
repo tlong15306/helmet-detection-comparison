@@ -1,0 +1,48 @@
+base_config: configs/common.yaml
+
+run:
+  type: baseline
+  experiment_id: final_combined_retinanet
+  progress_every_batches: 100
+
+# Tập train gộp EdgeVision và ảnh Việt Nam đã duyệt.
+# Validation/test EdgeVision vẫn khóa, giống nhau cho cả hai mô hình.
+data:
+  image_root: data
+  processed_annotations: data/processed/vietnam_pilot_v6_wikimedia/processed_annotations.json
+  train_annotations: data/processed/vietnam_pilot_v6_wikimedia/train.json
+  val_annotations: data/processed/vietnam_pilot_v6_wikimedia/val.json
+  test_annotations: data/processed/vietnam_pilot_v6_wikimedia/test.json
+  frozen_manifest: data/processed/vietnam_pilot_v6_wikimedia/frozen_manifest.json
+
+model:
+  name: retinanet_resnet50_fpn_v2
+  weights: DEFAULT
+  num_classes: 4
+  trainable_backbone_layers: 3
+
+augmentation:
+  horizontal_flip_probability: 0.5
+  color_jitter_probability: 0.0
+
+sampling:
+  enabled: false
+
+training:
+  epochs: 20
+  batch_size: 1
+  optimizer: sgd
+  learning_rate: 0.0025
+  momentum: 0.9
+  weight_decay: 0.0005
+  scheduler: step_lr
+  scheduler_step_size: 7
+  scheduler_gamma: 0.1
+  gradient_accumulation_steps: 1
+  validate_every_epochs: 1
+
+output:
+  directory: outputs/final_combined/retinanet
+  best_checkpoint: outputs/final_combined/retinanet/checkpoints/best_map.pth
+  last_checkpoint: outputs/final_combined/retinanet/checkpoints/last.pth
+  smoke_directory: outputs/smoke/final_combined/retinanet

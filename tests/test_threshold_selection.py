@@ -5,6 +5,7 @@ from src.threshold_selection import (
     parse_thresholds,
     select_best_threshold,
     select_thresholds_per_class,
+    update_demo_config,
 )
 
 
@@ -63,3 +64,20 @@ def test_per_class_selection_keeps_a_threshold_for_every_detector_class():
     assert selected["BikeWithRider"]["confidence_threshold"] == 0.4
     assert selected["NoHelmet"]["confidence_threshold"] == 0.7
     assert selected["Helmet"]["confidence_threshold"] == 0.7
+
+
+def test_demo_config_can_store_thresholds_under_an_explicit_checkpoint_key(tmp_path):
+    path = tmp_path / "thresholds.yaml"
+    result = {
+        "model": {"name": "fasterrcnn_resnet50_fpn_v2"},
+        "selected_thresholds": {
+            "BikeWithRider": {"confidence_threshold": 0.8},
+            "NoHelmet": {"confidence_threshold": 0.7},
+            "Helmet": {"confidence_threshold": 0.65},
+        },
+        "selection_policy": {"iou_threshold": 0.5},
+        "checkpoint": {"sha256": "a" * 64},
+    }
+    update_demo_config(path, result, model_key="fasterrcnn_resnet50_fpn_v2_final_combined")
+    content = path.read_text(encoding="utf-8")
+    assert "fasterrcnn_resnet50_fpn_v2_final_combined" in content

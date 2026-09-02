@@ -66,8 +66,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output", required=True, help="JSON kết quả quét threshold")
     parser.add_argument(
         "--demo-config",
-        default="configs/demo_thresholds.yaml",
-        help="YAML nhận threshold đã chọn để inference/demo dùng lại",
+        default=None,
+        help="YAML nhận threshold đã chọn; bỏ qua để chỉ ghi JSON kết quả",
+    )
+    parser.add_argument(
+        "--demo-key",
+        default=None,
+        help="Khóa model trong demo-config; bắt buộc dùng cùng --demo-config",
     )
     parser.add_argument("--target-class", default="NoHelmet", help="Lớp ưu tiên khi chọn threshold")
     parser.add_argument(
@@ -259,7 +264,9 @@ def select_thresholds_per_class(
     }
 
 
-def update_demo_config(path: Path, result: Mapping[str, Any]) -> None:
+def update_demo_config(
+    path: Path, result: Mapping[str, Any], *, model_key: str | None = None
+) -> None:
     """Ghi threshold theo từng model để demo nạp lại, không làm thay config đánh giá."""
     existing: dict[str, Any] = {}
     if path.exists():
@@ -268,7 +275,7 @@ def update_demo_config(path: Path, result: Mapping[str, Any]) -> None:
         if not isinstance(existing, dict):
             raise ValueError("demo_config phải là YAML mapping")
     models = existing.setdefault("models", {})
-    model_name = result["model"]["name"]
+    model_name = model_key or str(result["model"]["name"])
     selected_thresholds = result["selected_thresholds"]
     models[model_name] = {
         "confidence_thresholds": {
@@ -367,8 +374,11 @@ def main() -> None:
         batch_size=args.batch_size,
         num_workers=args.num_workers,
     )
-    demo_config = resolve_project_path(args.demo_config)
-    update_demo_config(demo_config, result)
+    if args.demo_key and not args.demo_config:
+        raise ValueError("--demo-key chỉ dùng cùng --demo-config")
+    if args.demo_config:
+        demo_config = resolve_project_path(args.demo_config)
+        update_demo_config(demo_config, result, model_key=args.demo_key)
     selected_thresholds = result["selected_thresholds"]
     threshold_text = ", ".join(
         f"{class_name}={selection['confidence_threshold']:.2f}"

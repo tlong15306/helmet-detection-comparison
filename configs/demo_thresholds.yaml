@@ -1,9 +1,8 @@
 schema_version: demo-thresholds-2.0
-note: >-
-  Hai checkpoint baseline được giữ nguyên. Faster R-CNN và RetinaNet dùng
-  horizontal-flip TTA vì đều vượt baseline trên validation; threshold theo
-  lớp cũng được chọn lại trên validation, không dùng test để hiệu chỉnh.
+note: Threshold riêng từng lớp được chọn trên validation; không dùng kết quả test.
 models:
+  # Hai entry này thuộc checkpoint EdgeVision cũ, chỉ giữ để rollback.
+  # Baseline gộp dùng các entry *_final_combined ở dưới.
   fasterrcnn_resnet50_fpn_v2:
     confidence_thresholds:
       BikeWithRider: 0.95
@@ -48,12 +47,11 @@ models:
     confidence_thresholds:
       BikeWithRider: 0.95
       NoHelmet: 0.65
-      Helmet: 0.70
+      Helmet: 0.7
     selection_split: exploratory
     experimental: true
-    note: >-
-      Ngưỡng kế thừa từ Faster R-CNN baseline; candidate v6 không qua
-      deployment gate, chỉ xuất hiện trong demo để kiểm tra trực quan.
+    note: Ngưỡng kế thừa từ Faster R-CNN baseline; candidate v6 không qua deployment
+      gate, chỉ xuất hiện trong demo để kiểm tra trực quan.
     checkpoint_sha256: 6869faff03a30c497fd60d1a61ef624ae2cc41e261b55030efd8816a980f8348
     inference_mode: horizontal_flip_tta
     fusion_iou_threshold: 0.55
@@ -61,17 +59,38 @@ models:
   retinanet_resnet50_fpn_v2_vietnam_v6:
     confidence_thresholds:
       BikeWithRider: 0.65
-      NoHelmet: 0.40
-      Helmet: 0.40
+      NoHelmet: 0.4
+      Helmet: 0.4
     selection_split: exploratory
     experimental: true
-    note: >-
-      Ngưỡng kế thừa từ RetinaNet baseline; candidate v6 không qua
-      deployment gate, chỉ xuất hiện trong demo để kiểm tra trực quan.
+    note: Ngưỡng kế thừa từ RetinaNet baseline; candidate v6 không qua deployment
+      gate, chỉ xuất hiện trong demo để kiểm tra trực quan.
     checkpoint_sha256: d02de4c3a4e76bb4a7898ff8ca04f40104085696532e60a1521f6fa08650263b
     inference_mode: horizontal_flip_tta
     fusion_iou_threshold: 0.55
     max_detections: 100
+  fasterrcnn_resnet50_fpn_v2_final_combined:
+    confidence_thresholds:
+      BikeWithRider: 0.80
+      NoHelmet: 0.70
+      Helmet: 0.65
+    selection_split: val
+    selection_target_class: NoHelmet
+    selection_metric: f1
+    selection_iou_threshold: 0.5
+    checkpoint_sha256: e81f73ba8cfe46b543d9141e211d4922548e07f7429ba523a70d228808997f55
+    inference_mode: standard
+  retinanet_resnet50_fpn_v2_final_combined:
+    confidence_thresholds:
+      BikeWithRider: 0.60
+      NoHelmet: 0.55
+      Helmet: 0.60
+    selection_split: val
+    selection_target_class: NoHelmet
+    selection_metric: f1
+    selection_iou_threshold: 0.5
+    checkpoint_sha256: f93c48cbf1c9cf4afcc25d7d2fafb767040c9cdb412c6ac170ffaf1f72951f1f
+    inference_mode: standard
 postprocess:
-  head_conflict_iou_threshold: 0.70
-  head_confidence_margin: 0.10
+  head_conflict_iou_threshold: 0.7
+  head_confidence_margin: 0.1

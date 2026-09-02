@@ -1,7 +1,7 @@
 # Thư mục `configs/`
 
-Thư mục này chỉ giữ các cấu hình cần để tái lập baseline và chạy hai checkpoint
-Việt Nam đang xuất hiện trong demo.
+Thư mục này giữ các cấu hình cần để tái lập baseline gộp hoàn chỉnh và các
+checkpoint cũ phục vụ đối chiếu/rollback cục bộ.
 
 ## Cấu hình công khai
 
@@ -11,8 +11,11 @@ Việt Nam đang xuất hiện trong demo.
 - `pilot_faster_rcnn.yaml`, `pilot_retinanet.yaml`: smoke/pilot ngắn của pipeline.
 - `rider_association.yaml`: tham số ghép đầu với `BikeWithRider`.
 - `demo_thresholds.yaml`: threshold, fingerprint checkpoint và hậu xử lý demo.
+- `final_combined_faster_rcnn.yaml`: baseline Faster R-CNN 20 epoch trên train
+  EdgeVision gộp dữ liệu Việt Nam đã duyệt.
+- `final_combined_retinanet.yaml`: baseline RetinaNet tương ứng.
 - `vietnam_v6_wikimedia_faster_rcnn.yaml`: checkpoint Faster R-CNN fine-tune
-  trên train gốc đã gộp dữ liệu Việt Nam được duyệt.
+  thử nghiệm trước đó, chỉ giữ để rollback/đối chiếu.
 - `vietnam_v6_wikimedia_retinanet.yaml`: cấu hình tương ứng của RetinaNet.
 
 Hai config Việt Nam v6 tự kế thừa trực tiếp `common.yaml`, không phụ thuộc các
@@ -23,6 +26,6 @@ lên GitHub.
 
 - Không ghi đường dẫn tuyệt đối phụ thuộc máy cá nhân.
 - Không điều chỉnh cấu hình dựa trên tập test.
-- Không ghi đè checkpoint baseline khi chạy candidate.
-- Threshold báo cáo phải được chọn trên validation; hai checkpoint Việt Nam v6
-  đang mang nhãn thử nghiệm và dùng threshold kế thừa để kiểm tra trực quan.
+- Không ghi đè checkpoint baseline gộp khi chạy thử nghiệm khác.
+- Threshold demo/báo cáo phải được chọn trên validation, không dùng test để
+  điều chỉnh checkpoint hoặc ngưỡng.

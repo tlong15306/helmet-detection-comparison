@@ -70,18 +70,18 @@ const modelOptions: Array<{
   accent: string
 }> = [
   {
-    id: 'faster_rcnn_vietnam_v6',
-    name: 'Faster R-CNN · thử nghiệm VN',
-    description: 'Fine-tune dữ liệu VN v6 · chỉ để bạn kiểm tra',
-    defaultThresholds: { BikeWithRider: 0.95, NoHelmet: 0.65, Helmet: 0.70 },
-    accent: '#B45309',
+    id: 'faster_rcnn_final_combined',
+    name: 'Faster R-CNN · baseline gộp',
+    description: 'EdgeVision + dữ liệu Việt Nam đã duyệt · 20 epoch',
+    defaultThresholds: { BikeWithRider: 0.80, NoHelmet: 0.70, Helmet: 0.65 },
+    accent: '#2563EB',
   },
   {
-    id: 'retinanet_vietnam_v6',
-    name: 'RetinaNet · thử nghiệm VN',
-    description: 'Fine-tune dữ liệu VN v6 · chỉ để bạn kiểm tra',
-    defaultThresholds: { BikeWithRider: 0.65, NoHelmet: 0.40, Helmet: 0.40 },
-    accent: '#9A3412',
+    id: 'retinanet_final_combined',
+    name: 'RetinaNet · baseline gộp',
+    description: 'EdgeVision + dữ liệu Việt Nam đã duyệt · 20 epoch',
+    defaultThresholds: { BikeWithRider: 0.60, NoHelmet: 0.55, Helmet: 0.60 },
+    accent: '#7C3AED',
   },
 ]
 
@@ -98,9 +98,8 @@ const VIDEO_ACCEPT: Accept = {
 
 function App() {
   const [mode, setMode] = useState<Mode>('image')
-  // Giao diện demo chỉ hiển thị hai checkpoint VN mà người dùng đang kiểm tra.
-  // Baseline vẫn còn trong backend để có thể rollback, không bị ghi đè.
-  const [modelId, setModelId] = useState<ModelId>('faster_rcnn_vietnam_v6')
+  // Giao diện chỉ hiển thị hai baseline gộp hoàn chỉnh; checkpoint cũ vẫn ở backend để rollback.
+  const [modelId, setModelId] = useState<ModelId>('faster_rcnn_final_combined')
   const selectedModel = modelOptions.find((model) => model.id === modelId)!
   const [thresholds, setThresholds] = useState<ClassThresholds>(selectedModel.defaultThresholds)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)

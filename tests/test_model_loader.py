@@ -11,6 +11,8 @@ def test_model_catalog_uses_validation_thresholds() -> None:
         "high_accuracy",
         "faster_rcnn_vietnam_v6",
         "retinanet_vietnam_v6",
+        "faster_rcnn_final_combined",
+        "retinanet_final_combined",
     }
     assert models["faster_rcnn"]["default_threshold"] == 0.65
     assert models["retinanet"]["default_threshold"] == 0.4
@@ -37,6 +39,20 @@ def test_model_catalog_uses_validation_thresholds() -> None:
     assert models["high_accuracy"]["threshold_source"] == "val"
     assert models["faster_rcnn_vietnam_v6"]["threshold_source"] == "exploratory"
     assert models["retinanet_vietnam_v6"]["threshold_source"] == "exploratory"
+    assert models["faster_rcnn_final_combined"]["default_thresholds"] == {
+        "BikeWithRider": 0.80,
+        "NoHelmet": 0.70,
+        "Helmet": 0.65,
+    }
+    assert models["retinanet_final_combined"]["default_thresholds"] == {
+        "BikeWithRider": 0.60,
+        "NoHelmet": 0.55,
+        "Helmet": 0.60,
+    }
+    assert models["faster_rcnn_final_combined"]["threshold_source"] == "val"
+    assert models["retinanet_final_combined"]["threshold_source"] == "val"
+    assert models["faster_rcnn_final_combined"]["inference_mode"] == "standard"
+    assert models["retinanet_final_combined"]["inference_mode"] == "standard"
     assert all(item["checkpoint_available"] for item in models.values())
     assert all("finetune_roboflow_consensus" not in item["checkpoint"] for item in models.values())
 

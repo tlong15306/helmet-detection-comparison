@@ -24,7 +24,7 @@ def test_health_and_models_endpoints() -> None:
     assert client.get("/api/health").status_code == 200
     response = client.get("/api/models")
     assert response.status_code == 200
-    assert len(response.json()["models"]) == 5
+    assert len(response.json()["models"]) == 7
 
 
 def test_infer_image_contract(monkeypatch) -> None:
