@@ -70,17 +70,17 @@ const modelOptions: Array<{
   accent: string
 }> = [
   {
-    id: 'faster_rcnn_final_combined',
-    name: 'Faster R-CNN · baseline gộp',
-    description: 'EdgeVision + dữ liệu Việt Nam đã duyệt · 20 epoch',
-    defaultThresholds: { BikeWithRider: 0.80, NoHelmet: 0.70, Helmet: 0.65 },
+    id: 'faster_rcnn',
+    name: 'Faster R-CNN',
+    description: 'Baseline EdgeVision đã kiểm chứng',
+    defaultThresholds: { BikeWithRider: 0.95, NoHelmet: 0.65, Helmet: 0.70 },
     accent: '#2563EB',
   },
   {
-    id: 'retinanet_final_combined',
-    name: 'RetinaNet · baseline gộp',
-    description: 'EdgeVision + dữ liệu Việt Nam đã duyệt · 20 epoch',
-    defaultThresholds: { BikeWithRider: 0.60, NoHelmet: 0.55, Helmet: 0.60 },
+    id: 'retinanet',
+    name: 'RetinaNet',
+    description: 'Baseline EdgeVision đã kiểm chứng',
+    defaultThresholds: { BikeWithRider: 0.65, NoHelmet: 0.40, Helmet: 0.40 },
     accent: '#7C3AED',
   },
 ]
@@ -98,8 +98,9 @@ const VIDEO_ACCEPT: Accept = {
 
 function App() {
   const [mode, setMode] = useState<Mode>('image')
-  // Giao diện chỉ hiển thị hai baseline gộp hoàn chỉnh; checkpoint cũ vẫn ở backend để rollback.
-  const [modelId, setModelId] = useState<ModelId>('faster_rcnn_final_combined')
+  // Demo quay về hai baseline EdgeVision đã kiểm chứng. Candidate gộp vẫn giữ ở backend
+  // để đối chiếu hoặc thử lại, nhưng không được hiển thị cho người dùng.
+  const [modelId, setModelId] = useState<ModelId>('faster_rcnn')
   const selectedModel = modelOptions.find((model) => model.id === modelId)!
   const [thresholds, setThresholds] = useState<ClassThresholds>(selectedModel.defaultThresholds)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
