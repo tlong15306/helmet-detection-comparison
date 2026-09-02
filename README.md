@@ -72,10 +72,10 @@ Nguồn dữ liệu bổ sung:
 
 Hai baseline được train 20 epoch trên GPU **NVIDIA GeForce RTX 2050**, `batch_size=1`, ảnh 512–768 px và trọng số khởi tạo Torchvision `DEFAULT`.
 
-| Mô hình | Best epoch | Test mAP@0.5:0.95 ↑ | Test mAP@0.5 ↑ | Test mAP@0.75 ↑ | AP `NoHelmet` ↑ | Latency validation ↓ | FPS validation ↑ |
+| Mô hình | Best epoch | Test mAP@0.5:0.95 ↑ | Test mAP@0.5 ↑ | Test mAP@0.75 ↑ | AP@0.5:0.95 `NoHelmet` ↑ | Latency validation ↓ | FPS validation ↑ |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Faster R-CNN | 9 | 0.6562 | 0.9070 | 0.7400 | — | 163,59 ms | 6,11 |
-| RetinaNet | 8 | 0.6472 | 0.8990 | 0.7457 | — | 75,24 ms | 13,29 |
+| Faster R-CNN | 9 | 0.6562 | 0.9070 | 0.7400 | 0.5584 | 163,59 ms | 6,11 |
+| RetinaNet | 8 | 0.6472 | 0.8990 | 0.7457 | 0.5386 | 75,24 ms | 13,29 |
 
 Faster R-CNN cao hơn RetinaNet 0,0090 mAP@0.5:0.95 trong lần chạy này. RetinaNet có latency thấp hơn khoảng 2,17 lần. Các kết luận chỉ áp dụng cho split, cấu hình và RTX 2050 nêu trên.
 

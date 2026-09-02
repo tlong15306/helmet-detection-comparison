@@ -19,6 +19,7 @@ v6 được ghi riêng trong README; không thay số liệu baseline học thu�
 | Validation mAP@0.5:0.95 tại best epoch | 0,6519 | 0,6443 |
 | Test mAP@0.5:0.95 | 0,6562 | 0,6472 |
 | Test mAP@0.5 / mAP@0.75 / mAR@100 | 0,9070 / 0,7400 / 0,7317 | 0,8990 / 0,7457 / 0,7436 |
+| Test AP@0.5:0.95 lớp `NoHelmet` | 0,5584 | 0,5386 |
 | Confidence threshold cho demo | BikeWithRider 0,95; NoHelmet 0,65; Helmet 0,70 | BikeWithRider 0,65; NoHelmet 0,40; Helmet 0,40 |
 | Latency trung bình / FPS | 163,59 ms / 6,11 FPS | 75,24 ms / 13,29 FPS |
 | Giao thức benchmark | 20 warm-up + 100 ảnh validation, batch size 1 | Giống Faster R-CNN |
